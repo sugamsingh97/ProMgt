@@ -1,0 +1,64 @@
+﻿@inherits LayoutComponentBase
+@inject ThemeService ThemeService
+
+<MudThemeProvider IsDarkMode="@(ThemeService.CurrentTheme == ProMgtTheme.DarkTheme)" Theme="@ThemeService.CurrentTheme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
+        <MudSpacer />
+        <MudHidden Breakpoint="Breakpoint.MdAndUp" Invert="true">
+            <MudTooltip Text="Toggle Dark Mode">
+                <MudIconButton Icon="@Icons.Material.Filled.Brightness4" OnClick="@((e) => ThemeService.ToggleDarkMode())" Color="Color.Inherit" Edge="Edge.End" />
+            </MudTooltip>
+        </MudHidden>
+        <MudHidden Breakpoint="Breakpoint.SmAndDown" Invert="true">            
+        </MudHidden>
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <NavMenu />
+    </MudDrawer>
+    <MainBodyLayout OnDarkModeToggle="@DarkMode">
+        <CascadingValue Value="IsDarkMode">
+            @Body
+        </CascadingValue>
+    </MainBodyLayout>
+</MudLayout>
+
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+@code {
+    private bool IsDarkMode { get; set; }
+    private bool _drawerOpen = true;
+    protected async override Task OnInitializedAsync()
+    {
+        ThemeService.OnThemeChanged += HandleThemeChange;
+        await base.OnInitializedAsync();
+    }
+    private void DarkMode()
+    {
+        ThemeService.ToggleDarkMode();
+        StateHasChanged();
+    }
+
+    private async Task HandleThemeChange()
+    {
+        // we can use this event to modify other DOM elements
+        await InvokeAsync(StateHasChanged);
+    }
+    private void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+}
+
+

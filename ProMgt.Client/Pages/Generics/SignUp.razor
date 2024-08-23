@@ -1,0 +1,435 @@
+﻿@page "/signup"
+@using ProMgt.Client.Models
+@inject ISnackbar Snackbar
+@inject ThemeService ThemeService
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+
+
+<PageTitle>Sign Up</PageTitle>
+<MudContainer MaxWidth="MaxWidth.Large" Gutters="false">
+    <MudGrid Style="height:800px!important" Spacing="0">
+        <MudItem Class="@GetClass()" xl="6" xxl="6" lg="6" md="0" sm="0" xs="0">
+            <MudText Typo="Typo.h3">ProMgt</MudText>
+            <MudText Typo="Typo.h4">Sign Up</MudText>
+        </MudItem>
+        <MudItem lg="6" md="12" sm="12" xs="12">
+            <MudPaper Style="height:800px!important" Class="pa-8 rounded-r-xl">
+                @* MudStepper *@
+                <MudStepperExtended @ref="_stepper"
+                                    Class="mud-width-full"
+                                    ContentStyle="min-height: 400px"
+                                    Color="Color.Primary"
+                                    Variant="Variant.Outlined"
+                                    Animation="true"
+                                    ShowPreviousButton="true"
+                                    ShowNextButton="true"
+                                    ShowSkipButton="false"
+                                    ShowStepResultIndicator="true"
+                                    HeaderBadgeView="HeaderBadgeView.GreyOutIncomplete"
+                                    HeaderTextView="HeaderTextView.OnlyActiveText"
+                                    PreventStepChangeAsync="new Func<StepChangeDirection, int, Task<bool>>(CheckChange)"
+                                    IconActionButtons="false"
+                                    Loading="_loading"
+                                    HeaderSize="Size.Medium"
+                                    StepperActionsJustify="_stepperActionsJustify">
+                    <ChildContent>
+                        <MudStepExtended Icon="@Icons.Material.Filled.Person" Title="Personal Information" StatusChanged="StatusChanged">
+                            <ChildContent>
+                                <EditForm @ref="_form" Model="Input" asp-route-returnUrl="@ReturnUrl" OnValidSubmit="RegisterUser" FormName="register">
+                                    <DataAnnotationsValidator />
+                                    <MudItem Style="height: 543px">
+                                        <MudItem Class="mt-4">
+                                            <MudSelect Label="Title" T="string" For="@(() => Input.Title)" @bind-Value="Input.Title" Placeholder="Select a title" AnchorOrigin="Origin.BottomCenter">
+                                                @foreach (var title in Enum.GetValues(typeof(Title)))
+                                                {
+                                                    <MudSelectItem Value="@title.ToString()">@title.ToString()</MudSelectItem>
+                                                }
+                                            </MudSelect>
+                                        </MudItem>
+                                        <MudItem Class="mt-4">
+                                            <MudTextField Label="First Name"
+                                                          Required="true"
+                                                          For="@(() => Input.FirstName)"
+                                                          @bind-Value="Input.FirstName"
+                                                          Placeholder="Pascal"
+                                                          UserAttributes="@(new() { { "autocomplete", "true" }, { "aria-required", "true" } } )" />
+                                        </MudItem>
+                                        <MudItem Class="mt-4">
+                                            <MudTextField Label="Last Name"
+                                                          Required="true"
+                                                          For="@(() => Input.LastName)"
+                                                          @bind-Value="Input.LastName"
+                                                          Placeholder="Smith"
+                                                          UserAttributes="@(new() { { "autocomplete", "true" }, { "aria-required", "true" } } )" />
+                                        </MudItem>
+                                        <MudItem Class="mt-4">
+                                            <MudTextField Label="E-mail"
+                                                          Required="true"
+                                                          For="@(() => Input.Email)"
+                                                          @bind-Value="Input.Email"
+                                                          Placeholder="example@promgt.com"
+                                                          UserAttributes="@(new() { { "autocomplete", "true" }, { "aria-required", "true" } } )" />
+                                        </MudItem>
+                                        <MudItem Class="mt-4">
+                                            <MudTextField InputType="InputType.Password"
+                                                          Label="Password"
+                                                          Required="true"
+                                                          For="@(() => Input.Password)"
+                                                          @bind-Value="Input.Password"
+                                                          Placeholder="Password"
+                                                          UserAttributes="@(new() { { "autocomplete", "new-password" }, { "aria-required", "true" } } )" />
+                                        </MudItem>
+                                        <MudItem Class="mt-4">
+                                            <MudTextField InputType="InputType.Password"
+                                                          Label="Confirm Password"
+                                                          Required="true"
+                                                          For="@(() => Input.ConfirmPassword)"
+                                                          @bind-Value="Input.ConfirmPassword"
+                                                          Placeholder="Re-type your Password"
+                                                          UserAttributes="@(new() { { "autocomplete", "new-password" }, { "aria-required", "true" } } )" />
+                                        </MudItem>
+                                    </MudItem>
+                                </EditForm>
+
+                            </ChildContent>
+                        </MudStepExtended>
+
+                        <MudStepExtended Icon="@Icons.Material.Filled.Settings" Title="Preferences">
+                            <ChildContent>
+                                <MudItem Style="height: 584px">
+                                    <MudItem>
+                                        <MudGrid Style="align-items:center; justify-content:center;">
+                                            <MudItem xs="12" Style="text-align:center;">
+                                                <MudImage Height="50" Src="@(fileData == string.Empty ? "image_placeholder.svg" : fileData)"></MudImage>
+                                            </MudItem>
+                                            <MudItem xs="12" Style="text-align:center;">
+                                                <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
+                                                    <ActivatorContent>
+                                                        <MudButton Variant="Variant.Filled" Color="Color.Primary">
+                                                            Upload
+                                                        </MudButton>
+                                                    </ActivatorContent>
+                                                    <SelectedTemplate>
+                                                        @if (context != null)
+                                                        {
+                                                            <MudText Class="mt-4">@context.Name</MudText>
+                                                        }
+                                                        else
+                                                        {
+                                                            <MudText Class="mt-4">No File</MudText>
+                                                        }
+                                                    </SelectedTemplate>
+                                                </MudFileUpload>
+                                            </MudItem>
+                                        </MudGrid>
+                                    </MudItem>
+                                    <EditForm Model="Input">
+                                        <MudItem Class="mt-4">
+                                            <MudDatePicker Label="Date of birth"
+                                                           For="@(() => Input.DateOfBirth)"
+                                                           @bind-Date="Input.DateOfBirth"
+                                                           Placeholder="Set your birthday" />
+                                        </MudItem>
+                                        <MudItem Class="mt-4">
+                                            <MudSwitch Label="I want to receive Email Notification"
+                                                       For="@(() => Input.EmailNotifPref)"
+                                                       @bind-Value="Input.EmailNotifPref"
+                                                       Color="Color.Primary" />
+                                        </MudItem>
+                                        <MudItem Class="mt-4">
+                                            <MudSwitch Label="Turn on Dark mode"
+                                                       For="@(() => Input.DarkModePref)"
+                                                       @bind-Value="ThemeChoice"
+                                                       Color="Color.Primary" />
+                                        </MudItem>
+                                    </EditForm>
+                                </MudItem>
+                            </ChildContent>
+                        </MudStepExtended>
+
+                        @if (_addResultStep)
+                        {
+                            <MudStepExtended Icon="@Icons.Material.Filled.Alarm" Title="Result Step" IsResultStep="true">
+                                <ChildContent>
+                                    <div class="d-flex flex-column align-center justify-center" style="height: 550px; border:dashed;">
+                                        <MudItem>
+                                            <MudText HtmlTag="strong">First name:</MudText>
+                                            <MudText>@this.Input.FirstName</MudText>
+                                        </MudItem>
+                                        <MudItem>
+                                            <MudText HtmlTag="strong">Last name:</MudText>
+                                            <MudText>@this.Input.LastName</MudText>
+                                        </MudItem>
+                                        <MudItem>
+                                            <MudText HtmlTag="strong">E-mail:</MudText>
+                                            <MudText>@this.Input.Email</MudText>
+                                        </MudItem>
+                                        <MudItem>
+                                            <MudText HtmlTag="strong">Dob:</MudText>
+                                            <MudText>@this.Input.DateOfBirth</MudText>
+                                        </MudItem>
+                                        <MudItem>
+                                            <MudText HtmlTag="strong">Receive Email:</MudText>
+                                            <MudText>@this.Input.EmailNotifPref</MudText>
+                                        </MudItem>
+                                        <MudItem>
+                                            <MudText HtmlTag="strong">Dark mode:</MudText>
+                                            <MudText>@this.Input.DarkModePref</MudText>
+                                        </MudItem>
+                                        <MudItem>
+                                            <MudImage Src="@(fileData == "" ? "image_placeholder.svg" : fileData )"></MudImage>
+                                        </MudItem>
+                                    </div>
+                                </ChildContent>
+                            </MudStepExtended>
+                        }
+                    </ChildContent>
+                    <ActionContent>
+                        @if (!_stepper.IsAllStepsCompleted())
+                        {
+                            <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="@(() => Snackbar.Add("Custom cancel button clicked.", MudBlazor.Severity.Info))">Cancel</MudButton>
+                        }
+                        @* <MudSpacer /> *@
+                    </ActionContent>
+                </MudStepperExtended>
+                @* MudStepperEnd *@
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+<style>
+    .signup-bg {
+        background: url("SignUp.jpg") no-repeat center center / cover;
+        box-shadow: 0px 3px 3px -2px rgba(0,0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0,0.14), 0px, 1px 8px 0px rgba(0,0,0,0,0.12);
+    }
+</style>
+@code {
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    private EditForm? _form;
+
+    private string? errorMessage;
+
+    private FileModel model = new();
+
+    private FileModelFluentValidator ValidationRules = new();
+
+    private bool _isDarkTheme = false;
+
+    public string fileData { get; set; } = string.Empty;
+
+    [SupplyParameterFromForm]
+    public SignupModel Input { get; set; } = new SignupModel()
+        {
+            Title = "Mr",
+            FirstName = "Ron",
+            LastName = "Wesely",
+            Email = "ron@wesely.com",
+            Password = "Abc@123",
+            ConfirmPassword = "Abc@123"
+        };
+
+    MudStepperExtended? _stepper = new();
+
+    private bool _loading;
+
+    private StepperActionsJustify _stepperActionsJustify = StepperActionsJustify.SpaceBetween;
+
+    private bool _showStaticContent = true;
+
+    private bool _addResultStep = true;
+
+    private bool _checkValidationBeforeComplete = true;
+
+    IList<IBrowserFile> files = new List<IBrowserFile>();
+
+    private async Task UploadFiles(IBrowserFile file)
+    {
+        var byteArray = new byte[file.Size];
+        await file.OpenReadStream().ReadAsync(byteArray);
+        fileData = $"data:{file.ContentType};base64,{Convert.ToBase64String(byteArray)}";
+        Input.ProfilePicture = byteArray;
+        StateHasChanged();
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        ThemeService.OnThemeChanged += HandleThemeChange;
+        await base.OnInitializedAsync();
+    }
+
+    public async Task RegisterUser(EditContext editContext)
+    {
+        if (editContext != null)
+        {
+            var isValid = editContext.Validate();
+            if (isValid)
+            {
+                var signUpData = new SignupModel
+                    {
+                        Title = Input.Title,
+                        FirstName = Input.FirstName,
+                        LastName = Input.LastName,
+                        DateOfBirth = Input.DateOfBirth,
+                        Email = Input.Email,
+                        Password = Input.Password,
+                        ConfirmPassword = Input.ConfirmPassword,
+                        ProfilePicture = Input.ProfilePicture,
+                        DarkModePref = Input.DarkModePref,
+                        EmailNotifPref = Input.EmailNotifPref
+                    };
+
+                var response = await HttpClient.PostAsJsonAsync("api/auth/signup", signUpData);
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadFromJsonAsync<RegisterResponse>();
+                    if (result != null)
+                    {
+                        Snackbar.Add("Registration successful. Please check your email to confirm your account.", MudBlazor.Severity.Success);
+                        if (result.RequireConfirmedAccount)
+                        {
+                            NavigationManager.NavigateTo($"registerconfirmation?email={Input.Email}");
+                        }
+                        else
+                        {
+                            NavigationManager.NavigateTo(ReturnUrl ?? "/");
+                        }
+                    }
+                }
+                else
+                {
+                    var errorMessage = await response.Content.ReadAsStringAsync();
+                    Snackbar.Add(errorMessage, MudBlazor.Severity.Error);
+                }
+            }
+            else
+            {
+                Snackbar.Add(errorMessage, MudBlazor.Severity.Error);
+            }
+        }
+    }
+    private async Task HandleThemeChange()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task<bool> CheckChange(StepChangeDirection direction, int targetIndex)
+    {
+        if (_checkValidationBeforeComplete == true)
+        {
+            // Always allow stepping backwards, even if forms are invalid
+            if (direction == StepChangeDirection.Backward)
+            {
+                return false;
+            }
+            if (_stepper?.GetActiveIndex() == 0)
+            {
+                _loading = true;
+                StateHasChanged();
+                await Task.Delay(1000);
+                var isValid = _form?.EditContext?.Validate() ?? false;
+                _loading = false;
+                StateHasChanged();
+                return !isValid;
+            }
+            else if (_stepper?.GetActiveIndex() == 1)
+            {
+                _loading = true;
+                StateHasChanged();
+                await Task.Delay(1000);
+                if (_form != null && _form.EditContext != null)
+                {
+                    await RegisterUser(_form.EditContext);
+                    _loading = false;
+                    StateHasChanged();
+                    return true;
+                }
+                _loading = false;
+                StateHasChanged();
+                return false;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+    private void StatusChanged(StepStatus status)
+    {
+        Snackbar.Add($"First step {status.ToDescriptionString()}.", MudBlazor.Severity.Info);
+    }
+
+    public string GetClass()
+    {
+        string newClass = string.Empty;
+        newClass = "signup-bg rounded-l-xl d-flex flex-column object-contain align-center justify-center";
+        return newClass;
+    }
+    public bool ThemeChoice
+    {
+        get => _isDarkTheme;
+        set
+        {
+            if (_isDarkTheme != value)
+            {
+                _isDarkTheme = value;
+                Input.DarkModePref = value;
+                ThemeService.ToggleDarkMode();
+                StateHasChanged();
+            }
+        }
+    }
+    private enum Title
+    {
+        Mr,
+        Miss,
+        Mrs
+    }
+    public class FileModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public IBrowserFile File { get; set; } = default;
+        public List<IBrowserFile> Files { get; set; } = new List<IBrowserFile>();
+    }
+    /// <summary>
+    /// A standard AbstractValidator which contains multiple rules and can be shared with the back end API
+    /// </summary>
+    /// <typeparam name="OrderModel"></typeparam>
+    public class FileModelFluentValidator : AbstractValidator<FileModel>
+    {
+        public FileModelFluentValidator()
+        {
+            RuleFor(x => x.Name)
+            .NotEmpty()
+            .Length(1, 100);
+            RuleFor(x => x.File)
+            .NotEmpty();
+            RuleFor(x => x.Files)
+            .NotEmpty();
+            When(x => x.File != null, () =>
+            {
+                RuleFor(x => x.File.Size).LessThanOrEqualTo(10485760).WithMessage("The maximum file size is 10 MB");
+            });
+        }
+        public Func<object, string, Task<IEnumerable<string>>> ValidateValue => async (model, propertyName) =>
+        {
+            var result = await ValidateAsync(ValidationContext<FileModel>.CreateWithOptions((FileModel)model, x => x.IncludeProperties(propertyName)));
+            if (result.IsValid)
+                return Array.Empty<string>();
+            return result.Errors.Select(e => e.ErrorMessage);
+        };
+    }
+    private class RegisterResponse
+    {
+        public string? UserId { get; set; }
+        public string? Code { get; set; }
+        public bool RequireConfirmedAccount { get; set; }
+    }
+}
+

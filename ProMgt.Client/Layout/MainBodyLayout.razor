@@ -1,0 +1,44 @@
+﻿@inherits LayoutComponentBase
+@inject ThemeService ThemeService
+
+<MudThemeProvider IsDarkMode="@(ThemeService.CurrentTheme == ProMgtTheme.DarkTheme)" Theme="@ThemeService.CurrentTheme" />
+<MudAppBar Elevation="25">
+    <MudIcon Icon="@CustomIcons.ProMgtLogoDark" Size="Size.Large" ViewBox="0 0 500 500" />
+    <MudText Typo="Typo.h6" Class="ml-4">CodeMoa</MudText>
+    <MudToolBar>
+        <MudIconButton Icon="@(_drawerOpen ? Icons.Material.Filled.SwitchLeft : Icons.Material.Filled.SwitchRight)" Color="Color.Inherit" OnClick="@((e) => DrawerToggle())" Class="ml-3" />
+    </MudToolBar>
+    <MudSpacer />
+    <MudTooltip Text="Toggle Dark Mode">
+        <MudIconButton Icon="@(IsDarkMode ? Icons.Material.Filled.DarkMode : Icons.Material.Outlined.DarkMode)" Color="Color.Inherit" OnClick="@ToggleDarkMode" />
+    </MudTooltip>
+</MudAppBar>
+<MudDrawer @bind-Open="_drawerOpen" Elevation="25" ClipMode="DrawerClipMode.Always">
+    <NavMenu />
+</MudDrawer>
+<MudMainContent Class="mt-20 pa-2">
+    <MudContainer MaxWidth="MaxWidth.False">
+        <CascadingValue Value="@IsDarkMode">
+            @ChildContent
+        </CascadingValue>
+    </MudContainer>
+</MudMainContent>
+
+@code {
+    private MudTheme _currentTheme = ProMgtTheme.DefaultTheme;
+    [Parameter]
+    public EventCallback OnDarkModeToggle { get; set; }
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+    public bool IsDarkMode { get; set; }
+    private bool _drawerOpen = true;
+    private void ToggleDarkMode()
+    {
+        IsDarkMode = !IsDarkMode;
+        OnDarkModeToggle.InvokeAsync(null);
+    }
+    private void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}

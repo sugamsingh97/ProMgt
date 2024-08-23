@@ -1,0 +1,139 @@
+﻿@page "/signin"
+@using ProMgt.Client.Models
+@using System.ComponentModel.DataAnnotations
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+
+<PageTitle>Sign in</PageTitle>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Gutters="false">
+    <MudGrid Style="height:800px!important" Spacing="0">
+        <MudItem Class="@GetClass()" lg="6" md="6">
+            <MudText Typo="Typo.h3">ProMgt</MudText>
+            <MudText Typo="Typo.h4">Sign in</MudText>
+        </MudItem>
+        <MudItem lg="6" md="6">
+            <MudPaper Style="height:800px!important" Class="p-8 rounded-r-xl">
+                <EditForm Model="@Input" OnValidSubmit="SignInHandler" FormName="login" method="post">
+                    <MudGrid Spacing="0" Class="pa-8">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <MudItem xs="12">
+                            <div class="d-flex justify-center">
+                                <MudIcon Icon="@CustomIcons.ProMgtLogo" Color="Color.Primary" Size="Size.Large" ViewBox="0 0 500 500" Style="width: 100px; height: 100px;" />
+                            </div>
+                        </MudItem>
+                        <MudItem xs="12">
+                            <div class="d-flex justify-center">
+                                <MudText Typo="Typo.h4">Sign-in</MudText>
+                            </div>
+                        </MudItem>
+                        <MudItem xs="12">
+                            <div class="d-flex justify-center">
+                                <MudText GutterBottom="true" Typo="Typo.body1">Use a local account to log in.</MudText>
+                            </div>
+                        </MudItem>
+                        <MudItem md="12">
+                            <MudTextField Label="Email"
+                                          Class="mt-3"
+                                          @bind-Value="Input.Email"
+                                          For="@(() => Input.Email)" />
+                        </MudItem>
+                        <MudItem md="12">
+                            <MudTextField Label="Password"
+                                          Class="mt-3"
+                                          @bind-Value="Input.Password"
+                                          For="@(() => Input.Password)"
+                                          InputType="InputType.Password" />
+                        </MudItem>
+                        <MudItem md="12">
+                            <MudCheckBox Color="Color.Primary"
+                                         For="@(() => Input.RememberMe)"
+                                         @bind-Value="Input.RememberMe">Remember me</MudCheckBox>
+                        </MudItem>
+                        <MudItem md="12">
+                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Outlined" Size="Size.Large" Color="Color.Primary" FullWidth="false">Sign in</MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </EditForm>
+                <MudGrid Class="mt-4 pa-8">
+                    <MudItem xs="12">
+                        <MudLink Href="Account/ForgotPassword">Forgot your password?</MudLink><br />
+                        <MudLink Href="@(NavigationManager.GetUriWithQueryParameters("/signup", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</MudLink><br />
+                        <MudLink Href="Account/ResendEmailConfirmation">Resend email confirmation.</MudLink>
+                    </MudItem>
+                </MudGrid>
+                <MudItem xs="12">
+                    &nbsp;
+                </MudItem>
+                <MudItem xs="12">
+                    &nbsp;
+                </MudItem>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+<style>
+    .signup-bg {
+        background: url("day2.jpg") no-repeat center center / cover;
+        box-shadow: 0px 3px 3px -2px rgba(0,0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0,0.14), 0px, 1px 8px 0px rgba(0,0,0,0,0.12);
+    }
+</style>
+@code {
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+    private EditForm? _form;
+    private string? errorMessage;
+
+    [SupplyParameterFromForm]
+    public SigninModel Input { get; set; } = new SigninModel();
+
+    public async Task SignInHandler()
+    {
+        try
+        {
+            var loginData = new SigninModel
+                {
+                    Email = Input.Email,
+                    Password = Input.Password,
+                    RememberMe = Input.RememberMe
+                };
+            var response = await HttpClient.PostAsJsonAsync<SigninModel>("api/auth/signin", loginData);
+            if (response.IsSuccessStatusCode)
+            {
+                var redirectUrl = ReturnUrl ?? "/";
+                NavigationManager.NavigateTo(redirectUrl, true);
+            }
+            else
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    errorMessage = "Error: Invalid Login attempt!";
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.Locked)
+                {
+                    // TODO: Create a Generic lock out razor page.
+                    NavigationManager.NavigateTo("generics/lockout");
+                }
+                else
+                {
+                    errorMessage = $"Error: An unexpected error occured. Response: { responseContent }";
+                }
+            }
+        }
+        catch (HttpRequestException hre)
+        {
+            errorMessage = $"Error: { hre.Message }";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Unexpected error: {ex.Message}";
+        }
+    }
+    public string GetClass()
+    {
+        string newClass = string.Empty;
+        newClass = "signup-bg rounded-l-xl d-flex flex-column object-contain align-center justify-center";
+        return newClass;
+    }
+}
