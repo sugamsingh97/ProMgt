@@ -9,10 +9,10 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 using MudBlazor;
-using ProMgt.Client.Models;
 using ProMgt.Data;
 using System.Text;
 using System.Text.Encodings.Web;
+using ProMgt.Client.Models.AuthModels;
 
 namespace ProMgt.Controllers
 {

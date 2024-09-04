@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace ProMgt.Client.Models
+namespace ProMgt.Client.Models.AuthModels
 {
     public class SignupModel
     {
@@ -10,9 +10,9 @@ namespace ProMgt.Client.Models
         public string? Title { get; set; } = string.Empty;
 
         [DisplayName("First Name")]
-        [Required(ErrorMessage ="First name is required!")]
-        [RegularExpression("^[a-zA-Z]+$", ErrorMessage ="First name must contain only alphabetical characters")]
-        public string FirstName { get; set; } = string.Empty ;
+        [Required(ErrorMessage = "First name is required!")]
+        [RegularExpression("^[a-zA-Z]+$", ErrorMessage = "First name must contain only alphabetical characters")]
+        public string FirstName { get; set; } = string.Empty;
 
         [DisplayName("Last Name")]
         [Required(ErrorMessage = "Last name is required!")]
@@ -30,7 +30,7 @@ namespace ProMgt.Client.Models
 
         [DisplayName("Password")]
         [Required(ErrorMessage = "Password is required!")]
-        [StringLength(100, ErrorMessage ="The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
         public string Password { get; set; } = string.Empty;
 
@@ -40,7 +40,7 @@ namespace ProMgt.Client.Models
         public string ConfirmPassword { get; set; } = string.Empty;
 
         [DisplayName("Profile Picture")]
-        public Byte[]? ProfilePicture { get; set; }
+        public byte[]? ProfilePicture { get; set; }
 
         [DisplayName("Receive Email notifications")]
         public bool EmailNotifPref { get; set; }

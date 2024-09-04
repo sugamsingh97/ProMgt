@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 
-namespace ProMgt.Client.Models
+namespace ProMgt.Client.Models.AuthModels
 {
     public class SigninModel
     {

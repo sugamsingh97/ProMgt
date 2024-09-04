@@ -22,11 +22,26 @@ namespace ProMgt.Client.Infrastructure.Settings
         public async void ToggleDarkMode()
         {
             _isDarkMode = !_isDarkMode;
-            _currentTheme = _isDarkMode? ProMgtTheme.DarkTheme : ProMgtTheme.DefaultTheme;
+            _currentTheme = _isDarkMode ? ProMgtTheme.DarkTheme : ProMgtTheme.DefaultTheme;
             if (OnThemeChanged != null)
             {
                 await OnThemeChanged.Invoke();
             }
+        }
+
+        public string GetPrimaryColorHex(MudTheme theme)
+        {
+            string primaryHex;
+            if (_isDarkMode)
+            {
+                primaryHex = theme.PaletteDark.Primary.ToString();
+            }
+            else
+            {
+                primaryHex = theme.PaletteLight.Primary.ToString();
+
+            }
+            return primaryHex;
         }
     }
 }

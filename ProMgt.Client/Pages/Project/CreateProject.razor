@@ -1,0 +1,144 @@
+﻿@page "/"
+@using System.Net.Http.Json
+@using System.Text.Json
+@attribute [Authorize]
+@inject IDialogService DialogService
+@inject HttpClient HttpClient
+
+@*Create Project button*@
+<MudContainer DisableGutters="true" Class="custom-container pa-2">
+    <MudGrid>
+        <MudItem Class="d-flex justify-end" xs="12">
+            <MudButton Size="Size.Large" Variant="Variant.Outlined" Color="Color.Primary" onclick="CreateProjectHandler">Create a Project</MudButton>
+        </MudItem>
+        <MudItem xs="12">
+            @*Project List*@
+            @if (Projects.Count == 0)
+            {
+                <MudGrid Justify="Justify.Center">
+                    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+                </MudGrid>
+            }
+            <ProjectList Items="Projects" />
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+<style>
+    .mud-container-maxwidth-lg {
+    max-width: none !important;
+}
+
+.mud-container--gutters {
+    padding: 0 !important;
+}
+
+    .custom-container {
+        max-width: none !important;
+        padding: 15px !important;
+    }
+</style>
+@* <MudButton OnClick="@TestApiHandler" >TestingApi</MudButton> *@
+
+@code {
+    private string errorMessage = string.Empty;
+
+    public List<ProjectResponse> ProjectResponse { get; set; } = new();
+    public List<ProjectDisplay> Projects { get; set; } = new();
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        await GetProjects();
+        await base.OnInitializedAsync();
+    }
+
+    // Add the logic to open the create project Dialog
+    private async Task CreateProjectHandler()
+    {
+        errorMessage = string.Empty;
+        var options = new DialogOptions
+            {
+                CloseOnEscapeKey = true,
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true
+            };
+
+        var dialogResponse = await DialogService.ShowAsync<CreateProjectDialog>("Create new Project", options);
+
+        var result = await dialogResponse.Result;
+
+        ProjectInputModel projectResponse = new();
+
+
+        if (result != null && !result.Canceled)
+        {
+            projectResponse = result.Data as ProjectInputModel ?? new();
+
+        }
+        try
+        {
+            var response = await HttpClient.PostAsJsonAsync<ProjectInputModel>("api/project", projectResponse);
+            if (response.IsSuccessStatusCode)
+            {
+                await GetProjects();
+                StateHasChanged();
+            }
+            else
+            {
+                errorMessage = $"Error: {response.ReasonPhrase}";
+            }
+        }
+        catch (HttpRequestException httpEx)
+        {
+            errorMessage = $"Request error: {httpEx.Message}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An unexpected error occurred: {ex.Message}";
+        }
+
+    }
+
+    public async Task GetProjects()
+    {
+        try
+        {
+            var response = await HttpClient.GetFromJsonAsync<List<ProjectResponse>>("api/project/getstring");
+            ProjectResponse = (response ?? new List<ProjectResponse>())
+                            .OrderByDescending(p => p.DateOfCreation)
+                            .ToList();
+            Projects = ConvertToProjectDisplay(ProjectResponse);
+            StateHasChanged();
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+        }
+        catch (NotSupportedException ex)
+        {
+            Console.WriteLine($"Content type error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON error: {ex.Message}");
+        }
+    }
+
+    internal List<ProjectDisplay> ConvertToProjectDisplay(List<ProjectResponse> projects)
+    {
+        List<ProjectDisplay> localList = new List<ProjectDisplay>();
+        foreach (var project in projects)
+        {
+            localList.Add(new()
+                {
+                    Id = project.Id,
+                    Name = project.Name,
+                    DeadLine = project.DeadLine,
+                    IsCompleted = project.IsCompleted,
+                    DateOfCreation = project.DateOfCreation
+                });
+        }
+        return localList;
+    }
+}

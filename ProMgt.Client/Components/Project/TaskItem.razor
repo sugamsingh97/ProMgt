@@ -1,0 +1,148 @@
+﻿@using System.Net.Http;
+@using System.Net.Http.Json;
+@using System.Text;
+@using System.Text.Json;
+
+@inject ProjectService ProjectService
+@inject HttpClient HttpClient
+@inject ISnackbar Snackbar
+@attribute [Authorize]
+
+<MudGrid Spacing="0" Class="mb-6 project-item">
+    <MudItem xs="12">
+        <MudPaper MaxWidth="100%" Elevation="4" Class="rounded-tl-lg rounded-tr-lg pj-bg-hover pa-4">
+            <MudItem xs="12">
+                <MudGrid Class="align-center">
+                    @*  Name and date  created *@
+                    <MudItem xs="9">
+                        <MudText Typo="Typo.h6">
+                            @Item.Name
+                        </MudText>
+                        <MudText Typo="Typo.caption" Style="color: dimgray;">
+                            @Item.DateOfCreation
+                        </MudText>
+                    </MudItem>
+                    @*  deadline and status *@
+                    <MudItem xs="2">
+                        <MudChip T="string" Variant="Variant.Text" Color="Color.Warning">
+                            <MudText Typo="Typo.subtitle2">
+                                @days
+                            </MudText>
+                            &nbsp;
+                            <MudText Typo="Typo.caption" Style="font-weight: 600;">
+                                days left
+                            </MudText>
+                        </MudChip>
+                    </MudItem>
+                    <MudItem xs="1">
+                        <MudTooltip Text="Task Status">
+                            <MudSwitch @bind-Value="TaskIsCompleted"
+                                       ThumbIcon="@(TaskIsCompleted==true ? Icons.Material.Filled.Done : Icons.Material.Filled.Close)"
+                                       ThumbIconColor="@(TaskIsCompleted==true ? Color.Success : Color.Error)"></MudSwitch>
+                        </MudTooltip>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem xs="12">
+                <MudText>
+                    @Item.Description
+                </MudText>
+            </MudItem>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public TaskDisplay Item { get; set; } = new();
+
+    private string Style { get; set; } = string.Empty;
+
+    private int? days = 0;
+
+    private bool _taskIsCompleted;
+    private bool _dbRetrievedIsCompleted;
+
+    /// <summary>
+    /// This Gets the task status but also handles changes in the task status
+    /// </summary>
+    public bool TaskIsCompleted
+    {
+        get  {
+            // You can add custom logic here if needed
+            return _taskIsCompleted;
+        }
+        set
+        {
+            if (_taskIsCompleted != value)
+            {
+                _taskIsCompleted = value;
+                if (_dbRetrievedIsCompleted != _taskIsCompleted)
+                {                   
+                    // Call the async method and handle it appropriately
+                    Task.Run(async () => await OnTaskStatusChangedAsync(_taskIsCompleted));
+                }
+
+            }
+        }
+    }
+
+    /// <summary>
+    /// This initializes the component
+    /// </summary>
+    /// <returns></returns>
+    protected async override Task OnInitializedAsync()
+    {
+        DateTime currentDate = DateTime.Now;
+        if (Item.DeadLine != null)
+        {
+            TimeSpan? difference = Item.DeadLine - currentDate;
+            if (difference.HasValue)
+            {
+                days = difference.Value.Days > 0 ? difference.Value.Days : 0;
+            }
+            else
+            {
+                days = 0;
+            }
+
+        }
+        _dbRetrievedIsCompleted = Item.IsCompleted;
+        TaskIsCompleted = Item.IsCompleted;
+
+        string color = Colors.LightGreen.Default;
+        Style = $"color:{color};";
+        await base.OnInitializedAsync();
+    }
+
+    /// <summary>
+    /// This Handles the Task change status
+    /// </summary>
+    /// <param name="status">This takes new task status.</param>
+    /// <returns></returns>
+    private async Task OnTaskStatusChangedAsync(bool status)
+    {
+        try
+        {
+            var content = new StringContent(JsonSerializer.Serialize(status), Encoding.UTF8, "application/json");
+            var response = await HttpClient.PatchAsync($"/api/task/{Item.Id}/status", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Task status updated successfully!", MudBlazor.Severity.Success);
+                ProjectService.ToggleTaskCompleted();
+                Console.WriteLine("Task status updated successfully.");
+            }
+            else
+            {
+                Snackbar.Add("Task not found.", MudBlazor.Severity.Error);
+                Console.WriteLine("Error updating task status.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error: {ex}");
+            Snackbar.Add("An error occurred while updating the task status.", MudBlazor.Severity.Error);
+        }
+    }   
+}

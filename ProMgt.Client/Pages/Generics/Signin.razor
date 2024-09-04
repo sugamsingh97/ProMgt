@@ -85,7 +85,12 @@
     private string? errorMessage;
 
     [SupplyParameterFromForm]
-    public SigninModel Input { get; set; } = new SigninModel();
+    public SigninModel Input { get; set; } = new SigninModel()
+    {
+        Email = "rudeboyhere@gmail.com",
+        Password = "Abc@123",
+        RememberMe = false    
+    };
 
     public async Task SignInHandler()
     {

@@ -1,0 +1,16 @@
+﻿@foreach (var item in Items)
+{
+    <TaskItem Item="@item"></TaskItem>
+}
+
+@code {
+    [Parameter]
+    public List<TaskDisplay> Items { get; set; } = new();
+   
+    protected async override Task OnInitializedAsync()
+    {
+       
+        await base.OnInitializedAsync();
+    }
+   
+}

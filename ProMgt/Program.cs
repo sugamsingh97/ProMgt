@@ -32,6 +32,9 @@ builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 
+builder.Services.AddDbContext<ProjectDbContext>(opt =>
+    opt.UseSqlite(builder.Configuration.GetConnectionString("SQLiteConnection")));
+
 // dependency injection container. we are injecting the controller services.
 builder.Services.AddControllers();
 builder.Services.AddAuthentication(options =>

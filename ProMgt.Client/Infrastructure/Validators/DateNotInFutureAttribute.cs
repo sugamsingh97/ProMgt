@@ -13,7 +13,7 @@ namespace ProMgt.Client.Infrastructure.Validators
                     return new ValidationResult("Date of birth cannot be in the future.");
                 }
             }
-            return ValidationResult.Success;
+            return ValidationResult.Success!;
         }
     }
 }

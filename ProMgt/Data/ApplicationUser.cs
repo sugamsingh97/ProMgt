@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using ProMgt.Client.Models;
+using ProMgt.Client.Models.AuthModels;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProMgt.Data;

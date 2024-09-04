@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject ThemeService ThemeService
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender:false))
 
 <MudThemeProvider IsDarkMode="@(ThemeService.CurrentTheme == ProMgtTheme.DarkTheme)" Theme="@ThemeService.CurrentTheme" />
 <MudPopoverProvider />
@@ -17,10 +18,7 @@
         </MudHidden>
         <MudHidden Breakpoint="Breakpoint.SmAndDown" Invert="true">            
         </MudHidden>
-    </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
-        <NavMenu />
-    </MudDrawer>
+    </MudAppBar>    
     <MainBodyLayout OnDarkModeToggle="@DarkMode">
         <CascadingValue Value="IsDarkMode">
             @Body

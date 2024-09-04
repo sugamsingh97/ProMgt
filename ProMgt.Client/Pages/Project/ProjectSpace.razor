@@ -1,0 +1,501 @@
+﻿@page "/project/project-space/{projectId:int}"
+@using System.Net.Http.Json
+@using System.Text.Json
+@using ProMgt.Client.Infrastructure.HelperFunctions
+@inject ThemeService ThemeService
+@inject HttpClient HttpClient
+@inject IDialogService IDialogService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+@inject ProjectService ProjectService
+@attribute [Authorize]
+
+<MudThemeProvider IsDarkMode="@(ThemeService.CurrentTheme == ProMgtTheme.DarkTheme)" Theme="@ThemeService.CurrentTheme" />
+<MudContainer Class="custom-container">
+    <MudGrid>
+        <MudItem xs="12">
+            <MudItem xs="12" Class="mb-4">
+                <MudAppBar Fixed="false"class="app-bar-style">
+                    <MudGrid Justify="Justify.SpaceEvenly" Style="align-items: baseline;" Class="d-flex" Spacing="3">
+                        <MudItem>
+                            <MudButton Class="project-background"
+                                       EndIcon="@(_expanded? @Icons.Material.Filled.ArrowDropUp : @Icons.Material.Filled.ArrowDropDown)"
+                                       OnClick="OnExpandCollapseClick">Summary</MudButton>
+                            @* @Icons.Material.Filled.ArrowDropDown *@
+                        </MudItem>
+                        <MudItem>
+                            <MudTextField Style="color: #D2CDDB;"
+                                          OnBlur="PatchName"
+                                          Class="project-background mud-input-none"
+                                          Underline="false"
+                                          @bind-Value="ProjectName"></MudTextField>
+                        </MudItem>
+                        <MudItem Class="project-background">
+                            <MudDatePicker Editable="true"
+                                           @bind-Date="DeadLine"
+                                           PickerClosed="CloseHandler"
+                                           DateFormat="dd MMMM yyyy"
+                                           Underline="false"
+                                           Style="color: #D2CDDB" />
+                            @* <MudButton Class="project-background" EndIcon="@Icons.Material.Filled.CalendarMonth">
+                            @days
+                            &nbsp;
+                            <MudText>
+                            days
+                            </MudText>
+                            </MudButton> *@
+                        </MudItem>
+                        <MudItem>
+                            <MudButton Class="project-background" OnClick="AddTaskHandler">
+                                <MudIcon Icon="@Icons.Material.Filled.Add" Title="Add Item" />
+                            </MudButton>
+                        </MudItem>
+                        <MudItem>
+                            <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline"
+                                           OnClick="DeleteHandler"
+                                           Color="Color.Error"></MudIconButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudAppBar>
+                <MudItem xs="12" Style="height: 20px">
+                    <MudProgressLinear Style="height:100%;" Color="Color.Success" Size="Size.Large" Value="_progressNumber" />
+                </MudItem>
+                <MudCollapse Color="Color.Primary" class="@GetBackgroundClass()" Expanded="_expanded">
+                    <MudGrid Justify="Justify.Center">
+                        <MudItem Style="padding: 20px;">
+                            <MudTextField FullWidth="true"
+                                          OnBlur="PatchDescription"
+                                          Lines="3"
+                                          Style="color: #D2CDDB"
+                                          Underline="false"
+                                          @bind-Value="ProjectDescription"></MudTextField>
+                        </MudItem>
+                    </MudGrid>
+                </MudCollapse>
+            </MudItem>
+            <MudItem xs="12" class="custom-item">
+                <TaskList Items="TasksList"></TaskList>
+            </MudItem>
+
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+<style>
+    .project-background {
+        background: #00000012;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        padding-left: 15px;
+        padding-right: 15px;
+        border-radius: 8px;
+        color: #D2CDDB;
+        transition: background 0.3s ease, transform 0.3s ease;
+    }
+
+        .project-background:hover {
+            background: #00000050; /* Darker background on hover */
+        }
+
+    .mud-container-maxwidth-lg {
+        max-width: none !important;
+    }
+
+    .mud-container--gutters {
+        padding: 0 !important;
+    }
+
+    .custom-item {
+        max-width: none !important;
+        padding: 15px !important;
+    }
+
+    .app-bar-style {
+        padding: 15px; 
+        box-shadow: none;
+    }
+
+    .dark-mode {
+        background-color: #373740;
+    }
+
+    .light-mode {
+        background-color: #673AB7;
+    }
+
+</style>
+
+@code {
+    [Parameter]
+    public int ProjectId { get; set; }
+    public int _progressNumber { get; set; } = 0;
+    private int days = 0;
+
+    private bool _expanded = false;
+
+    private string? backColor;
+    private string errorMessage = string.Empty;
+    private string AppBarStyle { get; set; } = string.Empty;
+    public string CollapseBg { get; set; } = string.Empty;
+
+    public string ProjectName { get; set; } = string.Empty;
+    public string? ProjectDescription { get; set; } = string.Empty;
+    public DateTime? DeadLine { get; set; }
+
+    public DateTime? DbDeadLine { get; set; }
+    public DateTime currentDate = DateTime.Now;
+
+    public ProjectResponse Project { get; set; } = new();
+    public List<TaskResponse> TaskResponse { get; set; } = new();
+
+    public List<TaskDisplay> TasksList { get; set; } = new();
+
+    private string GetBackgroundClass()
+    {
+        return ThemeService.IsDarkMode() ? "dark-mode" : "light-mode";
+    }
+
+    /// <summary>
+    /// This initializes the page.
+    /// </summary>
+    /// <returns></returns>
+    protected async override Task OnInitializedAsync()
+    {        
+        ThemeService.OnThemeChanged += HandleThemeChange;
+        
+        CollapseBg = $"background: {ThemeService.GetPrimaryColorHex(ThemeService.CurrentTheme)};";
+        ProjectService.OnTaskCompletedChanged += TaskCompletedChangedHandler;
+        await GetProject();
+        await GetTasks();
+
+        await base.OnInitializedAsync();
+    }
+
+    /// <summary>
+    /// This toggles the Summary.
+    /// </summary>
+    private void OnExpandCollapseClick()
+    {
+        _expanded = !_expanded;
+    }
+
+    #region Theme Change handler
+    /// <summary>
+    /// This handles the theme change
+    /// </summary>
+    /// <returns></returns>
+    private async Task HandleThemeChange()
+    {
+        backColor = $"background: {ThemeService.GetPrimaryColorHex(ThemeService.CurrentTheme)};";
+        AppBarStyle = $"background: {ThemeService.GetPrimaryColorHex(ThemeService.CurrentTheme)}; padding: 15px; box-shadow: none;";
+        CollapseBg = $"background: {ThemeService.GetPrimaryColorHex(ThemeService.CurrentTheme)};";
+        await InvokeAsync(StateHasChanged);
+    }
+    #endregion 
+
+    #region Get and Delete a project
+
+    /// <summary>
+    /// This Gets the project
+    /// </summary>
+    /// <returns></returns>
+    public async Task GetProject()
+    {
+        try
+        {
+            // var response = await HttpClient.GetFromJsonAsync<List<ProjectResponse>>("api/project/getstring");
+            // Projects = (response ?? new List<ProjectResponse>())
+            //                 .OrderByDescending(p => p.DateOfCreation)
+            //                 .ToList();
+            // StateHasChanged();
+
+            var response = await HttpClient.GetFromJsonAsync<ProjectResponse>($"api/project/{ProjectId}");
+            Project = response ?? new ProjectResponse();
+
+            DbDeadLine = Project.DeadLine;
+            DeadLine = Project.DeadLine;
+
+            TimeSpan? difference = DeadLine - currentDate;
+            days = difference!.Value.Days;
+            ProjectName = Project.Name;
+            ProjectDescription = Project.Description;
+            DeadLine = Project.DeadLine;
+            StateHasChanged();
+
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+        }
+        catch (NotSupportedException ex)
+        {
+            Console.WriteLine($"Content type error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON error: {ex.Message}");
+        }
+    }
+
+
+    /// <summary>
+    /// This deletes the project
+    /// </summary>
+    /// <returns></returns>
+    private async Task DeleteHandler()
+    {
+        errorMessage = string.Empty;
+        var options = new DialogOptions
+            {
+                CloseOnEscapeKey = true,
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true
+            };
+        var DialogResponse = await IDialogService.ShowAsync<ConfirmDelete>("Confirm delete", options);
+        var result = await DialogResponse.Result;
+
+        if(!result.Canceled)
+        {
+            try
+            {
+                var response = await HttpClient.DeleteAsync($"/api/project/{ProjectId}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Snackbar.Add("Project deleted successfully!", MudBlazor.Severity.Success);
+                    NavigationManager.NavigateTo("/");
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {  
+                    Snackbar.Add("Project not found.", MudBlazor.Severity.Error);
+                }
+                else
+                {
+                    Snackbar.Add($"Error: {response.ReasonPhrase}", MudBlazor.Severity.Error);
+                }
+
+                StateHasChanged();
+            }
+            catch (HttpRequestException ex)
+            {
+                Snackbar.Add($"Request error: {ex.Message}", MudBlazor.Severity.Error);
+
+            }
+            catch (NotSupportedException ex)
+            {
+                Snackbar.Add($"Content type error: {ex.Message}", MudBlazor.Severity.Error);
+
+            }
+            catch (JsonException ex)
+            {
+                Snackbar.Add($"JSON error: {ex.Message}", MudBlazor.Severity.Error);
+
+            }
+        }
+    }   
+
+    #endregion
+
+    #region Patch Project fields
+    /// <summary>
+    /// This updates the bame
+    /// </summary>
+    /// <returns></returns>
+    private async Task PatchName()
+    {
+        try
+        {
+            var response = await HttpClient.PatchAsync($"/api/project/{ProjectId}/name", JsonContent.Create(ProjectName));
+
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Project name updated successfully!", MudBlazor.Severity.Success);
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Snackbar.Add("Project not found.", MudBlazor.Severity.Error);
+            }
+            else
+            {
+                Snackbar.Add("An error occurred while updating the project name.", MudBlazor.Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error: {ex}");
+            Snackbar.Add("An error occurred while updating the project name.", MudBlazor.Severity.Error);
+        }
+    }
+
+    /// <summary>
+    /// This updates the description
+    /// </summary>
+    /// <returns></returns>
+    private async Task PatchDescription()
+    {
+        try
+        {
+            var response = await HttpClient.PatchAsync($"/api/project/{ProjectId}/description", JsonContent.Create(ProjectDescription));
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Project description updated successfully!", MudBlazor.Severity.Success);
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Snackbar.Add("Project not found.", MudBlazor.Severity.Error);
+            }
+            else
+            {
+                Snackbar.Add("An error occurred while updating the project description.", MudBlazor.Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error: {ex}");
+            Snackbar.Add("An error occurred while updating the project description.", MudBlazor.Severity.Error);
+        }
+    }
+
+    /// <summary>
+    /// This updates the date
+    /// </summary>
+    /// <returns></returns>
+    private async Task CloseHandler()
+    {
+        await Task.CompletedTask;
+        if (DeadLine < currentDate)
+        {
+            Snackbar.Add("Pick a valid date", MudBlazor.Severity.Error);
+            DeadLine = DbDeadLine;
+            return;
+        }
+        if (DbDeadLine == DeadLine)
+        {
+            return;
+        }
+        else
+        {
+            try
+            {
+                var response = await HttpClient.PatchAsync($"/api/project/{ProjectId}/deadline", JsonContent.Create(DeadLine));
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Snackbar.Add("Project deadline updated successfully!", MudBlazor.Severity.Success);
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    Snackbar.Add("Project not found.", MudBlazor.Severity.Error);
+                }
+                else
+                {
+                    Snackbar.Add("An error occurred while updating the project deadline.", MudBlazor.Severity.Error);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error: {ex}");
+                Snackbar.Add("An error occurred while updating the project date.", MudBlazor.Severity.Error);
+            }
+        }
+    }
+    #endregion Patch Project fields
+
+    #region Add and Get Tasks and Get progress and Task completed Handler.
+    /// <summary>
+    /// This adds a new Task.
+    /// </summary>
+    /// <returns></returns>
+    private async Task AddTaskHandler()
+    {
+        errorMessage = string.Empty;
+        var options = new DialogOptions
+            {
+                CloseOnEscapeKey = true,
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true
+            };
+
+        var DialogResponse = await IDialogService.ShowAsync<AddTaskDialog>("Add task dialog", options);
+
+        var result = await DialogResponse.Result;
+
+        TaskInputModel newTask = new();
+
+        if (result != null && !result.Canceled)
+        {
+
+            newTask = result.Data as TaskInputModel ?? new();
+            newTask.ProjectId = ProjectId;
+        }
+
+        try
+        {
+            var response = await HttpClient.PostAsJsonAsync<TaskInputModel>("/api/task/createtask", newTask);
+            if (response.IsSuccessStatusCode)
+            {
+                await GetTasks();
+                StateHasChanged();
+            }
+            else
+            {
+                errorMessage = $"Error: {response.ReasonPhrase}";
+            }
+        }
+        catch (HttpRequestException httpEx)
+        {
+            errorMessage = $"Request error: {httpEx.Message}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An unexpected error occurred: {ex.Message}";
+        }
+    }
+
+    /// <summary>
+    /// This gets tasks.
+    /// </summary>
+    /// <returns></returns>
+    public async Task GetTasks()
+    {
+        try
+        {
+            TasksList.Clear();
+            var response = await HttpClient.GetFromJsonAsync<List<TaskResponse>>($"api/task/projecttask/{ProjectId}");
+            TaskResponse = response ?? new List<TaskResponse>();
+            TasksList = TaskHelper.ConvertToTaskDisplay(TaskResponse);
+
+            if (TasksList.Count > 0)
+            {
+                _progressNumber = TaskHelper.GetProgress(TasksList);
+                StateHasChanged();
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+        }
+        catch (NotSupportedException ex)
+        {
+            Console.WriteLine($"Content type error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// This recalculates when the task status is changed.
+    /// </summary>
+    /// <returns></returns>
+    private async Task TaskCompletedChangedHandler()
+    {
+        await GetTasks();
+        StateHasChanged();
+    }
+    #endregion
+
+}

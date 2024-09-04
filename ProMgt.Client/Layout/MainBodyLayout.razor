@@ -1,12 +1,13 @@
 ﻿@inherits LayoutComponentBase
 @inject ThemeService ThemeService
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender:false))
 
 <MudThemeProvider IsDarkMode="@(ThemeService.CurrentTheme == ProMgtTheme.DarkTheme)" Theme="@ThemeService.CurrentTheme" />
 <MudAppBar Elevation="25">
     <MudIcon Icon="@CustomIcons.ProMgtLogoDark" Size="Size.Large" ViewBox="0 0 500 500" />
-    <MudText Typo="Typo.h6" Class="ml-4">CodeMoa</MudText>
+    <MudText Typo="Typo.h6" Class="ml-4">Promgt</MudText>
     <MudToolBar>
-        <MudIconButton Icon="@(_drawerOpen ? Icons.Material.Filled.SwitchLeft : Icons.Material.Filled.SwitchRight)" Color="Color.Inherit" OnClick="@((e) => DrawerToggle())" Class="ml-3" />
+        <MudIconButton Icon="@(_drawerOpen ? Icons.Material.Filled.SwitchLeft : Icons.Material.Filled.SwitchRight)" Color="Color.Inherit" OnClick="@(() => DrawerToggle())" Class="ml-3" />
     </MudToolBar>
     <MudSpacer />
     <MudTooltip Text="Toggle Dark Mode">
@@ -16,8 +17,8 @@
 <MudDrawer @bind-Open="_drawerOpen" Elevation="25" ClipMode="DrawerClipMode.Always">
     <NavMenu />
 </MudDrawer>
-<MudMainContent Class="mt-20 pa-2">
-    <MudContainer MaxWidth="MaxWidth.False">
+<MudMainContent Class="">
+    <MudContainer MaxWidth="MaxWidth.False" DisableGutters="true" Class="full-width-container">
         <CascadingValue Value="@IsDarkMode">
             @ChildContent
         </CascadingValue>

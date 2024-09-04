@@ -1,4 +1,4 @@
-using ProMgt.Client.Models;
+using ProMgt.Client.Models.AuthModels;
 
 namespace ProMgt.Client;
 

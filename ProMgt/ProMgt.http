@@ -1,0 +1,47 @@
+﻿@ProMgt_HostAddress = https://localhost:7013
+
+GET {{ProMgt_HostAddress}}/api/project
+
+###
+
+GET {{ProMgt_HostAddress}}/api/project/getstring
+
+###
+
+POST {{ProMgt_HostAddress}}/api/project
+Content-Type: application/json
+
+ {
+    "Name": "Project Zeta",
+    "Description": "Final review.",
+    "DateOfCreation": "2024-06-15T00:00:00",
+    "DeadLine": "2024-11-15T00:00:00",
+    "CreatedBy": "0b24d506-04e4-4a9c-b037-251721b7216e",
+    "IsCompleted": false,
+    "Tasks": null
+  }
+###
+
+POST {{ProMgt_HostAddress}}/api/project
+Content-Type: application/json
+
+{
+  "Name": "Project Amour",
+  "DeadLine": "2024-11-15T00:00:00"
+}
+
+###
+
+GET {{ProMgt_HostAddress}}/api/Project/5
+
+###
+
+POST {{ProMgt_HostAddress}}/api/project/createtask
+Content-Type: application/json
+
+{
+  "Name": "third task",
+  "ProjectId": 3
+}
+
+###

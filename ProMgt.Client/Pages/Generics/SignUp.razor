@@ -1,5 +1,4 @@
 ﻿@page "/signup"
-@using ProMgt.Client.Models
 @inject ISnackbar Snackbar
 @inject ThemeService ThemeService
 @inject NavigationManager NavigationManager
@@ -186,7 +185,7 @@
                         }
                     </ChildContent>
                     <ActionContent>
-                        @if (!_stepper.IsAllStepsCompleted())
+                        @if (!_stepper!.IsAllStepsCompleted())
                         {
                             <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="@(() => Snackbar.Add("Custom cancel button clicked.", MudBlazor.Severity.Info))">Cancel</MudButton>
                         }
@@ -300,7 +299,7 @@
                 }
                 else
                 {
-                    var errorMessage = await response.Content.ReadAsStringAsync();
+                    errorMessage = await response.Content.ReadAsStringAsync();
                     Snackbar.Add(errorMessage, MudBlazor.Severity.Error);
                 }
             }

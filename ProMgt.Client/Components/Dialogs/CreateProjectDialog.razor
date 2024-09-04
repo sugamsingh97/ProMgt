@@ -1,0 +1,83 @@
+﻿@using FluentValidation
+<EditForm Model="@ProjectForm" OnValidSubmit="Submit" OnInvalidSubmit="HandleInvalidSubmit">
+    <DataAnnotationsValidator />
+    @if (ShowMudPaper)
+    {
+        <MudPaper Class="px-8 py-4" Elevation="3">
+            <MudText Color="Color.Error">
+                <ValidationSummary />
+            </MudText>
+        </MudPaper>
+    }
+    <MudDialog Class="blur dialog-background"
+               TitleClass="blur dialog-background-title"
+               ContentClass="dialog-background-surface py-10"
+               ActionsClass="dialog-background-surface">
+        <TitleContent>
+            Create a new project
+        </TitleContent>
+        <DialogContent>
+            <MudItem Class="mb-4">
+                <MudTextField T="string"
+                              Label="Project name"
+                              RequiredError="User name is required!"
+                              For="@(()=>ProjectForm.Name)"
+                              @bind-Value="ProjectForm.Name" />
+            </MudItem>
+            <MudItem Class="mb-4">
+                <MudDatePicker Label="Project end date"
+                               For="@(()=>ProjectForm.DeadLine)"
+                               @bind-Date="ProjectForm.DeadLine" />
+            </MudItem>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" ButtonType="ButtonType.Submit">Create</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+<style>
+    .custom-chip {
+        width: 100px; /* Set your desired width */
+    }
+
+    .blur {
+        backdrop-filter: blur(10px);
+    }
+
+    .dialog-background {
+        background-color: transparent;
+    }
+
+    .dialog-background-title {
+        background: rgb(from var(--mud-palette-primary) r g b / 50%);
+        color: var(--mud-palette-white);
+    }
+
+    .dialog-background-surface {
+        background: rgb(from var(--mud-palette-surface) r g b / 75%);
+    }
+</style>
+
+@code {
+    private bool ShowMudPaper = false;
+    [CascadingParameter]
+    private MudDialogInstance? MudDialog { get; set; }
+    public ProjectInputModel ProjectForm { get; set; } = new();
+
+    private async void Submit(EditContext context)
+    {
+        await Task.CompletedTask;
+        MudDialog!.Close(DialogResult.Ok(ProjectForm));
+    }
+
+    private void Cancel() => MudDialog!.Cancel();
+
+
+    private void HandleInvalidSubmit()
+    {
+        ShowMudPaper = true;
+        StateHasChanged();
+    }
+}
