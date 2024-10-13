@@ -57,20 +57,6 @@
 
 @code {
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private IEnumerable<IdentityError>? identityErrors;
 
     [SupplyParameterFromForm]
@@ -87,10 +73,10 @@
 
 
 
-        // user.FirstName = "Rude";
-        // user.LastName = "Paul";
+        user.FirstName = "Rude";
+        user.LastName = "Paul";
 
-        // user.DateOfBirth = DateTime.Parse("08-04-2000");
+        user.DateOfBirth = DateTime.Parse("08-04-2000");
         await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
         var emailStore = GetEmailStore();
         await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);

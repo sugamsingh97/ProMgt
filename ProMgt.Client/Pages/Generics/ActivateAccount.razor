@@ -1,0 +1,55 @@
+﻿@page "/Activateaccount"
+
+@using System.Text
+
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+
+<PageTitle>Confirm email</PageTitle>
+
+<h1>Confirm email</h1>
+<AlertMessage Message="@statusMessage" />
+
+@code {
+    private string? statusMessage;
+
+    [SupplyParameterFromQuery]
+    private string? UserId { get; set; }
+
+    [SupplyParameterFromQuery]
+    private string? Code { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (UserId is null || Code is null)
+        {
+            NavigationManager.NavigateTo("");
+            return;
+        }
+
+        var encodedCode = Convert.ToBase64String(Encoding.UTF8.GetBytes(Code));
+
+        var activateAccountModel = new ActivateAccountModel
+            {
+                UserId = UserId,
+                Code = encodedCode
+            };
+
+        var response = await HttpClient.PostAsJsonAsync("api/auth/activate-account", activateAccountModel);
+
+        if (response.IsSuccessStatusCode)
+        {
+            statusMessage = "Thank you for confirming your email.";
+        }
+        else
+        {
+            statusMessage = "Error confirming your email.";
+        }     
+    }
+
+    private class ActivateAccountModel
+    {
+        public string UserId { get; set; } = string.Empty;
+        public string Code { get; set; } = string.Empty;
+    }
+}

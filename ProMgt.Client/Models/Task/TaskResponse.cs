@@ -23,6 +23,11 @@ namespace ProMgt.Client.Models.Task
         public string CreatedBy { get; set; } = string.Empty;
 
         public bool IsCompleted { get; set; }
+        public int? PriorityId { get; set; }
+        public int? TaskStatusId { get; set; }
+
+        public string? PriorityHexcode { get; set; }
+        public string? TaskStatusHexcode { get; set; }
 
         public virtual ProjectResponse Project { get; set; } = new();
     }

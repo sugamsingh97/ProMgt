@@ -1,4 +1,5 @@
 ﻿@using FluentValidation
+@using System.ComponentModel.DataAnnotations
 <EditForm Model="@ProjectForm" OnValidSubmit="Submit" OnInvalidSubmit="HandleInvalidSubmit">
     <DataAnnotationsValidator />
     @if (ShowMudPaper)
@@ -9,23 +10,20 @@
             </MudText>
         </MudPaper>
     }
-    <MudDialog Class="blur dialog-background"
-               TitleClass="blur dialog-background-title"
-               ContentClass="dialog-background-surface py-10"
-               ActionsClass="dialog-background-surface">
+    <MudDialog Class="fullscreen-dialog">
         <TitleContent>
             Create a new project
         </TitleContent>
         <DialogContent>
             <MudItem Class="mb-4">
-                <MudTextField T="string"
+                <MudTextField T="string" Immediate="false"
                               Label="Project name"
                               RequiredError="User name is required!"
                               For="@(()=>ProjectForm.Name)"
                               @bind-Value="ProjectForm.Name" />
             </MudItem>
             <MudItem Class="mb-4">
-                <MudDatePicker Label="Project end date"
+                <MudDatePicker Label="Project end date"                               
                                For="@(()=>ProjectForm.DeadLine)"
                                @bind-Date="ProjectForm.DeadLine" />
             </MudItem>
@@ -38,6 +36,13 @@
 </EditForm>
 
 <style>
+    .fullscreen-dialog {
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        max-height: 100vh;
+        transition: all 0.5s ease-in-out;
+    }
     .custom-chip {
         width: 100px; /* Set your desired width */
     }
@@ -64,12 +69,16 @@
     private bool ShowMudPaper = false;
     [CascadingParameter]
     private MudDialogInstance? MudDialog { get; set; }
-    public ProjectInputModel ProjectForm { get; set; } = new();
+    public ProjectCreateModel ProjectForm { get; set; } = new();
 
-    private async void Submit(EditContext context)
+    private async void Submit()
     {
-        await Task.CompletedTask;
-        MudDialog!.Close(DialogResult.Ok(ProjectForm));
+        if (ProjectForm != null)
+        {
+            await Task.CompletedTask;
+            MudDialog!.Close(DialogResult.Ok(ProjectForm));
+        }    
+
     }
 
     private void Cancel() => MudDialog!.Cancel();

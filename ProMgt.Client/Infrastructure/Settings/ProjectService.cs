@@ -1,8 +1,22 @@
-﻿namespace ProMgt.Client.Infrastructure.Settings
+﻿using MudBlazor;
+using ProMgt.Client.Components.Dialogs;
+using ProMgt.Client.Models.Project;
+using ProMgt.Client.Models.Task;
+using System.Net.Http.Json;
+
+
+namespace ProMgt.Client.Infrastructure.Settings
 {
     public class ProjectService
     {
         private bool _isCompleted;
+        private readonly IDialogService _dialogService;
+        private readonly HttpClient _httpClient;
+        public ProjectService(IDialogService dialogService, HttpClient httpClient)
+        {
+            _dialogService = dialogService;
+            _httpClient = httpClient;
+        }
         public Func<Task> OnTaskCompletedChanged;
         public bool IsCompleted()
         {
@@ -16,6 +30,162 @@
             {
                 await OnTaskCompletedChanged.Invoke();
             }
-        }        
+        }
+
+        private bool _isDrawerOpen = false;
+        public Func<Task> OnDrawerOpenChange;
+
+        public bool IsDrawerOpen()
+        {
+            return _isDrawerOpen;
+        }
+
+        public async void ToggleDrawer()
+        {
+            _isDrawerOpen = !_isDrawerOpen;
+
+            if (OnDrawerOpenChange != null)
+            {
+                await OnDrawerOpenChange.Invoke();
+            }
+
+        }
+
+        // New Field updated
+        public event Func<Task> OnFieldChanges;
+        public async Task TriggerFieldChanges()
+        {
+            if (OnFieldChanges != null)
+            {
+                await OnFieldChanges.Invoke();
+            }
+        }
+
+
+        // Update Project List
+        public event Func<Task> OnProjectNameUpdated;
+
+        public async Task TriggerProjectNameUpdated()
+        {
+            if (OnProjectNameUpdated != null)
+            {
+                await OnProjectNameUpdated.Invoke();
+            }
+        }
+
+        //project added
+        public Func<Task> OnNewProjectAddedChanged;
+  
+        public string errorMessage { get; set; } = string.Empty;
+        public async void CreateNewProject()
+        {
+            errorMessage = string.Empty;
+            var options = new DialogOptions
+            {
+                CloseOnEscapeKey = true,
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true
+            };
+
+            var dialogResponse = await _dialogService.ShowAsync<CreateProjectDialog>("Create new Project", options);
+
+            var result = await dialogResponse.Result;
+            ProjectCreateModel projectResponse = new();
+
+
+            if (result != null && !result.Canceled)
+            {
+
+                projectResponse = result.Data as ProjectCreateModel ?? new ProjectCreateModel();
+                
+            }
+            ProjectInputModel newProjectResponse = new()
+            {
+                Name = projectResponse.Name,
+                Description = projectResponse.Description,
+                DeadLine = projectResponse.DeadLine
+
+            };
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync<ProjectInputModel>("api/project", newProjectResponse);
+                if (response.IsSuccessStatusCode)
+                {
+
+                    if (OnNewProjectAddedChanged != null)
+                    {
+                        await OnNewProjectAddedChanged.Invoke();
+                    }
+                }
+                else
+                {
+                    errorMessage = $"Error: {response.ReasonPhrase}";
+                }
+
+            }
+            catch (HttpRequestException httpEx)
+            {
+                errorMessage = $"Request error: {httpEx.Message}";
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"An unexpected error occurred: {ex.Message}";
+            }
+        }
+
+
+        //New task added
+        public Func<Task> OnNewTaskAddedChanged;
+
+        public async void CreateNewTask(int ProjectId)
+        {
+            errorMessage = string.Empty;
+            var options = new DialogOptions
+            {
+                CloseOnEscapeKey = true,
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true
+            };
+
+            var DialogResponse = await _dialogService.ShowAsync<AddTaskDialog>("Add task dialog", options);
+
+            var result = await DialogResponse.Result;
+
+            TaskInputModel newTask = new();
+
+            if (result != null && !result.Canceled)
+            {
+
+                newTask = result.Data as TaskInputModel ?? new();
+                newTask.ProjectId = ProjectId;
+            }
+
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync<TaskInputModel>("/api/task/createtask", newTask);
+                if (response.IsSuccessStatusCode)
+                {
+
+                    if (OnNewTaskAddedChanged != null)
+                    {
+                        await OnNewTaskAddedChanged.Invoke();
+                    }
+                }
+                else
+                {
+                    errorMessage = $"Error: {response.ReasonPhrase}";
+                }
+            }
+            catch (HttpRequestException httpEx)
+            {
+                errorMessage = $"Request error: {httpEx.Message}";
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"An unexpected error occurred: {ex.Message}";
+            }
+        }
     }
 }

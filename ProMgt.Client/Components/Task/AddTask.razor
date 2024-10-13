@@ -1,0 +1,76 @@
+﻿@using System.ComponentModel.DataAnnotations
+@inject HttpClient HttpClient
+<MudGrid Style="padding: 24px;">
+    <MudItem xs="12">
+        <EditForm Model="@NewTask" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator />
+            <MudItem>The Project Id is @ProjectId</MudItem>
+            <MudItem xs="12">
+                <MudTextField Label="Task name"
+                              HelperText="Max. 8 characters"
+                              @bind-Value="NewTask.Name"
+                              For="@(() => NewTask.Name)" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField T="string"
+                              Label="Description"
+                              Variant="Variant.Text"
+                              Text="@NewTask.Description"
+                              @bind-Value="NewTask.Description"
+                              AutoGrow Lines="3"
+                              HelperText="Describe the task" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudDatePicker Label="Deadline" @bind-Date="NewTask.DeadLine" />
+            </MudItem>
+            <MudItem xs="12" Style="padding: 24px;">
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Add Task</MudButton>
+            </MudItem>
+        </EditForm>
+    </MudItem>
+</MudGrid>
+
+
+@code {
+    [Parameter]
+    public int ProjectId { get; set; }
+    public TaskInputModel NewTask { get; set; } = new();
+
+    public string? errorMessage { get; set; } = string.Empty;
+
+    private async Task OnValidSubmit()
+    {
+        errorMessage = string.Empty;
+        NewTask.ProjectId = ProjectId;
+
+        TaskInputModel _newTask = new()
+            {
+                Name = NewTask.Name,
+                Description = NewTask.Description,
+                DeadLine = NewTask.DeadLine,
+                ProjectId = NewTask.ProjectId
+            };
+
+        try
+        {
+            var response = await HttpClient.PostAsJsonAsync<TaskInputModel>("/api/task/createtask", _newTask);
+            if (response.IsSuccessStatusCode)
+            {
+                StateHasChanged();
+
+            }
+            else
+            {
+                errorMessage = $"Error: {response.ReasonPhrase}";
+            }
+        }
+        catch (HttpRequestException httpEx)
+        {
+            errorMessage = $"Request error: {httpEx.Message}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An unexpected error occurred: {ex.Message}";
+        }
+    }
+}

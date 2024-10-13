@@ -10,5 +10,7 @@ namespace ProMgt.Client.Models.Project
         public DateTime DateOfCreation { get; set; }
         public DateTime? DeadLine { get; set; }
         public bool IsCompleted { get; set; }
+        public int? ProjectStatusId { get; set; }
+
     }
 }

@@ -1,0 +1,48 @@
+﻿@page "/SignupConfirmation"
+
+@using System.Text
+
+@inject NavigationManager NavigationManager
+
+<PageTitle>Register confirmation</PageTitle>
+
+<h1>Register confirmation</h1>
+
+<AlertMessage Message="@statusMessage" />
+
+@if (emailConfirmationLink is not null)
+{
+            <p>
+                This app does not currently have a real email sender registered, see <a href="https://aka.ms/aspaccountconf">these docs</a> for how to configure a real email sender.
+                Normally this would be emailed: <a href="@emailConfirmationLink">Click here to confirm your account</a>
+            </p>
+}
+else
+{
+            <p>Please check your email to confirm your account.</p>
+}
+
+@code {
+    private string? emailConfirmationLink;
+    private string? statusMessage;
+
+    [SupplyParameterFromQuery]
+    private string? Email { get; set; }
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Email is null)
+        {
+            NavigationManager.NavigateTo("");
+            return;
+        }
+
+        // Check if the email confirmation link was passed as a query parameter
+        emailConfirmationLink = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query.Contains("code")
+            ? NavigationManager.Uri
+            : null;
+    }
+}

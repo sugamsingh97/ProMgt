@@ -289,11 +289,17 @@
                         Snackbar.Add("Registration successful. Please check your email to confirm your account.", MudBlazor.Severity.Success);
                         if (result.RequireConfirmedAccount)
                         {
-                            NavigationManager.NavigateTo($"registerconfirmation?email={Input.Email}");
+                            var callbackUrl = NavigationManager.GetUriWithQueryParameters(NavigationManager.ToAbsoluteUri("/Activateaccount").AbsoluteUri, new Dictionary<string, object?> { ["userId"] = result.UserId, ["code"] = result.Code, ["returnUrl"] = ReturnUrl });
+                            var emailSentResponse = await HttpClient.PostAsJsonAsync("api/auth/sendconflink", new { Email = Input.Email, CallbackUrl = callbackUrl });
+                            if (emailSentResponse.IsSuccessStatusCode)
+                            {
+                                Snackbar.Add("Confirmation link sent. Please check your email.", MudBlazor.Severity.Info);
+                            }
+                            NavigationManager.NavigateTo($"signupconfirmation?email={Input.Email}");
                         }
                         else
                         {
-                            NavigationManager.NavigateTo(ReturnUrl ?? "/");
+                            NavigationManager.NavigateTo(ReturnUrl ?? "/home");
                         }
                     }
                 }
@@ -305,7 +311,8 @@
             }
             else
             {
-                Snackbar.Add(errorMessage, MudBlazor.Severity.Error);
+                
+                Snackbar.Add("An Error has occured.", MudBlazor.Severity.Error);
             }
         }
     }

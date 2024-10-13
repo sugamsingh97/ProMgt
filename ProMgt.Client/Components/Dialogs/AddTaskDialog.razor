@@ -19,6 +19,7 @@
         <DialogContent>
             <MudItem Class="mb-4">
                 <MudTextField T="string"
+                              Immediate="false"                              
                               Label="Task name"
                               RequiredError="Task name is required!"
                               For="@(()=>NewTask.Name)"
@@ -66,11 +67,13 @@
     private MudDialogInstance? MudDialog { get; set; }
     public TaskInputModel NewTask { get; set; } = new();
 
-    private async void Submit(EditContext context)
+    private async void Submit()
     {
-        await Task.CompletedTask;
-
-        MudDialog!.Close(DialogResult.Ok(NewTask));
+        if (NewTask != null)
+        {
+            await Task.CompletedTask;
+            MudDialog!.Close(DialogResult.Ok(NewTask));
+        }        
     }
 
     private void Cancel() => MudDialog!.Cancel();

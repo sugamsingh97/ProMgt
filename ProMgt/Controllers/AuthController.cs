@@ -8,11 +8,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
+using ProMgt.Components.Account;
 using MudBlazor;
 using ProMgt.Data;
 using System.Text;
 using System.Text.Encodings.Web;
 using ProMgt.Client.Models.AuthModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity;
+using IdentityRedirectManager = ProMgt.Components.Account.IdentityRedirectManager;
 
 namespace ProMgt.Controllers
 {
@@ -68,19 +72,19 @@ namespace ProMgt.Controllers
         }
 
         [HttpPost("sendconflink")]
-        public async Task<IActionResult> SendConfirmationLink(string email, string callbackUrl)
+        public async Task<IActionResult> SendConfirmationLink([FromBody] SendConfirmationLinkRequest request)
         {
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null)
             {
                 return NotFound("User not found.");
             }
 
-            if (callbackUrl == null)
+            if (request.CallbackUrl == null)
             {
                 return BadRequest("Failed to generate confirmation URL.");
             }
-            await _emailSender.SendConfirmationLinkAsync(user, email, callbackUrl);
+            await _emailSender.SendConfirmationLinkAsync(user, request.Email, request.CallbackUrl);
             return Ok("Confirmation link sent. Please check your email.");
         }
 
@@ -145,6 +149,42 @@ namespace ProMgt.Controllers
 
         }
 
+        [HttpPost("activate-account")]
+        public async Task<IActionResult> ActivateAccount([FromBody] ActivateAccountModel model)
+        {
+            if (model.UserId == null || model.Code == null)
+            {
+                return BadRequest("Invalid activation request.");
+            }
+
+            var user = await _userManager.FindByIdAsync(model.UserId);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Code));
+            var result = await _userManager.ConfirmEmailAsync(user, code);
+
+            if (result.Succeeded)
+            {
+                return Ok("Account activated successfully.");
+            }
+
+            return BadRequest("Error activating account.");
+        }
+
+        [HttpGet("status-message")]
+        public IActionResult GetStatusMessage()
+        {
+            var message = Request.Cookies[IdentityRedirectManager.StatusCookieName];
+            if (message != null)
+            {
+                Response.Cookies.Delete(IdentityRedirectManager.StatusCookieName);
+            }
+            return Ok(message);
+        }
+
         private IUserEmailStore<ApplicationUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
@@ -166,5 +206,33 @@ namespace ProMgt.Controllers
                     $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
             }
         }
+
+        // POST: api/Auth/SignOut
+        [HttpPost("signout")]
+        [Authorize]
+        public async Task<IActionResult> SignOut([FromForm] string returnUrl)
+        {
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                return Unauthorized();
+            }
+
+            await _signInManager.SignOutAsync();
+            return Ok(new { message = "Sign-out successful", returnUrl });
+        }        
+
+    }
+    public class SendConfirmationLinkRequest
+    {
+        public string Email { get; set; }
+        public string CallbackUrl { get; set; }
+    }
+    public class ActivateAccountModel
+    {
+        [Required]
+        public string UserId { get; set; } = string.Empty;
+
+        [Required]
+        public string Code { get; set; } = string.Empty;
     }
 }

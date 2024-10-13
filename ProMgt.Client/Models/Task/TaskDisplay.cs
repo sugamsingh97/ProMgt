@@ -11,5 +11,8 @@ namespace ProMgt.Client.Models.Task
         public DateTime? DeadLine { get; set; }      
         public bool IsCompleted { get; set; }
         public string? Description { get; set; } = string.Empty;
+
+        public int? PriorityId { get; set; }
+        public int? TaskStatusId { get; set; }
     }
 }

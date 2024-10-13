@@ -5,7 +5,7 @@
 namespace ProMgt.Migrations.ProjectDb
 {
     /// <inheritdoc />
-    public partial class UpdateTaskMig : Migration
+    public partial class ProjectTaskNewUpdateMig : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

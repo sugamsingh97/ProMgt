@@ -1,0 +1,25 @@
+﻿@inject HttpClient HttpClient
+
+@if (!string.IsNullOrEmpty(DisplayMessage))
+{
+    var severity = DisplayMessage.StartsWith("Error") ? MudBlazor.Severity.Error : MudBlazor.Severity.Success;
+
+    <MudAlert Variant="Variant.Outlined" Severity="@severity">@DisplayMessage</MudAlert>
+}
+
+@code {
+    private string? messageFromCookie;
+
+    [Parameter]
+    public string? Message { get; set; }   
+
+    private string? DisplayMessage => Message ?? messageFromCookie;
+
+    protected override async void OnInitialized()
+    {
+        if (Message != null)
+        {
+            messageFromCookie = await HttpClient.GetStringAsync("api/auth/status-message");
+        }
+    }
+}

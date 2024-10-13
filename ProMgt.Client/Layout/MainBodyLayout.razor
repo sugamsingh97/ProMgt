@@ -1,21 +1,47 @@
 ﻿@inherits LayoutComponentBase
 @inject ThemeService ThemeService
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender:false))
+@inject IDialogService DialogService
+@inject HttpClient HttpClient
+@inject ProjectService ProjectService
 
 <MudThemeProvider IsDarkMode="@(ThemeService.CurrentTheme == ProMgtTheme.DarkTheme)" Theme="@ThemeService.CurrentTheme" />
-<MudAppBar Elevation="25">
-    <MudIcon Icon="@CustomIcons.ProMgtLogoDark" Size="Size.Large" ViewBox="0 0 500 500" />
-    <MudText Typo="Typo.h6" Class="ml-4">Promgt</MudText>
-    <MudToolBar>
-        <MudIconButton Icon="@(_drawerOpen ? Icons.Material.Filled.SwitchLeft : Icons.Material.Filled.SwitchRight)" Color="Color.Inherit" OnClick="@(() => DrawerToggle())" Class="ml-3" />
-    </MudToolBar>
+<MudAppBar Color="Color.Dark" Elevation="25">
+    <MudIconButton Edge="Edge.Start" Icon="@(_drawerOpen ? Icons.Material.Filled.SwitchLeft : Icons.Material.Filled.SwitchRight)" Color="Color.Inherit" OnClick="@(() => DrawerToggle())" />
+    <MudMenu FullWidth="true" AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.TopLeft">
+        <ActivatorContent>
+            <MudButton Size="Size.Small" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.AddCircle" Variant="Variant.Outlined" IconColor="Color.Secondary" Class="rounded-xl">Create</MudButton>
+        </ActivatorContent>
+        <ChildContent>
+            <MudMenuItem OnClick="CreateNewProject">Project</MudMenuItem>
+            <MudMenuItem>Task</MudMenuItem>
+            <MudMenuItem>Message</MudMenuItem>
+            <MudMenuItem>Invite</MudMenuItem>
+        </ChildContent>
+    </MudMenu>
     <MudSpacer />
+    <MudTextField Margin="Margin.Dense" Class="rounded-xl" @bind-Value="TextValue" Placeholder="Searching..." Variant="Variant.Outlined"></MudTextField>
+    <MudSpacer />
+    <MudTooltip Text="Toggle Dark Mode">
+        <MudIconButton Icon="@Icons.Material.Filled.Draw" Color="Color.Inherit" OnClick="@InfoDrawer" />
+    </MudTooltip>
     <MudTooltip Text="Toggle Dark Mode">
         <MudIconButton Icon="@(IsDarkMode ? Icons.Material.Filled.DarkMode : Icons.Material.Outlined.DarkMode)" Color="Color.Inherit" OnClick="@ToggleDarkMode" />
     </MudTooltip>
 </MudAppBar>
-<MudDrawer @bind-Open="_drawerOpen" Elevation="25" ClipMode="DrawerClipMode.Always">
+<MudDrawer Color="Color.Dark" @bind-Open="_drawerOpen" Elevation="25" ClipMode="DrawerClipMode.Docked">
     <NavMenu />
+</MudDrawer>
+<MudDrawer @bind-Open="@_openInfoDrawer" Width="30%" Anchor="Anchor.End" Elevation="1" Variant="@DrawerVariant.Temporary" Overlay="true" OverlayC OverlayAutoClose="true">
+    <MudDrawerHeader>
+        <MudText Typo="Typo.h6">My App</MudText>
+    </MudDrawerHeader>
+    <MudNavMenu>
+        <MudNavLink Match="NavLinkMatch.All">Store</MudNavLink>
+        <MudNavLink Match="NavLinkMatch.All">Library</MudNavLink>
+        <MudNavLink Match="NavLinkMatch.All">Community</MudNavLink>
+        <MudNavLink OnClick="_ => _openInfoDrawer = false">Close Drawer</MudNavLink>
+    </MudNavMenu>
 </MudDrawer>
 <MudMainContent Class="">
     <MudContainer MaxWidth="MaxWidth.False" DisableGutters="true" Class="full-width-container">
@@ -26,6 +52,9 @@
 </MudMainContent>
 
 @code {
+    public string? errorMessage { get; set; }
+    public string? TextValue { get; set; }
+    private bool _openInfoDrawer;
     private MudTheme _currentTheme = ProMgtTheme.DefaultTheme;
     [Parameter]
     public EventCallback OnDarkModeToggle { get; set; }
@@ -42,4 +71,68 @@
     {
         _drawerOpen = !_drawerOpen;
     }
+
+    private void InfoDrawer()
+    {
+        _openInfoDrawer = !_openInfoDrawer;
+
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        ProjectService.OnNewProjectAddedChanged += ProjectAddedHandler;
+    }
+    #region
+    // Create new project Dilaog open and Api Call
+
+    private async Task ProjectAddedHandler()
+    {
+        StateHasChanged();
+    }
+    private async Task CreateNewProject()
+    {
+        ProjectService.CreateNewProject();
+
+        // errorMessage = string.Empty;
+        // var options = new DialogOptions
+        //     {
+        //         CloseOnEscapeKey = true,
+        //         CloseButton = true,
+        //         MaxWidth = MaxWidth.Small,
+        //         FullWidth = true
+        //     };
+
+        // var dialogResponse = await DialogService.ShowAsync<CreateProjectDialog>("Create new Project", options);
+
+        // var result = await dialogResponse.Result;
+        // ProjectInputModel projectResponse = new();
+
+        // if (result != null && !result.Canceled)
+        // {
+        //     projectResponse = result.Data as ProjectInputModel ?? new();
+
+        // }
+        // try
+        // {
+        //     var response = await HttpClient.PostAsJsonAsync<ProjectInputModel>("api/project", projectResponse);
+        //     if (response.IsSuccessStatusCode)
+        //     {
+                
+        //         StateHasChanged();
+        //     }
+        //     else
+        //     {
+        //         errorMessage = $"Error: {response.ReasonPhrase}";
+        //     }
+
+        // }
+        // catch (HttpRequestException httpEx)
+        // {
+        //     errorMessage = $"Request error: {httpEx.Message}";
+        // }
+        // catch (Exception ex)
+        // {
+        //     errorMessage = $"An unexpected error occurred: {ex.Message}";
+        // }
+    }
+    #endregion
 }

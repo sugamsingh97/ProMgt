@@ -1,4 +1,5 @@
 ﻿using MudBlazor;
+using static MudBlazor.CategoryTypes;
 
 namespace ProMgt.Client.Infrastructure.Settings
 {
@@ -62,7 +63,7 @@ namespace ProMgt.Client.Infrastructure.Settings
                 LineHeight = 1.6,
                 LetterSpacing = ".0075em"
             },
-            Button = new Button()
+            Button = new MudBlazor.Button()
             {
                 FontFamily = new[] { "Montserrat", "Helvetica", "Arial", "sans-serif" },
                 FontSize = ".875rem",
@@ -109,19 +110,58 @@ namespace ProMgt.Client.Infrastructure.Settings
             DefaultBorderRadius = "3px",
             AppbarHeight = "50px"
         };
-
+        public static ZIndex ZIndex = new ZIndex()
+        {
+            Drawer = 1301,
+            Popover = 1303,
+            AppBar = 1300,
+            Dialog = 1400,
+            Snackbar = 1500,
+            Tooltip = 1600
+        }; 
         public static MudTheme DefaultTheme = new MudTheme()
         {
             PaletteLight = new PaletteLight()
             {
-                Primary = Colors.DeepPurple.Default,
-                AppbarBackground = Colors.DeepPurple.Default,
-                Background = Colors.Gray.Lighten5,
-                Secondary = Colors.Green.Default,
-                Tertiary = Colors.Brown.Default,
-                DrawerBackground = Colors.Gray.Lighten5,
-                DrawerText = "rgba(0,0,0, 0.7)",
-                Success = "#007E33"
+                Primary = Colors.Green.Accent4,
+                PrimaryContrastText = "#FFFFFF",
+
+                Secondary = Colors.DeepOrange.Darken1,
+                SecondaryContrastText = "#FFFFFF",
+
+                Tertiary = "#ffffff",
+                TertiaryContrastText = "#ffffff",
+
+
+                Info = "#007bc3",
+                Success = "#3ea44e",
+                Warning = "#ff9800",
+                Error = "#d92800",
+
+                Dark = "#404040",
+                DarkLighten = "#ebebeb",
+                TextDisabled = "#8f8f8f",
+                Background = "#ffffff",
+
+                TextPrimary = "#404040",
+                TextSecondary = "#666666",
+
+                AppbarBackground = Colors.Gray.Darken3,
+                AppbarText = "#ffffff",
+
+                //DrawerBackground = Colors.Gray.Darken3,
+                //DrawerText = "#ffffff",
+
+                //Primary = Colors.DeepPurple.Accent3,
+                //Secondary = Colors.Green.Default,
+                //Tertiary = Colors.Gray.Darken4,
+                //AppbarBackground = Colors.Gray.Lighten5,
+                //Background = Colors.Gray.Lighten5,                
+                //DrawerBackground = Colors.Gray.Lighten5,
+                //DrawerText = "rgba(0,0,0, 0.7)",
+                //Success = "#007E33",
+                //Surface = Colors.Gray.Lighten5,
+                //AppbarText = "rgba(255,255,255, 0.70)",
             },
             Typography = DefaultTypography,
             LayoutProperties = DefaultLayoutProperties
@@ -131,22 +171,51 @@ namespace ProMgt.Client.Infrastructure.Settings
         {
             PaletteDark = new PaletteDark()
             {
-                Primary = "#1E88E5",
-                Success = "#007E33",
-                Black = "#27272f",
-                Background = "#32333d",
-                BackgroundGray = "#27272f",
-                Surface = "#373740",
-                DrawerBackground = "#27272f",
-                DrawerText = "rgba(255,255,255, 0.50)",
-                AppbarBackground = "#373740",
-                AppbarText = "rgba(255,255,255, 0.70)",
-                TextPrimary = "rgba(255,255,255, 0.70)",
-                TextSecondary = "rgba(255,255,255, 0.50)",
-                ActionDefault = "#adadb1",
-                ActionDisabled = "rgba(255,255,255, 0.26)",
-                ActionDisabledBackground = "rgba(255,255,255, 0.12)",
-                DrawerIcon = "rgba(255,255,255, 0.50)"
+                Primary = Colors.Green.Accent4,
+                Secondary = Colors.DeepOrange.Darken1,
+                Tertiary = "#1E1F21",
+
+                Info = "#007bc3",
+                Success = "#3ea44e",
+                Warning = "#ff9800",
+                Error = "#d92800",
+
+
+                Surface = "#1E1F21",
+
+                Dark = "#404040",
+                DarkLighten = "#ebebeb",
+                TextDisabled = "#d0d0d0",
+
+                Background = "#1E1F21",
+
+                TextPrimary = "#ffffff",
+                TextSecondary = "#e0e0e0",
+
+                //AppbarBackground = Colors.Gray.Darken3,
+                //AppbarText = "#ffffff",
+
+                //DrawerBackground = Colors.Gray.Darken3,
+                //DrawerText = "#ffffff",
+
+                //Primary = Colors.DeepPurple.Accent3,
+                //Secondary = Colors.Green.Default,               
+                //Tertiary = Colors.Gray.Darken4,
+                //Success = "#007E33",
+                //Black = "#27272f",
+                //Background = "#32333d",
+                //BackgroundGray = "#27272f",
+                //Surface = Colors.Gray.Darken3,
+                //DrawerBackground = "#27272f",
+                //DrawerText = "rgba(255,255,255, 0.50)",
+                //AppbarBackground = Colors.Gray.Darken3,
+                //AppbarText = "rgba(255,255,255, 0.70)",
+                //TextPrimary = "rgba(255,255,255, 0.70)",
+                //TextSecondary = "rgba(255,255,255, 0.50)",
+                //ActionDefault = "#adadb1",
+                //ActionDisabled = "rgba(255,255,255, 0.26)",
+                //ActionDisabledBackground = "rgba(255,255,255, 0.12)",
+                //DrawerIcon = "rgba(255,255,255, 0.50)"
             },
             Typography = DefaultTypography,
             LayoutProperties = DefaultLayoutProperties

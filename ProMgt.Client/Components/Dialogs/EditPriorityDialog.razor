@@ -1,0 +1,124 @@
+﻿@using FluentValidation
+@using System.Net.Http.Json
+@using System.Text.Json
+@inject HttpClient HttpClient
+
+<EditForm Model="@NewPriority" OnValidSubmit="Submit" OnInvalidSubmit="HandleInvalidSubmit">
+
+    <MudDialog Class="fullscreen-dialog">
+        <TitleContent>
+            Edit Priority
+        </TitleContent>
+        <DialogContent>
+            <MudItem Class="d-flex justify-center align-center">
+                <MudItem>
+                    <MudStack Spacing="0">
+                        <MudMenu Class="pr-2" FullWidth="false" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
+                            <ActivatorContent>
+                                @* <MudIconButton Icon="@Icons.Material.Filled.Circle" Color="Color.Primary" Size="Size.Small" /> *@
+                                <MudIconButton Icon="@Icons.Material.Filled.ArrowDropDown" Variant="Variant.Filled" Color="Color.Primary" Style="@($"background-color: {ColorHex};")" Size="Size.Small" />
+                            </ActivatorContent>
+                            <ChildContent>
+                                <FieldColorPalette OnColorSelected="HandleValueChanged" />
+                            </ChildContent >
+                        </MudMenu>
+                    </MudStack>
+                </MudItem>
+                <MudItem>
+                    <MudTextField Immediate="false"
+                        T="string"
+                        Placeholder="Untitled-priority"
+                        For="@(()=>Name)"
+                        @bind-Value="Name"
+                        Variant="Variant.Outlined"
+                        Margin="Margin.Dense" />
+                </MudItem>
+                <MudSpacer />                
+            </MudItem>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" ButtonType="ButtonType.Submit">Save</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+<style>
+    .custom-chip {
+        width: 100px; /* Set your desired width */
+    }
+
+    .blur {
+        backdrop-filter: blur(10px);
+    }
+
+    .dialog-background {
+        background-color: transparent;
+    }
+
+    .dialog-background-title {
+        background: rgb(from var(--mud-palette-primary) r g b / 50%);
+        color: var(--mud-palette-white);
+    }
+
+    .dialog-background-surface {
+        background: rgb(from var(--mud-palette-surface) r g b / 75%);
+    }
+</style>
+
+@code {
+    public string? Name;
+    public int ColorId { get; set; } = 1;
+    public string? ColorHex { get; set; } = "#A6A3A3";
+
+
+    public PriorityInputModel? NewPriority { get; set; } = new();
+
+    [CascadingParameter]
+    private MudDialogInstance? MudDialog { get; set; }
+
+    private async void Submit()
+    {
+        NewPriority.ColorId = ColorId;
+        NewPriority.Name = Name;
+        await Task.CompletedTask;
+        MudDialog!.Close(DialogResult.Ok(NewPriority));
+    }
+
+    private void Cancel() => MudDialog!.Cancel();
+
+
+    private void HandleInvalidSubmit()
+    {
+
+        StateHasChanged();
+    }   
+
+    private async void HandleValueChanged(int value)
+    {
+        ColorId = value;
+        
+        try
+        {
+            var response = await HttpClient.GetFromJsonAsync<ColorResponse>($"api/project/gethexcode/{value}");
+
+            ColorHex = response.color;
+
+            // Do something with the received value
+            StateHasChanged(); // Notify Blazor that the state has changed
+        }
+        catch (HttpRequestException e)
+        {
+            // Handle the error (e.g., log it, show a message to the user)
+            Console.WriteLine($"Error fetching hex code: {e.Message}");
+        }
+
+        // Do something with the received value
+    }
+
+    private class ColorResponse
+    {
+        public string color { get; set; }
+    }
+
+}

@@ -18,6 +18,8 @@ namespace ProMgt.Client.Models.Project
         public string CreatedBy { get; set; } = string.Empty;
 
         public bool IsCompleted { get; set; }
+        public int? ProjectStatusId { get; set; }
+
 
         // public virtual ICollection<ProjectTask>? Tasks { get; set; }
     }

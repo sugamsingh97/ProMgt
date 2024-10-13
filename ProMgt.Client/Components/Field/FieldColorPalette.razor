@@ -1,0 +1,48 @@
+﻿@using System.Net.Http.Json
+@using System.Text.Json
+@inject HttpClient HttpClient
+<MudPaper style="height: 175px;width: fit-content;" Class="mud-paper mud-elevation-1 d-flex justify-center align-center">
+    <MudStack class="d-flex flex-column align-start flex-wrap gap-0" Wrap="Wrap.Wrap" Style=" width: 50px; height: 175px; padding: 4px;" Spacing="0" Row="false" AlignItems="AlignItems.Start">
+        @foreach (var proCol in ProjectColors)
+        {
+            <MudIconButton OnClick="() => FieldColorPickerHandler(proCol.Id)" Class="pa-0" Size="Size.Small" Icon="@Icons.Material.Filled.Circle" Style="@($"color: {proCol.HexCode};")" />
+        }
+    </MudStack>
+</MudPaper>
+
+@code {
+    [Parameter]
+    public EventCallback<int> OnColorSelected { get; set; }
+    public List<ProjectColorResponse> ProjectColors { get; set; } = new();
+
+    public async Task FieldColorPickerHandler(int _id)
+    {
+        await OnColorSelected.InvokeAsync(_id);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetProjectColors();
+    }
+    public async Task GetProjectColors()
+    {
+        try
+        {
+            var response = await HttpClient.GetFromJsonAsync<List<ProjectColorResponse>>("api/project/getcolors");
+            ProjectColors = (response ?? new List<ProjectColorResponse>()).ToList();
+            StateHasChanged();
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+        }
+        catch (NotSupportedException ex)
+        {
+            Console.WriteLine($"Content type error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON error: {ex.Message}");
+        }
+    }
+}

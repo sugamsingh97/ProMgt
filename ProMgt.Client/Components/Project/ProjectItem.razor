@@ -77,12 +77,12 @@
 
     protected async override Task OnInitializedAsync()
     {
-        DateTime currentDate = DateTime.Now;
-        TimeSpan? difference = Item.DeadLine - currentDate;
-        days = difference!.Value.Days;
-        string color = Item.IsCompleted ? Colors.Orange.Default : Colors.LightGreen.Default;
-        Style = $"color:{color};";
-        await GetTasks();
+        // DateTime currentDate = DateTime.Now;
+        // TimeSpan? difference = Item.DeadLine - currentDate;
+        // days = difference!.Value.Days;
+        // string color = Item.IsCompleted ? Colors.Orange.Default : Colors.LightGreen.Default;
+        // Style = $"color:{color};";
+        // await GetTasks();
         await base.OnInitializedAsync();
     }
 

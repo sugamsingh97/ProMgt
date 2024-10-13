@@ -5,26 +5,23 @@
 namespace ProMgt.Migrations.ProjectDb
 {
     /// <inheritdoc />
-    public partial class ContactsAddedMig : Migration
+    public partial class ProjectMgtColorMig : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Contacts",
+                name: "ProjectMgtColors",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    FirstName = table.Column<string>(type: "TEXT", nullable: false),
-                    LastName = table.Column<string>(type: "TEXT", nullable: false),
-                    Email = table.Column<string>(type: "TEXT", nullable: false),
-                    ProjectOwner = table.Column<int>(type: "INTEGER", nullable: false),
-                    IsUser = table.Column<bool>(type: "INTEGER", nullable: false)
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    HexCode = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Contacts", x => x.Id);
+                    table.PrimaryKey("PK_ProjectMgtColors", x => x.Id);
                 });
         }
 
@@ -32,7 +29,7 @@ namespace ProMgt.Migrations.ProjectDb
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Contacts");
+                name: "ProjectMgtColors");
         }
     }
 }

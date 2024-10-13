@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ProMgt.Client.Models.Project;
 using ProMgt.Components.Account;
 using ProMgt.Data;
+using static ProMgt.Client.Components.Dialogs.CreateProjectDialog;
 
 namespace ProMgt.Controllers
 {
@@ -41,27 +42,89 @@ namespace ProMgt.Controllers
         {
             var projects = await _db.Projects.ToListAsync();
             return Ok(projects);
-        }
-
-
+        }        
 
         /// <summary>
-        /// This Action mehods gets a project by Id
+        /// This Action methods gets a project by Id
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Project>> GetProject(int id)
-        {
+        public async Task<ActionResult<ProjectResponse>> GetProject(int id)
+        {            
+
             var project = await _db.Projects.FindAsync(id);
 
             if (project == null)
             {
                 return NotFound();
+            }          
+
+            ProjectResponse projectResponse = new ProjectResponse();
+            projectResponse.Id = project.Id;
+            projectResponse.Name = project.Name;
+            projectResponse.Description = project.Description;
+            projectResponse.DateOfCreation = project.DateOfCreation;
+            projectResponse.DeadLine = project.DeadLine;
+            projectResponse.CreatedBy = project.CreatedBy;
+            projectResponse.IsCompleted = project.IsCompleted;
+            projectResponse.ProjectStatusId = project.ProjectStatusId;
+
+
+            return projectResponse;
+        }
+
+        /// <summary>
+        /// This get all the project statuses
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("getprojectstatuses")]
+        public async Task<ActionResult<List<ProjectStatus>>> GetProjectStatuses()
+        {
+            var projectStatuses = await _db.ProjectStatuses.ToListAsync();
+            return Ok(projectStatuses);
+        }
+
+        [HttpGet("getcolors")]
+        public async Task<ActionResult<List<ProjectColorResponse>>> GetColors()
+        {
+            var projectColors = await _db.ProjectMgtColors.ToListAsync();
+            var projectColorResponses = projectColors.Select(pc => new ProjectColorResponse
+            {
+                Id = pc.Id,
+                Name = pc.Name,
+                HexCode = pc.HexCode
+            }).ToList();
+
+            return Ok(projectColorResponses);
+        }
+
+        /// <summary>
+        /// This get the hex code of the Color
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("gethexcode/{id}")]
+
+        public async Task<ActionResult<string>> GetHexCode(int id)
+        {
+
+            var _color = await _db.ProjectMgtColors.FindAsync(id);
+
+            if (_color == null)
+            {
+                return NotFound();
             }
 
-            return project;
+            string? _hexCode = _color.HexCode;
+
+
+            var result = new { color = _hexCode };
+
+            return Ok(result);
         }
+
+
         #endregion
 
         #region Create
@@ -72,7 +135,7 @@ namespace ProMgt.Controllers
         /// <returns></returns>
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult<Project>> CreateProject(ProjectInputModel project)
+        public async Task<ActionResult<Project>> CreateProject(ProjectCreateModel project)
         {
             if (!ModelState.IsValid)
             {
@@ -195,6 +258,38 @@ namespace ProMgt.Controllers
                 return StatusCode(500, new { message = "An error occurred while updating the project name" });
             }
            
+        }
+
+        /// <summary>
+        /// This updates project status.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="statusId"></param>
+        /// <returns></returns>
+        [Authorize]
+        [HttpPatch("{id}/statusid")]
+        public async Task<ActionResult> PatchStatus(int id, [FromBody] int statusId)
+        {
+            try
+            {
+                var project = await _db.Projects.FindAsync(id);
+                if (project == null)
+                {
+
+                    return NotFound(new { message = "Project not found" });
+                }
+
+                project.ProjectStatusId = statusId;
+                await _db.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(500, new { message = "An error occurred while updating the project name" });
+            }
+
         }
 
         /// <summary>

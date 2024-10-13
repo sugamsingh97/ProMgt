@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using System.Net.Http.Json
 @using System.Text.Json
+
 @attribute [Authorize]
 @inject IDialogService DialogService
 @inject HttpClient HttpClient
@@ -16,7 +17,7 @@
             @if (Projects.Count == 0)
             {
                 <MudGrid Justify="Justify.Center">
-                    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+                    Progress bar
                 </MudGrid>
             }
             <ProjectList Items="Projects" />
@@ -68,17 +69,17 @@
 
         var result = await dialogResponse.Result;
 
-        ProjectInputModel projectResponse = new();
+        ProjectCreateModel projectResponse = new();
 
 
         if (result != null && !result.Canceled)
         {
-            projectResponse = result.Data as ProjectInputModel ?? new();
+            projectResponse = result.Data as ProjectCreateModel ?? new();
 
         }
         try
         {
-            var response = await HttpClient.PostAsJsonAsync<ProjectInputModel>("api/project", projectResponse);
+            var response = await HttpClient.PostAsJsonAsync<ProjectCreateModel>("api/project", projectResponse);
             if (response.IsSuccessStatusCode)
             {
                 await GetProjects();

@@ -9,6 +9,7 @@ using ProMgt.Client.Pages;
 using ProMgt.Components;
 using ProMgt.Components.Account;
 using ProMgt.Data;
+using ProMgt.Infrastructure.Email;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,7 +57,8 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
-builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+builder.Services.AddSingleton<IEmailSender<ApplicationUser>, EmailSender>();
+builder.Services.AddScoped<ProjectService>();
 
 var app = builder.Build();
 
