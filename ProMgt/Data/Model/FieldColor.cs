@@ -1,4 +1,4 @@
-﻿namespace ProMgt.Data
+﻿namespace ProMgt.Data.Model
 {
     public class FieldColor
     {

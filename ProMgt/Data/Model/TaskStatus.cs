@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ProMgt.Data
+namespace ProMgt.Data.Model
 {
-    public class Priority
+    public class TaskStatus
     {
         public int Id { get; set; }
         [Required]

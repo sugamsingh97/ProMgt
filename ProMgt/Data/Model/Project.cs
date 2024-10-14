@@ -1,13 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ProMgt.Data
+namespace ProMgt.Data.Model
 {
     public class Project
     {
         public int Id { get; set; }
         [Required]
-        public string Name { get; set; } = String.Empty;
+        public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public DateTime DateOfCreation { get; set; }
         public DateTime? DeadLine { get; set; }
@@ -22,5 +22,7 @@ namespace ProMgt.Data
         public virtual ICollection<ProjectTask>? Tasks { get; set; }
         public virtual ICollection<Priority>? Priorities { get; set; }
         public virtual ICollection<TaskStatus>? TaskStatuses { get; set; }
+        public virtual ICollection<Section>? Sections { get; set; }
+
     }
 }

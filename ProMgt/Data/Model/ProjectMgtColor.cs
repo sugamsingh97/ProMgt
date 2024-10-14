@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ProMgt.Data
+namespace ProMgt.Data.Model
 {
     public class ProjectMgtColor
     {

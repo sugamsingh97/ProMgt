@@ -1,6 +1,7 @@
 ﻿using MudBlazor;
 using ProMgt.Client.Components.Dialogs;
 using ProMgt.Client.Models.Project;
+using ProMgt.Client.Models.Section;
 using ProMgt.Client.Models.Task;
 using System.Net.Http.Json;
 
@@ -77,6 +78,10 @@ namespace ProMgt.Client.Infrastructure.Settings
         public Func<Task> OnNewProjectAddedChanged;
   
         public string errorMessage { get; set; } = string.Empty;
+
+        /// <summary>
+        /// This creates new project.
+        /// </summary>
         public async void CreateNewProject()
         {
             errorMessage = string.Empty;
@@ -91,27 +96,44 @@ namespace ProMgt.Client.Infrastructure.Settings
             var dialogResponse = await _dialogService.ShowAsync<CreateProjectDialog>("Create new Project", options);
 
             var result = await dialogResponse.Result;
-            ProjectCreateModel projectResponse = new();
+            ProjectCreateModel dialogResponseProject = new();
 
 
             if (result != null && !result.Canceled)
             {
 
-                projectResponse = result.Data as ProjectCreateModel ?? new ProjectCreateModel();
+                dialogResponseProject = result.Data as ProjectCreateModel ?? new ProjectCreateModel();
                 
             }
-            ProjectInputModel newProjectResponse = new()
+
+            ProjectInputModel _projectInputModel = new()
             {
-                Name = projectResponse.Name,
-                Description = projectResponse.Description,
-                DeadLine = projectResponse.DeadLine
+                Name = dialogResponseProject.Name,
+                Description = dialogResponseProject.Description,
+                DeadLine = dialogResponseProject.DeadLine
 
             };
             try
             {
-                var response = await _httpClient.PostAsJsonAsync<ProjectInputModel>("api/project", newProjectResponse);
+                var response = await _httpClient.PostAsJsonAsync<ProjectInputModel>("api/project", _projectInputModel);
                 if (response.IsSuccessStatusCode)
                 {
+                    var createdProjectResponse = await response.Content.ReadFromJsonAsync<ProjectResponse>();
+
+                    /*
+                     * When a Project is successfully created
+                     * 3 Sections are created.
+                     */
+                    string[] sectionNames = { "TO DO", "DOING", "DONE" };
+
+                    foreach (var sectionName in sectionNames)
+                    {
+                        await CreateSection(new SectionInputModel
+                        {
+                            ProjectId = createdProjectResponse.Id,
+                            Name = sectionName
+                        });
+                    }
 
                     if (OnNewProjectAddedChanged != null)
                     {
@@ -138,6 +160,10 @@ namespace ProMgt.Client.Infrastructure.Settings
         //New task added
         public Func<Task> OnNewTaskAddedChanged;
 
+        /// <summary>
+        /// This creates new task.
+        /// </summary>
+        /// <param name="ProjectId"></param>
         public async void CreateNewTask(int ProjectId)
         {
             errorMessage = string.Empty;
@@ -177,6 +203,36 @@ namespace ProMgt.Client.Infrastructure.Settings
                 {
                     errorMessage = $"Error: {response.ReasonPhrase}";
                 }
+            }
+            catch (HttpRequestException httpEx)
+            {
+                errorMessage = $"Request error: {httpEx.Message}";
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"An unexpected error occurred: {ex.Message}";
+            }
+        }
+
+        /// <summary>
+        /// This is where a new section is created
+        /// </summary>
+        /// <param name="newSection"></param>
+        /// <returns></returns>
+        public async Task CreateSection(SectionInputModel newSection)
+        {            
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync<SectionInputModel>("api/section/createsection", newSection);
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("New SectionCreated");
+                }
+                else
+                {
+                    errorMessage = $"Error: {response.ReasonPhrase}";
+                }
+
             }
             catch (HttpRequestException httpEx)
             {

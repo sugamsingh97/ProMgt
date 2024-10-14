@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ProMgt.Data.Model;
 using System.Security.Cryptography.X509Certificates;
+using TaskStatus = ProMgt.Data.Model.TaskStatus;
 
 namespace ProMgt.Data
 {
@@ -15,6 +17,8 @@ namespace ProMgt.Data
         public DbSet<Priority> Priorities { get; set; }
         public DbSet<TaskStatus> TaskStatuses { get; set; }
         public DbSet<ProjectMgtColor> ProjectMgtColors { get; set; }
+        public DbSet<Section> Sections { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,13 +34,20 @@ namespace ProMgt.Data
                 .HasMany(p => p.Priorities)
                 .WithOne(pr => pr.Project)
                 .HasForeignKey(pr => pr.ProjectId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Project>()
                 .HasMany(p => p.TaskStatuses)
                 .WithOne(ts => ts.Project)
                 .HasForeignKey(ts => ts.ProjectId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // project with section
+            modelBuilder.Entity<Project>()
+                .HasMany(p => p.Sections)
+                .WithOne(sc => sc.Project)
+                .HasForeignKey(sc => sc.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ProjectTask>()
                 .HasOne(t => t.Priority)
@@ -50,6 +61,13 @@ namespace ProMgt.Data
                 .HasForeignKey(t => t.TaskStatusId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            // task with section
+            modelBuilder.Entity<ProjectTask>()
+                .HasOne(t => t.Section)
+                .WithMany(sc => sc.Tasks)
+                .HasForeignKey(t=> t.SectionId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             modelBuilder.Entity<Priority>()
                 .HasOne(p => p.Color)
                 .WithMany(c => c.Priorities)
@@ -61,6 +79,7 @@ namespace ProMgt.Data
                 .WithMany(c => c.TaskStatuses)
                 .HasForeignKey(ts => ts.ColorId)
                 .OnDelete(DeleteBehavior.Restrict);
+            
         }
     }
 

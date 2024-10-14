@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ProMgt.Client.Models.Project;
 using ProMgt.Components.Account;
 using ProMgt.Data;
+using ProMgt.Data.Model;
 using static ProMgt.Client.Components.Dialogs.CreateProjectDialog;
 
 namespace ProMgt.Controllers
@@ -27,107 +28,10 @@ namespace ProMgt.Controllers
             _db = db;
             // _logger = logger;
             _userAccessor = userAccessor;
-        } 
+        }
         #endregion
 
-        #region Get
-        /// <summary>
-        /// This Action method gets the list of all projects
-        /// </summary>
-        /// <returns></returns>
-        //[Authorize("Admin")]
-        [HttpGet]
-        [HttpGet("getstring")]
-        public async Task<ActionResult<List<ProjectResponse>>> GetProjects()
-        {
-            var projects = await _db.Projects.ToListAsync();
-            return Ok(projects);
-        }        
-
-        /// <summary>
-        /// This Action methods gets a project by Id
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ProjectResponse>> GetProject(int id)
-        {            
-
-            var project = await _db.Projects.FindAsync(id);
-
-            if (project == null)
-            {
-                return NotFound();
-            }          
-
-            ProjectResponse projectResponse = new ProjectResponse();
-            projectResponse.Id = project.Id;
-            projectResponse.Name = project.Name;
-            projectResponse.Description = project.Description;
-            projectResponse.DateOfCreation = project.DateOfCreation;
-            projectResponse.DeadLine = project.DeadLine;
-            projectResponse.CreatedBy = project.CreatedBy;
-            projectResponse.IsCompleted = project.IsCompleted;
-            projectResponse.ProjectStatusId = project.ProjectStatusId;
-
-
-            return projectResponse;
-        }
-
-        /// <summary>
-        /// This get all the project statuses
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("getprojectstatuses")]
-        public async Task<ActionResult<List<ProjectStatus>>> GetProjectStatuses()
-        {
-            var projectStatuses = await _db.ProjectStatuses.ToListAsync();
-            return Ok(projectStatuses);
-        }
-
-        [HttpGet("getcolors")]
-        public async Task<ActionResult<List<ProjectColorResponse>>> GetColors()
-        {
-            var projectColors = await _db.ProjectMgtColors.ToListAsync();
-            var projectColorResponses = projectColors.Select(pc => new ProjectColorResponse
-            {
-                Id = pc.Id,
-                Name = pc.Name,
-                HexCode = pc.HexCode
-            }).ToList();
-
-            return Ok(projectColorResponses);
-        }
-
-        /// <summary>
-        /// This get the hex code of the Color
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        [HttpGet("gethexcode/{id}")]
-
-        public async Task<ActionResult<string>> GetHexCode(int id)
-        {
-
-            var _color = await _db.ProjectMgtColors.FindAsync(id);
-
-            if (_color == null)
-            {
-                return NotFound();
-            }
-
-            string? _hexCode = _color.HexCode;
-
-
-            var result = new { color = _hexCode };
-
-            return Ok(result);
-        }
-
-
-        #endregion
-
-        #region Create
+        #region POST
         /// <summary>
         /// This Action method creates the project
         /// </summary>
@@ -184,7 +88,102 @@ namespace ProMgt.Controllers
         }
         #endregion
 
-        #region Put
+        #region GET
+        /// <summary>
+        /// This Action method gets the list of all projects
+        /// </summary>
+        /// <returns></returns>
+        //[Authorize("Admin")]
+        [HttpGet]
+        [HttpGet("getstring")]
+        public async Task<ActionResult<List<ProjectResponse>>> GetProjects()
+        {
+            var projects = await _db.Projects.ToListAsync();
+            return Ok(projects);
+        }   
+
+        /// <summary>
+        /// This Action methods gets a project by Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ProjectResponse>> GetProject(int id)
+        {            
+
+            var project = await _db.Projects.FindAsync(id);
+
+            if (project == null)
+            {
+                return NotFound();
+            }          
+
+            ProjectResponse projectResponse = new ProjectResponse();
+            projectResponse.Id = project.Id;
+            projectResponse.Name = project.Name;
+            projectResponse.Description = project.Description;
+            projectResponse.DateOfCreation = project.DateOfCreation;
+            projectResponse.DeadLine = project.DeadLine;
+            projectResponse.CreatedBy = project.CreatedBy;
+            projectResponse.IsCompleted = project.IsCompleted;
+            projectResponse.ProjectStatusId = project.ProjectStatusId;
+
+
+            return projectResponse;
+        }
+
+        /// <summary>
+        /// This get all the project statuses
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("getprojectstatuses")]
+        public async Task<ActionResult<List<ProjectStatus>>> GetProjectStatuses()
+        {
+            var projectStatuses = await _db.ProjectStatuses.ToListAsync();
+            return Ok(projectStatuses);
+        }       
+
+        [HttpGet("getcolors")]
+        public async Task<ActionResult<List<ProjectColorResponse>>> GetColors()
+        {
+            var projectColors = await _db.ProjectMgtColors.ToListAsync();
+            var projectColorResponses = projectColors.Select(pc => new ProjectColorResponse
+            {
+                Id = pc.Id,
+                Name = pc.Name,
+                HexCode = pc.HexCode
+            }).ToList();
+
+            return Ok(projectColorResponses);
+        } 
+
+        /// <summary>
+        /// This get the hex code of the Color
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("gethexcode/{id}")]
+
+        public async Task<ActionResult<string>> GetHexCode(int id)
+        {
+
+            var _color = await _db.ProjectMgtColors.FindAsync(id);
+
+            if (_color == null)
+            {
+                return NotFound();
+            }
+
+            string? _hexCode = _color.HexCode;
+
+
+            var result = new { color = _hexCode };
+
+            return Ok(result);
+        }
+        #endregion        
+
+        #region PUT
         /// <summary>
         /// This Updates the whole project record
         /// </summary>
@@ -227,7 +226,6 @@ namespace ProMgt.Controllers
         #endregion
 
         #region Patch
-
         /// <summary>
         /// This updates name
         /// </summary>

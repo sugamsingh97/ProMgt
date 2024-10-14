@@ -7,6 +7,7 @@ using ProMgt.Components.Account;
 using ProMgt.Data;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using ProMgt.Data.Model;
 
 namespace ProMgt.Controllers
 {
@@ -23,7 +24,12 @@ namespace ProMgt.Controllers
             _userAccessor = userAccessor;
         }
 
-        #region Post
+        #region POST
+        /// <summary>
+        /// This creates new task
+        /// </summary>
+        /// <param name="newTask"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpPost("createtask")]
         public async Task<ActionResult<TaskResponse>> CreateTask(TaskInputModel newTask)
@@ -88,7 +94,12 @@ namespace ProMgt.Controllers
         }
         #endregion
 
-        #region Get
+        #region GET
+        /// <summary>
+        /// This get a task by Id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpGet("gettask/{id}")]
         public async Task<ActionResult<ProjectTask>> GetTask(int id)
@@ -137,7 +148,12 @@ namespace ProMgt.Controllers
         }
         #endregion
 
-        #region Delete
+        #region DELETE
+        /// <summary>
+        /// This deletes a task by Id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteTask(int id)
@@ -162,7 +178,13 @@ namespace ProMgt.Controllers
         }
         #endregion
 
-        #region Patch
+        #region PATCH
+        /// <summary>
+        /// This Updates the status of a task
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="status"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpPatch("{id}/status")]
         public async Task<ActionResult> PatchStatus(int id, [FromBody] bool status)
@@ -186,6 +208,12 @@ namespace ProMgt.Controllers
             }
         }
 
+        /// <summary>
+        /// This updates the name of the task.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpPatch("{id}/name")]
         public async Task<ActionResult> PatchName(int id, [FromBody] string name)
@@ -209,6 +237,12 @@ namespace ProMgt.Controllers
             }
         }
 
+        /// <summary>
+        /// This update the priority Id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="_priorityId"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpPatch("{id}/priority")]
         public async Task<ActionResult> PatchPriority(int id, [FromBody] int _priorityId)
@@ -232,6 +266,12 @@ namespace ProMgt.Controllers
             }
         }
 
+        /// <summary>
+        /// This updates the task status.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="_taskStatusId"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpPatch("{id}/taskstatus")]
         public async Task<ActionResult> PatchTaskStatus(int id, [FromBody] int _taskStatusId)
@@ -255,6 +295,12 @@ namespace ProMgt.Controllers
             }
         }
 
+        /// <summary>
+        /// This updates the description.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="description"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpPatch("{id}/description")]
         public async Task<ActionResult> PatchDescription(int id, [FromBody] string description)
@@ -278,6 +324,12 @@ namespace ProMgt.Controllers
             }
         }
 
+        /// <summary>
+        /// This updates the date.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="deadline"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpPatch("{id}/deadline")]
         public async Task<ActionResult> PatchDeadLine(int id, [FromBody] DateTime deadline)

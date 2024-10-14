@@ -9,7 +9,8 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using ProMgt.Client.Models.Fields.Priority;
 using ProMgt.Client.Models.Fields.TaskStatus;
-using TaskStatus = ProMgt.Data.TaskStatus;
+using TaskStatus = ProMgt.Data.Model.TaskStatus;
+using ProMgt.Data.Model;
 
 namespace ProMgt.Controllers
 {
