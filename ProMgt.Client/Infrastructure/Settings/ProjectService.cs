@@ -190,6 +190,10 @@ namespace ProMgt.Client.Infrastructure.Settings
 
             try
             {
+                var defaultSection = await _httpClient.GetFromJsonAsync<SectionResponse>($"api/section/projectdefaultsection/{ProjectId}");
+
+                newTask.SectionId = defaultSection.Id;
+
                 var response = await _httpClient.PostAsJsonAsync<TaskInputModel>("/api/task/createtask", newTask);
                 if (response.IsSuccessStatusCode)
                 {

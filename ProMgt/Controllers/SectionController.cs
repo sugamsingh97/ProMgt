@@ -160,6 +160,41 @@ namespace ProMgt.Controllers
                 return StatusCode(500, "An error occurred while processing your request. Please try again later.");
             }
         }
+
+        /// <summary>
+        /// This gets the default section.
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        [HttpGet("projectdefaultsection/{projectId}")]
+        public async Task<ActionResult<SectionResponse>> GetDefaultSectionByProject(int projectId, int excludeSectionId)
+        {
+            try
+            {
+                var section = await _db.Sections
+                    .Where(s => s.ProjectId == projectId && s.Id != excludeSectionId)
+                    .OrderBy(s => s.Id) // Or use s.CreationDate if you have one
+                    .FirstOrDefaultAsync();
+
+                if (section == null)
+                {
+                    return NotFound($"No sections found for project with Id {projectId}.");
+                }
+
+                var sectionResponse = new SectionResponse
+                {
+                    Id = section.Id,
+                    Name = section.Name,
+                    ProjectId = section.ProjectId,
+                };
+
+                return Ok(sectionResponse);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An error occurred while processing your request. Please try again later.");
+            }
+        }
         #endregion
 
         #region DELETE
@@ -169,7 +204,7 @@ namespace ProMgt.Controllers
         /// <param name="Id"></param>
         /// <returns></returns>
         [Authorize]
-        [HttpDelete("deletesection{Id}")]
+        [HttpDelete("deletesection/{Id}")]
         public async Task<ActionResult> DeleteSection(int Id)
         {
             try

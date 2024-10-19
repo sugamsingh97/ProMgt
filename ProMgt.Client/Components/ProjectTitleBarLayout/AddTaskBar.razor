@@ -1,0 +1,33 @@
+﻿@inject ProjectService ProjectService
+
+<MudAppBar Color="Color.Tertiary" Fixed="false" class="pt-4 py-1" Dense="true" Elevation="0">
+    <MudButtonGroup Size="Size.Small" Variant="Variant.Outlined">
+        <MudButton StartIcon="@Icons.Material.Filled.Add" OnClick="AddTaskHandler">Add task</MudButton>
+        <MudMenu Icon="@Icons.Material.Filled.ArrowDropDown" Style="align-self: auto;">
+            <MudMenuItem>Add Task</MudMenuItem>
+            <MudMenuItem>Add Task</MudMenuItem>
+            <MudMenuItem>Add Task</MudMenuItem>
+            <MudMenuItem>Add Task</MudMenuItem>
+        </MudMenu>
+    </MudButtonGroup>
+    <MudSpacer />
+    <MudItem Class="pr-4">
+        <MudButton StartIcon="@Icons.Material.Rounded.FilterList" Size="Size.Small">Filter</MudButton>
+    </MudItem>
+    <MudItem Class="pr-4">
+        <MudButton StartIcon="@Icons.Material.Rounded.Sort" Size="Size.Small">Sorting</MudButton>
+    </MudItem>
+    <MudItem Class="pr-4">
+        <MudButton StartIcon="@Icons.Material.Rounded.Tune" Size="Size.Small">Options</MudButton>
+    </MudItem>
+</MudAppBar>
+
+@code {
+    [Parameter]
+    public int ProjectId { get; set; }
+    public async Task AddTaskHandler()
+    {
+        ProjectService.CreateNewTask(ProjectId);
+
+    }
+}

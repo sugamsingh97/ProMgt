@@ -61,6 +61,7 @@ namespace ProMgt.Controllers
                     DeadLine = newTask.DeadLine,
                     CreatedBy = user.Id,
                     Project = project,
+                    SectionId = newTask.SectionId,
                 };
 
                 _db.ProjectTasks.Add(_newTask);
@@ -132,6 +133,7 @@ namespace ProMgt.Controllers
                     .Include(t => t.TaskStatus.Color)
                     .Include(t => t.Priority)
                     .Include(t => t.Priority.Color)
+                    .Include(t => t.Section)
                     .ToListAsync();
 
                 if (tasks == null || !tasks.Any())
@@ -144,6 +146,35 @@ namespace ProMgt.Controllers
             catch (Exception)
             {
                 return StatusCode(500, "An error occurred while retrieving tasks for the project.");
+            }
+        }
+
+        [Authorize]
+        [HttpGet("tasksection/{sectionId}")]
+        public async Task<ActionResult<List<TaskResponse>>> GetTaskBySection(int sectionId)
+        {
+            try
+            {
+                var tasks = await _db.ProjectTasks
+                    .Where(t => t.SectionId == sectionId)
+                    .Include(t => t.Project)
+                    .Include(t => t.TaskStatus)
+                    .Include(t => t.TaskStatus.Color)
+                    .Include(t => t.Priority)
+                    .Include(t => t.Priority.Color)
+                    .Include(t => t.Section)
+                    .ToListAsync();
+
+                if (tasks == null || !tasks.Any())
+                {
+                    return NotFound($"No tasks found for project with ID {sectionId}.");
+                }
+
+                return Ok(ConvertToTaskResponse(tasks));
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An error occurred while retrieving tasks by section Id.");
             }
         }
         #endregion
@@ -295,6 +326,29 @@ namespace ProMgt.Controllers
             }
         }
 
+        [Authorize]
+        [HttpPatch("{id}/section")]
+        public async Task<ActionResult> PatchSection(int id, [FromBody] int _sectionId)
+        {
+            try
+            {
+                var task = await _db.ProjectTasks.FindAsync(id);
+                if (task == null)
+                {
+                    return NotFound(new { message = "Task not found" });
+                }
+
+                task.SectionId = _sectionId;
+                await _db.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "An error occurred while updating the task priority" });
+            }
+        }
+
         /// <summary>
         /// This updates the description.
         /// </summary>
@@ -369,16 +423,24 @@ namespace ProMgt.Controllers
                 {
                     Id = task.Id,
                     Name = task.Name,
-                    CreatedBy = task.CreatedBy,
+                    ProjectId = task.Project.Id,
+                    Description = task.Description,
+
                     DateOfCreation = task.DateOfCreation,
                     DeadLine = task.DeadLine,
-                    ProjectId = task.Project.Id,
-                    PriorityId = task.Priority?.Id ?? 0,
-                    Description = task.Description,
+                    CreatedBy = task.CreatedBy,
                     IsCompleted = task.IsCompleted,
+
+                    PriorityId = task.Priority?.Id ?? 0,
+                    PriorityName = task.Priority?.Name ?? string.Empty,
+                    PriorityHexcode = task.Priority?.Color?.HexCode ?? string.Empty,
+
+
                     TaskStatusId = task.TaskStatus?.Id ?? 0,
-                    PriorityHexcode = task.Priority?.Color?.HexCode,
-                    TaskStatusHexcode = task.TaskStatus?.Color?.HexCode
+                    TaskStatusName = task.TaskStatus?.Name ?? string.Empty,
+                    TaskStatusHexcode = task.TaskStatus?.Color?.HexCode ?? string.Empty,
+
+                    SectionId = task.Section?.Id ?? 0,
                 });
             }
             return localList;

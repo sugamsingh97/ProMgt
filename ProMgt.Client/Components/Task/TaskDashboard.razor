@@ -1,0 +1,102 @@
+﻿<MudItem Class="mx-10 mt-6 d-flex flex-column">
+    <MudItem Elevation="0">
+        <MudGrid>
+            <MudItem xs="12" md="3">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-lg statistics">
+                    <MudText>Completed Task</MudText>
+                    <MudItem class="py-2"><MudText Class="statistics-text" Typo="Typo.h3">@CompletedTasks</MudText> </MudItem>
+                    <MudText Typo="Typo.caption">@CompletedTasks / @TotalTasks</MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-lg statistics">
+                    <MudText>Incomplete Task</MudText>
+                    <MudItem class="py-2"><MudText Class="statistics-text" Typo="Typo.h3">@IncompleteTasks</MudText></MudItem>
+                    <MudText Typo="Typo.caption">@IncompleteTasks / @TotalTasks</MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-lg statistics">
+                    <MudText>Total Task</MudText>
+                    <MudItem class="py-2"><MudText Class="statistics-text" Typo="Typo.h3">@TotalTasks</MudText></MudItem>
+                    <MudText Typo="Typo.caption"> @TotalTasks / @TotalTasks</MudText>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudItem>
+    <MudItem Class="mt-6">
+        <MudGrid>
+            <MudItem xs="12" lg="6">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-4">
+                    <MudITem Class="chart-title pb-8">
+                        Tasks by completion status
+                    </MudITem>
+                   <TaskCompletionStatusChart ProjectId="ProjectId" />
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" lg="6">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-4">
+                     <MudITem Class="chart-title  pb-8">
+                        Tasks by status
+                    </MudITem>
+                    <TaskTaskStatusChart ProjectId="ProjectId" />
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudItem>
+
+    <MudItem Class="mt-6">
+        <MudGrid>
+            <MudItem xs="12" lg="6">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-4">
+                    <MudITem Class="chart-title pb-8">
+                        Tasks by section
+                    </MudITem>
+                   <TaskSectionChart ProjectId="ProjectId" />
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" lg="6">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-4">
+                     <MudITem Class="chart-title  pb-8">
+                        Tasks by priority
+                    </MudITem>
+                   <TaskPriorityChart ProjectId="ProjectId" />
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudItem>
+</MudItem>
+@*
+<TaskCompletionStatusChart ProjectId="ProjectId" />
+
+<TaskTaskStatusChart ProjectId="ProjectId" />
+
+<TaskSectionChart ProjectId="ProjectId" />
+
+<TaskPriorityChart ProjectId="ProjectId" /> *@
+
+
+<style>
+    .statistics {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .chart-title {
+        font-size: medium;
+        font-weight: 500;        
+    }
+</style>
+
+@code {
+    [Parameter]
+    public int ProjectId { get; set; }
+    public int TotalTasks { get; set; } = 5;
+    public int IncompleteTasks { get; set; } = 3;
+    public int CompletedTasks { get; set; } = 2;
+
+
+}

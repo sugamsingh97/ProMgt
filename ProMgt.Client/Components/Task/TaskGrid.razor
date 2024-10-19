@@ -4,10 +4,12 @@
 @inject ISnackbar Snackbar
 @inject ProjectService ProjectService
 
+<MudDivider DividerType="DividerType.Middle" Class="mx-0" />
 
-<MudSimpleTable Hover="true" Bordered="true" Style="overflow-x: auto;" Class="custom-table">
+<MudSimpleTable Hover="true" Elevation="0" Bordered="true" Style="overflow-x: auto;" Class="custom-table by-1">
     <thead>
         <tr>
+            <th></th>
             <th>Name</th>
             <th>Description</th>
             <th>Deadline</th>
@@ -18,23 +20,53 @@
     <tbody>
         @foreach (var task in TaskResponses)
         {
-            <tr>
+            @*This is the tr element i need reference of in my code. how do i access this element*@
+            <tr id="(@task.Id)" onclick="@(()=>rowClickHandler(task.Id))" class="@(task.IsCompleted ? "completed-task" : "")">
                 <td>
-                    <MudTextField T="string" @bind-Value="task.Name" OnBlur="()=>UpdateTaskName(task.Id, task.Name)" Placeholder="Untitled Task" UnderLine="false"></MudTextField>
-                </td>
-                <td>                    
-                    <MudTextField T="string" @bind-Value="task.Description" OnBlur="()=>UpdateTaskDescription(task.Id, task.Description)" Placeholder="Add description..." UnderLine="false"></MudTextField>
+                    <MudTooltip Text="@(task.IsCompleted ? "Mark task incomplete" : "Mark task complete")" Placement="Placement.Top" Delay="600" Arrow="true">
+                        <MudCheckBox @bind-Value="task.IsCompleted"
+                                     Color="@(task.IsCompleted ? Color.Primary : Color.Default)"
+                                     @onclick="()=>UpdateTaskCompletion(task.Id, task.IsCompleted)"
+                                     CheckedIcon="@Icons.Material.Filled.CheckCircle"
+                                     UncheckedIcon="@Icons.Material.Filled.CheckCircleOutline"></MudCheckBox>
+                    </MudTooltip>
                 </td>
                 <td>
-                    <MudDatePicker Date="@task.DeadLine"                                   
+                    <MudTextField T="string"
+                                  @onclick:stopPropagation
+                                  @bind-Value="task.Name"
+                                  OnBlur="()=>UpdateTaskName(task.Id, task.Name)"
+                                  Placeholder="Untitled Task"
+                                  Class="growing-textname"
+                                  Style="@($"width: {CalculateWidth(task.Name)}px;")"
+                                  UnderLine="@(task.Id == _hoveringContent)"
+                                  @onmouseenter="() => OnMouseEnter(task.Id)"
+                                  @onmouseleave="() => OnMouseLeave()"></MudTextField>
+
+                </td>
+                <td>
+                    <MudTextField T="string"
+                                  @onclick:stopPropagation                                    
+                                  @bind-Value="task.Description"
+                                  OnBlur="()=>UpdateTaskDescription(task.Id, task.Description)"
+                                  Placeholder="Add description..."
+                                  Class="growing-textdescription"
+                                  Style="@($"width: {CalculateWidth(task.Name)}px;")"
+                                  UnderLine="@(task.Id == _hoveringContent)"
+                                  @onmouseenter="() => OnMouseEnter(task.Id)"
+                                  @onmouseleave="() => OnMouseLeave()"></MudTextField>
+                </td>
+                <td>
+                    <MudDatePicker Date="@task.DeadLine"
+                                   @onclick:stopPropagation
                                    DateFormat="dd MMM yyyy"
                                    DisableUnderLine="true"
                                    Adornment="Adornment.None"
                                    InputVariant="Variant.Outlined"
                                    Margin="Margin.Dense"
                                    Style="min-width: 120px;"
-                                   UnderLine="false" 
-                                   DateChanged="@((DateTime? date)=>OnDateChanged(task.Id, date))"/>
+                                   UnderLine="false"
+                                   DateChanged="@((DateTime? date)=>OnDateChanged(task.Id, date))" />
                 </td>
                 <td>
                     <MudMenu FullWidth="true" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
@@ -101,8 +133,8 @@
                 <td>
                     <MudMenu AnchorOrigin="Origin.BottomLeft" FullWidth="true" TransformOrigin="Origin.TopLeft">
                         <ActivatorContent>
-                                <MudButton FullWidth="true" Size="Size.Large">
-                           
+                            <MudButton FullWidth="true" Size="Size.Large">
+
                                 @if (task.TaskStatusId >= 1)
                                 {
                                     Console.WriteLine("ID is within the valid range.");
@@ -135,8 +167,8 @@
                                              Variant="Variant.Text">
                                         Add Status
                                     </MudChip>
-                                }                                
-                                <MudIcon Icon="@Icons.Material.Filled.ArrowDropDown" Title="Favorite" />                                
+                                }
+                                <MudIcon Icon="@Icons.Material.Filled.ArrowDropDown" Title="Favorite" />
                             </MudButton>
                         </ActivatorContent>
                         <ChildContent>
@@ -162,7 +194,13 @@
         }
     </tbody>
 </MudSimpleTable>
+<MudDivider DividerType="DividerType.Middle" Class="mx-0" />
+
 <style>
+    .completed-task {
+        background-color: rgba(55, 201, 90, 0.12);
+    }
+
     .custom-table {
         width: 100%;
         table-layout: fixed;
@@ -177,24 +215,43 @@
 
             .custom-table th:nth-child(1),
             .custom-table td:nth-child(1) {
-                width: 25%;
-                padding:4px;
+                width: 3%;
+                padding: 4px;
             }
 
             .custom-table th:nth-child(2),
             .custom-table td:nth-child(2) {
-                width: 30%;
-                padding: 4px;            }
+                width: 27%;
+                padding: 4px;
+            }
 
             .custom-table th:nth-child(3),
-            .custom-table td:nth-child(3),
+            .custom-table td:nth-child(3) {
+                width: 25%;
+                padding: 4px;
+            }
+
             .custom-table th:nth-child(4),
             .custom-table td:nth-child(4),
             .custom-table th:nth-child(5),
-            .custom-table td:nth-child(5) {
+            .custom-table td:nth-child(5),
+            .custom-table th:nth-child(6),
+            .custom-table td:nth-child(6) {
                 width: 15%;
                 padding: 4px;
             }
+
+    .growing-textname {
+        transition: width 0.3s ease;
+        min-width: 100px;
+        max-width: 300px;
+    }
+
+    .growing-textdescription {
+        transition: width 0.3s ease;
+        min-width: 100px;
+        max-width: 500px;
+    }
 </style>
 @code {
 
@@ -204,6 +261,8 @@
     public List<TaskResponse> TaskResponses { get; set; } = new();
     public List<PriorityResponse>? Priorities { get; set; } = new();
     public List<TaskStatusResponse>? TaskStatuses { get; set; } = new();
+    public int _hoveringContent { get; set; } = 0;
+    
 
     protected async override Task OnInitializedAsync()
     {
@@ -213,7 +272,7 @@
         await GetTaskStatuses();
     }
 
-    #region Fetching methods    
+    #region Fetching methods
     /// <summary>
     /// This gets tasks.
     /// </summary>
@@ -306,7 +365,7 @@
         {
             Console.WriteLine($"JSON error: {ex.Message}");
         }
-    }    
+    }
     #endregion
 
     #region Event Handlers
@@ -350,7 +409,7 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Error updating Task name: {ex.Message}");
-            Snackbar.Add("An error occurred while updating the project name", MudBlazor.Severity.Error);
+            Snackbar.Add("An error occurred while updating the Task name", MudBlazor.Severity.Error);
         }
     }
 
@@ -392,7 +451,7 @@
             {
                 await GetTasks();
                 Snackbar.Add("Task deadline updated successfully", MudBlazor.Severity.Success);
-                 // Trigger the event
+                // Trigger the event
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
@@ -465,8 +524,67 @@
         }
     }
 
-    
+    public async Task UpdateTaskCompletion(int _taskId, bool _isCompleted)
+    {
+        bool _newCompletionStatus = !_isCompleted;
+
+        try
+        {
+            var response = await HttpClient.PatchAsync($"api/task/{_taskId}/status", new StringContent(JsonSerializer.Serialize(_newCompletionStatus), System.Text.Encoding.UTF8, "application/json"));
+
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Task status updated successfully", MudBlazor.Severity.Success);
+                await GetTasks(); // Trigger the event
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Snackbar.Add("Task not found", MudBlazor.Severity.Error);
+            }
+            else
+            {
+                Snackbar.Add("An error occurred while updating the Task status", MudBlazor.Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating Task name: {ex.Message}");
+            Snackbar.Add("An error occurred while updating the project name", MudBlazor.Severity.Error);
+        }
+    }
+
     #endregion
+
+
+
+    private async Task OnMouseEnter(int _contentId)
+    {
+
+        _hoveringContent = _contentId;
+
+    }
+
+    private async Task OnMouseLeave()
+    {
+        _hoveringContent = 0;
+    }
+
+    private void rowClickHandler(int taskId)
+    {
+        Console.WriteLine(ProjectId);
+        Console.WriteLine(taskId);
+
+    }
+
+    private int CalculateWidth(string _name)
+    {
+        int baseWidth = 100; // Minimum width
+        int maxWidth = 300; // Maximum width
+        int charWidth = 8; // Approximate width per character in pixels
+
+        int calculatedWidth = baseWidth + (_name.Length * charWidth);
+        return Math.Min(Math.Max(calculatedWidth, baseWidth), maxWidth);
+    }
 
     #region Helper functions
     /// <summary>

@@ -1,7 +1,7 @@
 ﻿@implements IDisposable
 
 
-<MudAppBar Color="Color.Tertiary" Fixed="false" Dense="true" Elevation="0" class="pt-4 py-1">
+@* <MudAppBar Color="Color.Tertiary" Fixed="false" Dense="true" Elevation="0" class="pt-4 py-1">
     <MudItem Class="pr-4">
         <MudButton StartIcon="@Icons.Material.Rounded.ContentPaste" Size="Size.Small">Overview</MudButton>
     </MudItem>
@@ -26,10 +26,51 @@
     <MudItem Class="pr-4">
         <MudButton StartIcon="@Icons.Material.Rounded.AttachFile" Size="Size.Small">File</MudButton>
     </MudItem>
-</MudAppBar>
+</MudAppBar> *@
+<MudTabs ApplyEffectsToContainer="true" PanelClass="pa-2">
+
+    <MudTabPanel Text="Overview" Icon="@Icons.Material.Rounded.ContentPaste">
+        <MudText>Content One</MudText>
+    </MudTabPanel>
+
+    <MudTabPanel Text="List" Icon="@Icons.Material.Rounded.ListAlt">
+        <MudDivider DividerType="DividerType.Middle" Class="mx-0" />
+        <AddTaskBar ProjectId="ProjectId" />
+        <TaskGrid ProjectId="ProjectId" />
+    </MudTabPanel>
+
+    <MudTabPanel Text="Board" Icon="@Icons.Material.Rounded.DeveloperBoard">
+        <MudDivider DividerType="DividerType.Middle" Class="mx-0" />
+        <AddTaskBar ProjectId="ProjectId" />
+        <TaskBoard ProjectId="ProjectId" />
+    </MudTabPanel>
+
+    <MudTabPanel Text="Timeline" Icon="@Icons.Material.Rounded.Timeline">
+        <MudText>Content Disabled</MudText>
+    </MudTabPanel>
+
+    <MudTabPanel Text="Dashboard" Icon="@Icons.Material.Rounded.PushPin">
+        <MudDivider DividerType="DividerType.Middle" Class="mx-0" />
+        <AddTaskBar ProjectId="ProjectId" />
+        <TaskDashboard ProjectId="ProjectId"/>
+    </MudTabPanel>
+
+    <MudTabPanel Text="Calendar" Icon="@Icons.Material.Rounded.DateRange">
+        <MudText>Content Three</MudText>
+    </MudTabPanel>
+
+    <MudTabPanel Text="Message" Icon="@Icons.Material.Rounded.ChatBubbleOutline">
+        <MudText>Content Three</MudText>
+    </MudTabPanel>
+
+    <MudTabPanel Text="File" Icon="@Icons.Material.Rounded.AttachFile">
+        <MudText>Content Three</MudText>
+    </MudTabPanel>
+</MudTabs>
 
 @code {
-    
+    [Parameter]
+    public int ProjectId { get; set; }
 
     public void Dispose()
     {

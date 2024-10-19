@@ -1,0 +1,91 @@
+﻿@using System.Net.Http.Json
+@using System.Text.Json
+@inject HttpClient HttpClient
+@inject ISnackbar Snackbar
+@inject ProjectService ProjectService
+@inject IDialogService IDialogService
+@inject IJSRuntime JSRuntime
+
+    <MudChart LegendPosition="Position.Left" ChartType="ChartType.Donut" Width="300px" Height="300px" @bind-SelectedIndex="Index" InputData="@data" InputLabels="@labels"></MudChart>
+
+@* <MudText Typo="Typo.h6">Selected section: @(Index >= 0 && Index < labels.Length ? labels[Index] : "None")</MudText>
+<MudText Typo="Typo.body1">Number of tasks: @(Index >= 0 && Index < data.Length ? data[Index] : 0)</MudText> *@
+
+    @code {
+    [Parameter]
+    public int ProjectId { get; set; }
+
+    public List<TaskResponse> Tasks { get; set; } = new List<TaskResponse>();
+    public List<SectionResponse> Sections { get; set; } = new List<SectionResponse>();
+
+    private int Index = -1;
+    private double[] data;
+    private string[] labels;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetSections();
+        await GetTasks();
+        UpdateChartData();
+    }
+
+    public async Task GetTasks()
+    {
+        try
+        {
+            var response = await HttpClient.GetFromJsonAsync<List<TaskResponse>>($"api/task/projecttask/{ProjectId}");
+            Tasks = (response ?? new List<TaskResponse>())
+                .OrderByDescending(t => t.DateOfCreation)
+                .ToList();
+            // ProjectService.OnFieldChanges += UpdateFields;
+
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+        }
+        catch (NotSupportedException ex)
+        {
+            Console.WriteLine($"Content type error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON error: {ex.Message}");
+        }
+    }
+
+    public async Task GetSections()
+    {
+        try
+        {
+            var response = await HttpClient.GetFromJsonAsync<List<SectionResponse>>($"api/section/projectsection/{ProjectId}");
+            Sections = (response ?? new List<SectionResponse>()).ToList();
+
+            // ProjectService.OnFieldChanges += UpdateFields;
+
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+        }
+        catch (NotSupportedException ex)
+        {
+            Console.WriteLine($"Content type error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON error: {ex.Message}");
+        }
+    }
+
+    private void UpdateChartData()
+    {
+        var tasksBySectionCount = Tasks
+            .GroupBy(t => t.SectionId)
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        data = Sections.Select(s => (double)tasksBySectionCount.GetValueOrDefault(s.Id, 0)).ToArray();
+        labels = Sections.Select(s => s.Name).ToArray();
+    }
+}
+

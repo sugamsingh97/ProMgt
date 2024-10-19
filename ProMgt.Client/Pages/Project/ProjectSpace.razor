@@ -3,6 +3,7 @@
 @using System.Text.Json
 @using ProMgt.Client.Infrastructure.HelperFunctions
 @using ProMgt.Client.Components.ProjectTitleBarLayout
+@using ProMgt.Client.Components.Task
 @inject ThemeService ThemeService
 @inject HttpClient HttpClient
 @inject IDialogService IDialogService
@@ -11,12 +12,9 @@
 @inject ProjectService ProjectService
 @* @attribute [Authorize]
  *@
-
-    <MudThemeProvider IsDarkMode="@(ThemeService.CurrentTheme == ProMgtTheme.DarkTheme)" Theme="@ThemeService.CurrentTheme" />
-    <ProjectTitleBar ProjectId="@ProjectId" />
-    <MudDivider DividerType="DividerType.Middle" />
-    <ProjectNavMenu />
-    <MudDivider DividerType="DividerType.Middle" />
+<MudThemeProvider IsDarkMode="@(ThemeService.CurrentTheme == ProMgtTheme.DarkTheme)" Theme="@ThemeService.CurrentTheme" />
+<ProjectTitleBar ProjectId="@ProjectId" />
+<MudDivider DividerType="DividerType.Middle" Class="mx-0" />
 
 @* Mud Drawer Start *@
 
@@ -95,33 +93,16 @@
     </MudDrawer>
 </MudDrawerContainer>
 @* Mud Drawer End *@
-
-
-
-<MudAppBar Color="Color.Tertiary" Fixed="false" class="pt-4 py-1" Dense="true" Elevation="0">
-    <MudButtonGroup Size="Size.Small" Variant="Variant.Outlined">
-        <MudButton StartIcon="@Icons.Material.Filled.Add" OnClick="AddTaskHandler">Add task</MudButton>
-        <MudMenu Icon="@Icons.Material.Filled.ArrowDropDown" Style="align-self: auto;">
-            <MudMenuItem>Add Task</MudMenuItem>
-            <MudMenuItem>Add Task</MudMenuItem>
-            <MudMenuItem>Add Task</MudMenuItem>
-            <MudMenuItem>Add Task</MudMenuItem>
-        </MudMenu>
-    </MudButtonGroup>
-    <MudSpacer />
-    <MudItem Class="pr-4">
-        <MudButton StartIcon="@Icons.Material.Rounded.FilterList" Size="Size.Small">Filter</MudButton>
-    </MudItem>
-    <MudItem Class="pr-4">
-        <MudButton StartIcon="@Icons.Material.Rounded.Sort" Size="Size.Small">Sorting</MudButton>
-    </MudItem>
-    <MudItem Class="pr-4">
-        <MudButton StartIcon="@Icons.Material.Rounded.Tune" Size="Size.Small">Options</MudButton>
-    </MudItem>
-</MudAppBar>
+<MudDrawerContainer Class="mud-height-full">
+    <MudDrawer @bind-Open="@_openTaskInfoDrawer" Width="30%" Fixed="true" Anchor="Anchor.End" Style="z-index:1301!important; position: fixed" Variant="@DrawerVariant.Persistent">
+         
+        <TaskInfoContainer/>
+    </MudDrawer>
+</MudDrawerContainer>
+<TaskInforDrawer/>
 <MudDivider DividerType="DividerType.Middle" />
 
-<TaskGrid ProjectId="ProjectId"/>
+<ProjectNavMenu ProjectId="ProjectId" />
 
 <!-- #region name -->
 
@@ -194,6 +175,7 @@
     private int days = 0;
     static bool _customizeGroupBy;
     public bool _openInfoDrawer { get; set; } = false;
+    public bool _openTaskInfoDrawer { get; set; } = false;
     private bool _expanded = false;
     private bool _openTaskDrawer;
     bool _customizeGroupTemplate;
@@ -522,58 +504,6 @@
     #endregion Patch Project fields
 
     #region Add and Get Tasks and Get progress and Task completed Handler.
-    /// <summary>
-    /// This adds a new Task.
-    /// </summary>
-    /// <returns></returns>
-    private async Task AddTaskHandler()
-    {
-        ProjectService.CreateNewTask(ProjectId);
-        //  call project service and related function
-        // errorMessage = string.Empty;
-        // var options = new DialogOptions
-        //     {
-        //         CloseOnEscapeKey = true,
-        //         CloseButton = true,
-        //         MaxWidth = MaxWidth.Small,
-        //         FullWidth = true
-        //     };
-
-        // var DialogResponse = await IDialogService.ShowAsync<AddTaskDialog>("Add task dialog", options);
-
-        // var result = await DialogResponse.Result;
-
-        // TaskInputModel newTask = new();
-
-        // if (result != null && !result.Canceled)
-        // {
-
-        //     newTask = result.Data as TaskInputModel ?? new();
-        //     newTask.ProjectId = ProjectId;
-        // }
-
-        // try
-        // {
-        //     var response = await HttpClient.PostAsJsonAsync<TaskInputModel>("/api/task/createtask", newTask);
-        //     if (response.IsSuccessStatusCode)
-        //     {
-        //         // await GetTasks();
-        //         StateHasChanged();
-        //     }
-        //     else
-        //     {
-        //         errorMessage = $"Error: {response.ReasonPhrase}";
-        //     }
-        // }
-        // catch (HttpRequestException httpEx)
-        // {
-        //     errorMessage = $"Request error: {httpEx.Message}";
-        // }
-        // catch (Exception ex)
-        // {
-        //     errorMessage = $"An unexpected error occurred: {ex.Message}";
-        // }
-    }
 
     /// <summary>
     /// This gets tasks.
@@ -739,8 +669,6 @@
 
         }
     }
-
-
 
     #endregion
 

@@ -99,7 +99,7 @@
 </MudAppBar>
 @code {
     [Parameter]
-    public int ProjectId { get; set; }
+    public int? ProjectId { get; set; }
     public ProjectResponse Project { get; set; } = new();
     public List<ProjectStatusResponse> ProjectStatuses { get; set; } = new();
 

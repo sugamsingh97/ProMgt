@@ -25,6 +25,9 @@ namespace ProMgt.Client.Models.Task
         public bool IsCompleted { get; set; }
         public int? PriorityId { get; set; }
         public int? TaskStatusId { get; set; }
+        public int SectionId { get; set; }
+        public string? PriorityName { get; set; }
+        public string? TaskStatusName { get; set; }
 
         public string? PriorityHexcode { get; set; }
         public string? TaskStatusHexcode { get; set; }
