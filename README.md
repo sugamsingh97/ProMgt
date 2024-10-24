@@ -2,7 +2,7 @@
 
 Welcome to the Project Management in Blazor .Net 8 repository! This project aims to showcase a comprehensive project management tool built using the latest Blazor .NET 8 framework.
 
-![Day 2](ProMgt/wwwroot/day2.jpg){: width="300px"}
+<img src="ProMgt/wwwroot/day2.jpg" alt="Day 2" width="300px">
 *Image source credits: Pexels*
 
 ## Overview
