@@ -2,6 +2,9 @@
 
 namespace ProMgt.Client.Infrastructure.HelperFunctions
 {
+    /// <summary>
+    /// Task related utilities
+    /// </summary>
     public static class TaskHelper
     {
         /// <summary>

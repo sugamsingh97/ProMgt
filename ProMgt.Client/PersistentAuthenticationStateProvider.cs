@@ -18,7 +18,10 @@ internal class PersistentAuthenticationStateProvider : AuthenticationStateProvid
         Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
 
     private readonly Task<AuthenticationState> authenticationStateTask = defaultUnauthenticatedTask;
-
+    /// <summary>
+    /// This is where principal and claims are handled!
+    /// </summary>
+    /// <param name="state"></param>
     public PersistentAuthenticationStateProvider(PersistentComponentState state)
     {
         if (!state.TryTakeFromJson<UserInfo>(nameof(UserInfo), out var userInfo) || userInfo is null)

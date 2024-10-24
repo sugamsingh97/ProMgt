@@ -2,6 +2,9 @@
 
 namespace ProMgt.Client.Infrastructure.Validators
 {
+    /// <summary>
+    /// Custom DataValidation Attribute
+    /// </summary>
     public class DateNotInFutureAttribute : ValidationAttribute
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
