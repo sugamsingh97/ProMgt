@@ -256,17 +256,18 @@
 @code {
 
     [Parameter]
-    public int? ProjectId { get; set; }
+    public int ProjectId { get; set; }
     public List<TaskDisplay> TasksList { get; set; } = new();
     public List<TaskResponse> TaskResponses { get; set; } = new();
     public List<PriorityResponse>? Priorities { get; set; } = new();
     public List<TaskStatusResponse>? TaskStatuses { get; set; } = new();
     public int _hoveringContent { get; set; } = 0;
-    
+
 
     protected async override Task OnInitializedAsync()
     {
         ProjectService.OnNewTaskAddedChanged += UpdateTaskList;
+        ProjectService.TaskInforUpdated += UpdateTaskList;
         await GetTasks();
         await GetTaskPriorities();
         await GetTaskStatuses();
@@ -311,7 +312,7 @@
     {
         try
         {
-            if (ProjectId.HasValue)
+            if (ProjectId != null)
             {
                 var response = await HttpClient.GetFromJsonAsync<List<PriorityResponse>>($"api/field/projectpriority/{ProjectId}");
                 Priorities = (response ?? new List<PriorityResponse>())
@@ -343,7 +344,7 @@
     {
         try
         {
-            if (ProjectId.HasValue)
+            if (ProjectId != null)
             {
                 var response = await HttpClient.GetFromJsonAsync<List<TaskStatusResponse>>($"api/field/projecttaskstatus/{ProjectId}");
                 TaskStatuses = (response ?? new List<TaskStatusResponse>())
@@ -559,18 +560,20 @@
 
     private async Task OnMouseEnter(int _contentId)
     {
-
         _hoveringContent = _contentId;
-
+        await Task.CompletedTask;
     }
 
     private async Task OnMouseLeave()
     {
         _hoveringContent = 0;
+        await Task.CompletedTask;
     }
 
     private void rowClickHandler(int taskId)
     {
+        ProjectService.OpenTaskInfoDrawer(ProjectId, taskId);
+        //PassTaskToDrawer();
         Console.WriteLine(ProjectId);
         Console.WriteLine(taskId);
 

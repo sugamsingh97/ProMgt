@@ -15,6 +15,8 @@ namespace ProMgt.Client.Models.Task
 
         public string Description { get; set; } = string.Empty;
 
+        public string? TaskSummery { get; set; }
+
         public DateTime DateOfCreation { get; set; }
 
         public DateTime? DeadLine { get; set; }

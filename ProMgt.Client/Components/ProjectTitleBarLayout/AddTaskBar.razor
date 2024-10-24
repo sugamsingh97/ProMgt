@@ -28,6 +28,6 @@
     public async Task AddTaskHandler()
     {
         ProjectService.CreateNewTask(ProjectId);
-
+        await Task.CompletedTask;
     }
 }

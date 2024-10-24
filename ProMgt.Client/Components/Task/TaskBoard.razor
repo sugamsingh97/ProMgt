@@ -41,17 +41,17 @@
         </MudPaper>
     </ChildContent>
     <ItemRenderer>
-        <MudPaper Elevation="0" Outlined="true" Class="pa-4 rounded-lg d-flex flex-column my-3">
+        <MudPaper @onclick="()=>rowClickHandler(context.Id)" Elevation="0" Outlined="true" Class="pa-4 rounded-lg d-flex flex-column my-3 task-item">
             <MudItem Class="d-flex flex-row justify-space-between align-center">
-            @* <MudText Style="font-size: larger; font-weight: 300;" Typo="Typo.h5">@context.Name</MudText> *@
-            <MudTextField T="string" Style="font-size: larger; font-weight: 300;" @bind-Value="context.Name" OnBlur="()=>UpdateTaskName(context.Id, context.Name)" Placeholder="Untitled Task" UnderLine="false"></MudTextField>
-                    
-            <MudCheckBox @bind-Value="context.IsCompleted"
-            @onclick="()=>UpdateTaskCompletion(context.Id, context.IsCompleted)"
-                                 Color="@(context.IsCompleted ? Color.Primary : Color.Default)"                                 
-                                 CheckedIcon="@Icons.Material.Filled.CheckCircle"
-                                 UncheckedIcon="@Icons.Material.Filled.CheckCircleOutline"></MudCheckBox>
-                            </MudItem>     
+                @* <MudText Style="font-size: larger; font-weight: 300;" Typo="Typo.h5">@context.Name</MudText> *@
+                <MudTextField T="string" Style="font-size: larger; font-weight: 300;" @onclick:stopPropagation @bind-Value="context.Name" OnBlur="()=>UpdateTaskName(context.Id, context.Name)" Placeholder="Untitled Task" UnderLine="false"></MudTextField>
+
+                <MudCheckBox @bind-Value="context.IsCompleted"
+                             @onclick="()=>UpdateTaskCompletion(context.Id, context.IsCompleted)"
+                             Color="@(context.IsCompleted ? Color.Primary : Color.Default)"
+                             CheckedIcon="@Icons.Material.Filled.CheckCircle"
+                             UncheckedIcon="@Icons.Material.Filled.CheckCircleOutline"></MudCheckBox>
+            </MudItem>
             <MudItem Class="d-flex flex-row flex-wrap my-4">
                 @if (context.PriorityId > 0)
                 {
@@ -82,7 +82,23 @@
         </MudPaper>
     </ItemRenderer>
 </MudDropContainer>
+<style>
+    .task-item {
+        cursor: pointer;
+    }
 
+        .task-item:active {
+            cursor: grabbing;
+        }
+
+    :root .mud-draggable-item:not(.mud-draggable-item-dragging) .task-item {
+        cursor: pointer;
+    }
+
+    :root .mud-draggable-item.mud-draggable-item-dragging .task-item {
+        cursor: grabbing;
+    }
+</style>
 @code {
     [Parameter]
     public int ProjectId { get; set; }
@@ -95,12 +111,13 @@
     public bool _disableDelete { get; set; }
 
 
-    private MudDropContainer<TaskResponse> _dropContainer;
+    private MudDropContainer<TaskResponse>? _dropContainer;
     public SectionInputModel? newSection { get; set; } = new SectionInputModel();
 
     protected override void OnInitialized()
     {
         ProjectService.OnNewTaskAddedChanged += UpdateBoardContent;
+        ProjectService.TaskInforUpdated += UpdateBoardContent;
     }
 
     protected override async Task OnParametersSetAsync()
@@ -132,6 +149,15 @@
         {
             Console.WriteLine($"JSON error: {ex.Message}");
         }
+    }
+
+    private void rowClickHandler(int taskId)
+    {
+        ProjectService.OpenTaskInfoDrawer(ProjectId, taskId);
+        //PassTaskToDrawer();
+        Console.WriteLine(ProjectId);
+        Console.WriteLine(taskId);
+
     }
 
     public async Task GetSections()
@@ -245,7 +271,9 @@
     public void Dispose()
     {
         ProjectService.OnNewTaskAddedChanged -= UpdateBoardContent;
+
     }
+
 
     public async Task CreateSection()
     {
@@ -255,43 +283,45 @@
             newSection.Name = "Untitled Section";
             newSection.ProjectId = ProjectId;
 
-            var response = await HttpClient.PostAsJsonAsync<SectionInputModel>("api/section/createsection", newSection);
-            if (response.IsSuccessStatusCode)
-            {
-                Console.WriteLine("New Section Created");
-                await UpdateBoardContent();
-            }
-            else
-            {
-                Snackbar.Add(response.ReasonPhrase, MudBlazor.Severity.Error);
+            var response = await HttpClient.PostAsJsonAsync<SectionInputModel>
+    ("api/section/createsection", newSection);
+    if (response.IsSuccessStatusCode)
+    {
+    Console.WriteLine("New Section Created");
+    await UpdateBoardContent();
+    }
+    else
+    {
+    Snackbar.Add(response.ReasonPhrase, MudBlazor.Severity.Error);
 
-            }
+    }
 
-        }
-        catch (HttpRequestException httpEx)
-        {
-            Snackbar.Add(httpEx.Message, MudBlazor.Severity.Error);
+    }
+    catch (HttpRequestException httpEx)
+    {
+    Snackbar.Add(httpEx.Message, MudBlazor.Severity.Error);
 
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add(ex.Message, MudBlazor.Severity.Error);
+    }
+    catch (Exception ex)
+    {
+    Snackbar.Add(ex.Message, MudBlazor.Severity.Error);
 
-        }
+    }
     }
 
     public async Task CreateNewTask(int _sectionId)
     {
 
-        var options = new DialogOptions
-            {
-                CloseOnEscapeKey = true,
-                CloseButton = true,
-                MaxWidth = MaxWidth.Small,
-                FullWidth = true
-            };
+    var options = new DialogOptions
+    {
+    CloseOnEscapeKey = true,
+    CloseButton = true,
+    MaxWidth = MaxWidth.Small,
+    FullWidth = true
+    };
 
-        var DialogResponse = await IDialogService.ShowAsync<AddTaskDialog>("Add task dialog", options);
+    var DialogResponse = await IDialogService.ShowAsync<AddTaskDialog>
+        ("Add task dialog", options);
 
         var result = await DialogResponse.Result;
 
@@ -300,43 +330,44 @@
         if (result != null && !result.Canceled)
         {
 
-            newTask = result.Data as TaskInputModel ?? new();
-            newTask.ProjectId = ProjectId;
-            newTask.SectionId = _sectionId;
+        newTask = result.Data as TaskInputModel ?? new();
+        newTask.ProjectId = ProjectId;
+        newTask.SectionId = _sectionId;
         }
 
         try
         {
 
-            var response = await HttpClient.PostAsJsonAsync<TaskInputModel>("/api/task/createtask", newTask);
+        var response = await HttpClient.PostAsJsonAsync<TaskInputModel>
+            ("/api/task/createtask", newTask);
             if (response.IsSuccessStatusCode)
             {
-                Console.WriteLine("New Section Created");
-                await UpdateBoardContent();
+            Console.WriteLine("New Section Created");
+            await UpdateBoardContent();
             }
             else
             {
-                Snackbar.Add(response.ReasonPhrase, MudBlazor.Severity.Error);
+            Snackbar.Add(response.ReasonPhrase, MudBlazor.Severity.Error);
 
             }
-        }
-        catch (HttpRequestException httpEx)
-        {
+            }
+            catch (HttpRequestException httpEx)
+            {
             Snackbar.Add(httpEx.Message, MudBlazor.Severity.Error);
 
-        }
-        catch (Exception ex)
-        {
+            }
+            catch (Exception ex)
+            {
             Snackbar.Add(ex.Message, MudBlazor.Severity.Error);
 
-        }
-    }
+            }
+            }
 
-    // Get Task by Section and Store it in a list
-    public async Task GetTasksToUpdate(int _sectionId)
-    {
-        try
-        {
+            // Get Task by Section and Store it in a list
+            public async Task GetTasksToUpdate(int _sectionId)
+            {
+            try
+            {
             var response = await HttpClient.GetFromJsonAsync<List<TaskResponse>>($"api/task/tasksection/{_sectionId}");
             TasksToUpdate = (response ?? new List<TaskResponse>())
                 .OrderByDescending(t => t.DateOfCreation)

@@ -44,5 +44,6 @@ else
         emailConfirmationLink = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query.Contains("code")
             ? NavigationManager.Uri
             : null;
+            await Task.CompletedTask;
     }
 }

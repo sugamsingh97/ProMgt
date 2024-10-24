@@ -80,14 +80,17 @@
     protected override async Task OnInitializedAsync()
     {
         ProjectService.OnNewProjectAddedChanged += ProjectAddedHandler;
+        await Task.CompletedTask;
     }
     #region
-    // Create new project Dilaog open and Api Call
 
+    // Create new project Dilaog open and Api Call
     private async Task ProjectAddedHandler()
     {
+        await Task.CompletedTask;
         StateHasChanged();
     }
+
     private async Task CreateNewProject()
     {
         ProjectService.CreateNewProject();
@@ -133,6 +136,7 @@
         // {
         //     errorMessage = $"An unexpected error occurred: {ex.Message}";
         // }
+        await Task.CompletedTask;
     }
     #endregion
 }

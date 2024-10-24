@@ -97,7 +97,7 @@ namespace ProMgt.Controllers
 
         #region GET
         /// <summary>
-        /// This get a task by Id.
+        /// This gets a task by Id.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>

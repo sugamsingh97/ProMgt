@@ -74,16 +74,16 @@ namespace ProMgt.Controllers
             catch (DbUpdateException ex)
             {
                 // Log the error (uncomment ex variable name and write a log.)
-                return UnprocessableEntity("An error occurred while updating the database. Please check your input and try again.");
+                return UnprocessableEntity("An error occurred while updating the database. Please check your input and try again." + ex.Message);
             }
             catch (InvalidOperationException iox)
             {
-                return Unauthorized(iox);
+                return Unauthorized(iox.Message);
             }
             catch (Exception ex)
             {
                 // Log the error (uncomment ex variable name and write a log.)
-                return StatusCode(500, "An unexpected error occurred. Please try again later.");
+                return StatusCode(500, "An unexpected error occurred. Please try again later." + ex.Message);
             }
         }
         #endregion
@@ -380,7 +380,7 @@ namespace ProMgt.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "An error occurred while deleting the project" });
+                return StatusCode(500, new { message = "An error occurred while deleting the project" + ex.Message });
             }          
 
         } 

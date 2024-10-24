@@ -67,8 +67,8 @@
     [Parameter]
     public ProjectDisplay Item { get; set; } = new();
 
-    public List<TaskResponse> TaskResponse { get; set; }
-    public List<TaskDisplay> TasksList { get; set; }
+    public List<TaskResponse>? TaskResponse { get; set; }
+    public List<TaskDisplay>? TasksList { get; set; }
 
     private string? Style { get; set; }
 

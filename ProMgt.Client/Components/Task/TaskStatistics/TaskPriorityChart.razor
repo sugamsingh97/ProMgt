@@ -19,8 +19,8 @@
     public List<TaskResponse> Tasks { get; set; } = new List<TaskResponse>();
 
     private int Index = -1;
-    private double[] data;
-    private string[] labels;
+    private double[]? data;
+    private string[]? labels;
 
     protected override async Task OnInitializedAsync()
     {

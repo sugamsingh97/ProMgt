@@ -1,4 +1,6 @@
-﻿<MudItem Class="mx-10 mt-6 d-flex flex-column">
+﻿@using MudBlazor
+
+<MudItem Class="mx-10 mt-6 d-flex flex-column">
     <MudItem Elevation="0">
         <MudGrid>
             <MudItem xs="12" md="3">
@@ -44,7 +46,6 @@
             </MudItem>
         </MudGrid>
     </MudItem>
-
     <MudItem Class="mt-6">
         <MudGrid>
             <MudItem xs="12" lg="6">
@@ -75,7 +76,6 @@
 
 <TaskPriorityChart ProjectId="ProjectId" /> *@
 
-
 <style>
     .statistics {
         display: flex;
@@ -97,6 +97,4 @@
     public int TotalTasks { get; set; } = 5;
     public int IncompleteTasks { get; set; } = 3;
     public int CompletedTasks { get; set; } = 2;
-
-
 }

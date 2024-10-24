@@ -92,14 +92,15 @@
         <MudDivider />
     </MudDrawer>
 </MudDrawerContainer>
+
 @* Mud Drawer End *@
+
 <MudDrawerContainer Class="mud-height-full">
     <MudDrawer @bind-Open="@_openTaskInfoDrawer" Width="30%" Fixed="true" Anchor="Anchor.End" Style="z-index:1301!important; position: fixed" Variant="@DrawerVariant.Persistent">
-         
-        <TaskInfoContainer/>
+        
+        <TaskInfoContainer ProjectId="@ProjectId" TaskId="@_currentTaskId" />
     </MudDrawer>
 </MudDrawerContainer>
-<TaskInforDrawer/>
 <MudDivider DividerType="DividerType.Middle" />
 
 <ProjectNavMenu ProjectId="ProjectId" />
@@ -173,12 +174,11 @@
     public int ProjectId { get; set; }
     public int _progressNumber { get; set; } = 0;
     private int days = 0;
-    static bool _customizeGroupBy;
+    private int _currentTaskId;
     public bool _openInfoDrawer { get; set; } = false;
     public bool _openTaskInfoDrawer { get; set; } = false;
     private bool _expanded = false;
     private bool _openTaskDrawer;
-    bool _customizeGroupTemplate;
     bool _statusExpanded = false;
     bool _priorityExpanded = false;
     public string CollapseBg { get; set; } = string.Empty;
@@ -196,7 +196,6 @@
     public List<PriorityResponse>? Priorities { get; set; } = new();
     public List<TaskStatusResponse>? TaskStatuses { get; set; } = new();
     IEnumerable<TaskResponse> Tasks = new List<TaskResponse>();
-    MudDataGrid<TaskResponse> dataGrid;
 
     #endregion
 
@@ -225,6 +224,8 @@
         ProjectService.OnTaskCompletedChanged += TaskCompletedChangedHandler;
         _openInfoDrawer = ProjectService.IsDrawerOpen();
         ProjectService.OnDrawerOpenChange += ToggleDrawerHandler;
+        ProjectService.OnTaskInfoDrawerOpen += ToggleTaskInfoDrawer;
+        ProjectService.OnTaskInfoDrawerClose += CloseTaskInfoDrawer;
         await GetTaskPriorities();
         await GetTaskStatuses();
         await GetProject();
@@ -249,6 +250,7 @@
     private async Task OnExpandStatus()
     {
         _statusExpanded = !_statusExpanded;
+        await Task.CompletedTask;
     }
     /// <summary>
     /// This Expands Priority
@@ -257,6 +259,7 @@
     private async Task OnExpandPriority()
     {
         _priorityExpanded = !_priorityExpanded;
+        await Task.CompletedTask;
     }
     /// <summary>
     /// Task drawer expand is true
@@ -274,9 +277,33 @@
     private async Task ToggleDrawerHandler()
     {
         _openInfoDrawer = !_openInfoDrawer;
+        await Task.CompletedTask;
         StateHasChanged();
     }
     #endregion
+
+    private async Task ToggleTaskInfoDrawer(int projectId, int taskId)
+    {
+        if (_currentTaskId == taskId)
+        {
+            await CloseTaskInfoDrawer();        
+        }
+        else
+        {
+            _currentTaskId = taskId;
+            _openTaskInfoDrawer = true;           
+        }    
+        await Task.CompletedTask;
+        StateHasChanged();
+    }
+
+    private async Task CloseTaskInfoDrawer()
+    {
+        _openTaskInfoDrawer = false;
+        _currentTaskId = 0;
+        await Task.CompletedTask;
+        StateHasChanged();
+    }
 
     #region Theme Change handler
     /// <summary>

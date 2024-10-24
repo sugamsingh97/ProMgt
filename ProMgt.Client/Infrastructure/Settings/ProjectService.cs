@@ -62,7 +62,6 @@ namespace ProMgt.Client.Infrastructure.Settings
             }
         }
 
-
         // Update Project List
         public event Func<Task> OnProjectNameUpdated;
 
@@ -75,8 +74,8 @@ namespace ProMgt.Client.Infrastructure.Settings
         }
 
         //project added
-        public Func<Task> OnNewProjectAddedChanged;
-  
+        public Func<Task> OnNewProjectAddedChanged;  
+
         public string errorMessage { get; set; } = string.Empty;
 
         /// <summary>
@@ -156,6 +155,24 @@ namespace ProMgt.Client.Infrastructure.Settings
             }
         }
 
+        // Open Task info drawer
+        public Func<int, int, Task> OnTaskInfoDrawerOpen;
+        public Func<Task> OnTaskInfoDrawerClose;
+        public async Task OpenTaskInfoDrawer(int projectId, int taskId)
+        {
+            if (OnTaskInfoDrawerOpen != null)
+            {
+                await OnTaskInfoDrawerOpen.Invoke( projectId, taskId);
+            }
+        }
+
+        public async Task CloseTaskInfoDrawer()
+        {
+            if (OnTaskInfoDrawerClose != null)
+            {
+                await OnTaskInfoDrawerClose.Invoke();
+            }
+        }
 
         //New task added
         public Func<Task> OnNewTaskAddedChanged;
@@ -247,5 +264,17 @@ namespace ProMgt.Client.Infrastructure.Settings
                 errorMessage = $"An unexpected error occurred: {ex.Message}";
             }
         }
+
+        // Refresh the page
+        public Func<Task> TaskInforUpdated;
+
+        public async Task TaskInfoIsUpdated()
+        {
+            if (TaskInforUpdated != null)
+            {
+                await TaskInforUpdated.Invoke();
+            }
+        }
+
     }
 }

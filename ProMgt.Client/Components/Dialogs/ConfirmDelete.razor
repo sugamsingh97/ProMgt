@@ -38,9 +38,9 @@
 </style>
 @code {
     [CascadingParameter]
-    private MudDialogInstance MudDialog { get; set; }
+    private MudDialogInstance? MudDialog { get; set; }
 
-    private void Submit() => MudDialog.Close(DialogResult.Ok(bool.Parse("true")));
+    private void Submit() => MudDialog?.Close(DialogResult.Ok(bool.Parse("true")));
 
-    private void Cancel() => MudDialog.Cancel();
+    private void Cancel() => MudDialog?.Cancel();
 }

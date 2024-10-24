@@ -29,7 +29,7 @@ namespace ProMgt.Controllers
         private readonly AuthenticationStateProvider _authStateProvider;
         private readonly IEmailSender<ApplicationUser> _emailSender;
         private readonly IUserStore<ApplicationUser> _userStore;
-        private IEnumerable<IdentityError>? identityErrors;
+        private IEnumerable<IdentityError> identityErrors;
         private readonly ILogger<AuthController> _logger;
         public AuthController(UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
