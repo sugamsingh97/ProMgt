@@ -32,10 +32,4 @@
     <Folder Include="Migrations\ProjectDb\" />
   </ItemGroup>
 
-
-  <ItemGroup>
-    <None Include="..\ProMgt.Client\Pages\Project\TaskInfoContainer.razor" Link="TaskInfoContainer.razor" />
-    <None Include="..\ProMgt.Client\Pages\Project\TaskInforDrawer.razor" Link="TaskInforDrawer.razor" />
-  </ItemGroup>
-
 </Project>

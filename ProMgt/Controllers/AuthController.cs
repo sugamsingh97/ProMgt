@@ -106,11 +106,12 @@ namespace ProMgt.Controllers
             user.DateOfBirth = model.DateOfBirth;
             user.DarkMode = model.DarkModePref;
             user.ProfilePicture = model.ProfilePicture;
+            user.EmailConfirmed = true;
             
 
             await _userStore.SetUserNameAsync(user, model.Email, CancellationToken.None);
             var emailStore = GetEmailStore();
-            await emailStore.SetEmailAsync(user, model.Email, CancellationToken.None);
+            //await emailStore.SetEmailAsync(user, model.Email, CancellationToken.None);
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
@@ -128,24 +129,19 @@ namespace ProMgt.Controllers
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
-    //        var callbackUrl = Url.Action(
-    //            "ConfirmEmail", "Auth",
-    //            new { userId = userId, code = code },
-    //            protocol: HttpContext.Request.Scheme);
+            //        var callbackUrl = Url.Action(
+            //            "ConfirmEmail", "Auth",
+            //            new { userId = userId, code = code },
+            //            protocol: HttpContext.Request.Scheme);
 
-    //        if (callbackUrl == null)
-    //        {
-    //            return BadRequest("Failed to generate confirmation URL.");
-    //        }
-    //        await _emailSender.SendConfirmationLinkAsync(user, "Confirm your email",
-    //$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+            //        if (callbackUrl == null)
+            //        {
+            //            return BadRequest("Failed to generate confirmation URL.");
+            //        }
+            //        await _emailSender.SendConfirmationLinkAsync(user, "Confirm your email",
+            //$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-            return Ok(new
-            {
-                userId,
-                code,
-                requireConfirmedAccount = _userManager.Options.SignIn.RequireConfirmedAccount
-            });
+            return Ok(userId);
 
         }
 

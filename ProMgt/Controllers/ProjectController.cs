@@ -93,12 +93,14 @@ namespace ProMgt.Controllers
         /// This Action method gets the list of all projects
         /// </summary>
         /// <returns></returns>
-        //[Authorize("Admin")]
+        [Authorize]
         [HttpGet]
         [HttpGet("getstring")]
         public async Task<ActionResult<List<ProjectResponse>>> GetProjects()
         {
-            var projects = await _db.Projects.ToListAsync();
+            var user = await _userAccessor.GetRequiredUserAsync(HttpContext);
+
+            var projects = await _db.Projects.Where(p => p.CreatedBy == user.Id).ToListAsync();
             return Ok(projects);
         }   
 
@@ -109,8 +111,7 @@ namespace ProMgt.Controllers
         /// <returns></returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<ProjectResponse>> GetProject(int id)
-        {            
-
+        {
             var project = await _db.Projects.FindAsync(id);
 
             if (project == null)

@@ -1,0 +1,46 @@
+﻿@page "/"
+
+<MudContainer MaxWidth="MaxWidth.Small" >
+    <MudPaper Elevation="3" Class="pa-8 text-center">
+        <MudIcon Icon="@Icons.Material.Filled.TaskAlt" Size="Size.Large" Color="Color.Primary" />
+
+        <MudText Typo="Typo.h4" Class="mt-4" Color="Color.Primary">
+            Welcome to ProMgt! 🎉
+        </MudText>
+
+        <MudText Typo="Typo.body1" Class="mt-4">
+            Hey there! This is your friendly project management app.
+            Let's get organized together! ✨
+        </MudText>
+
+        <MudStack Spacing="4" Class="mt-8">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       Href="/signin">
+                Sign In
+            </MudButton>
+
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       Href="/signup">
+                Create New Account
+            </MudButton>
+        </MudStack>
+    </MudPaper>
+</MudContainer>
+
+<style>
+    .mud-container {
+        height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mud-paper {
+        min-width: 300px;
+        background: linear-gradient(to bottom right, #ffffff, #f3f8ff);
+    }
+</style>

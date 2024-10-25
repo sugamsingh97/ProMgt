@@ -136,10 +136,10 @@ namespace ProMgt.Controllers
 
                 var priorities = await _db.Priorities.Include(x => x.Color).Where(p => p.ProjectId == projectId).ToListAsync();
 
-                if (priorities == null || !priorities.Any())
-                {
-                    return NotFound($"No priorities found for project with ID {projectId}.");
-                }
+                //if (priorities == null || !priorities.Any())
+                //{
+                //    return NotFound($"No priorities found for project with ID {projectId}.");
+                //}
 
                 List<PriorityResponse> _priorities = priorities.Select(priority => new PriorityResponse
                 {
@@ -254,10 +254,10 @@ namespace ProMgt.Controllers
             try
             {
                 var taskStatus = await _db.TaskStatuses.Include(ts => ts.Color).FirstOrDefaultAsync(ts => ts.Id == id);
-                if (taskStatus == null)
-                {
-                    return NotFound("Task status not found.");
-                }
+                //if (taskStatus == null)
+                //{
+                //    return NotFound("Task status not found.");
+                //}
 
                 TaskStatusResponse _taskStatus = new()
                 {
@@ -268,7 +268,7 @@ namespace ProMgt.Controllers
                     HexColor = taskStatus.Color?.HexCode
                 };
 
-                return _taskStatus;
+                return Ok(_taskStatus);
             }
             catch (Exception)
             {

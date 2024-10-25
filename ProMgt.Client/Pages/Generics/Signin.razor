@@ -5,7 +5,7 @@
 @inject HttpClient HttpClient
 
 <PageTitle>Sign in</PageTitle>
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Gutters="false">
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="d-flex justify-center align-center" style="height: 94vh;" Gutters="false">
     <MudGrid Style="height:800px!important" Spacing="0">
         <MudItem Class="@GetClass()" lg="6" md="6">
             <MudText Typo="Typo.h3">ProMgt</MudText>
@@ -86,7 +86,7 @@
     [SupplyParameterFromForm]
     public SigninModel Input { get; set; } = new SigninModel()
     {
-         
+
     };
 
     public async Task SignInHandler()
@@ -103,7 +103,9 @@
             if (response.IsSuccessStatusCode)
             {
                 var redirectUrl = ReturnUrl ?? "/";
-                NavigationManager.NavigateTo(redirectUrl, true);
+                StateHasChanged();
+                NavigationManager.NavigateTo("/dashboard", true);
+                
             }
             else
             {

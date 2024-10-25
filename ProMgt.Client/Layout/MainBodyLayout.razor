@@ -94,7 +94,7 @@
     private async Task CreateNewProject()
     {
         ProjectService.CreateNewProject();
-
+        await Task.CompletedTask;
         // errorMessage = string.Empty;
         // var options = new DialogOptions
         //     {
@@ -136,7 +136,7 @@
         // {
         //     errorMessage = $"An unexpected error occurred: {ex.Message}";
         // }
-        await Task.CompletedTask;
+        
     }
     #endregion
 }

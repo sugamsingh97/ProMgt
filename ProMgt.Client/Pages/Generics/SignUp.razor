@@ -6,7 +6,7 @@
 
 
 <PageTitle>Sign Up</PageTitle>
-<MudContainer MaxWidth="MaxWidth.Large" Gutters="false">
+<MudContainer MaxWidth="MaxWidth.Large" Class="d-flex justify-center align-center" style="height: 94vh;" Gutters="false">
     <MudGrid Style="height:800px!important" Spacing="0">
         <MudItem Class="@GetClass()" xl="6" xxl="6" lg="6" md="0" sm="0" xs="0">
             <MudText Typo="Typo.h3">ProMgt</MudText>
@@ -283,29 +283,11 @@
                 var response = await HttpClient.PostAsJsonAsync("api/auth/signup", signUpData);
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadFromJsonAsync<RegisterResponse>();
-                    if (result != null)
-                    {
-                        Snackbar.Add("Registration successful. Please check your email to confirm your account.", MudBlazor.Severity.Success);
-                        if (result.RequireConfirmedAccount)
-                        {
-                            var callbackUrl = NavigationManager.GetUriWithQueryParameters(NavigationManager.ToAbsoluteUri("/Activateaccount").AbsoluteUri, new Dictionary<string, object?> { ["userId"] = result.UserId, ["code"] = result.Code, ["returnUrl"] = ReturnUrl });
-                            var emailSentResponse = await HttpClient.PostAsJsonAsync("api/auth/sendconflink", new { Email = Input.Email, CallbackUrl = callbackUrl });
-                            if (emailSentResponse.IsSuccessStatusCode)
-                            {
-                                Snackbar.Add("Confirmation link sent. Please check your email.", MudBlazor.Severity.Info);
-                            }
-                            NavigationManager.NavigateTo($"signupconfirmation?email={Input.Email}");
-                        }
-                        else
-                        {
-                            NavigationManager.NavigateTo(ReturnUrl ?? "/home");
-                        }
-                    }
+                     NavigationManager.NavigateTo("/signin");                        
                 }
                 else
                 {
-                    errorMessage = await response.Content.ReadAsStringAsync();
+                    errorMessage = "Error signing up";
                     Snackbar.Add(errorMessage, MudBlazor.Severity.Error);
                 }
             }
