@@ -1,0 +1,62 @@
+﻿<MudContainer Class="ma-8 pa-8" MaxWidth="MaxWidth.False">
+    <MudGrid>
+        <MudItem Class="d-flex justify-end py-4" xs="12">
+            <MudSkeleton Width="200px" Height="40px" />
+        </MudItem>
+    </MudGrid>
+
+    <MudGrid Justify="Justify.Center" Class="d-flex mb-8" Style="max-width: 1200px;justify-self: center;">
+        <MudItem xs="12" Class="d-flex flex-column align-center">
+            <MudSkeleton Width="200px" Height="24px" Class="mb-2" />
+            <MudSkeleton Width="300px" Height="32px" Class="mb-4" />
+
+            <MudPaper Outlined="true" Elevation="0" Class="pa-4 rounded-lg d-flex gap-8">
+                @for (int i = 0; i < 3; i++)
+                {
+                    <div class="d-flex flex-column align-center">
+                        <MudSkeleton Width="80px" Height="32px" />
+                        <MudSkeleton Width="120px" Height="20px" />
+                    </div>
+                }
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="6">
+            <MudPaper Outlined="true" Elevation="0" Class="pa-8 rounded-lg d-flex flex-column align-center">
+                <MudSkeleton SkeletonType="SkeletonType.Circle" Width="300px" Height="300px" />
+                <MudSkeleton Width="200px" Height="24px" Class="mb-4" />
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="6">
+            <MudPaper Outlined="true" Elevation="0" Class="pa-8 rounded-lg d-flex flex-column align-center">
+                <MudSkeleton SkeletonType="SkeletonType.Circle" Width="300px" Height="300px" />
+                <MudSkeleton Width="200px" Height="24px" Class="mb-4" />
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+    <MudGrid Style="max-width: 1200px;justify-self: center;">
+        <MudItem xs="12" md="6">
+            <MudPaper Outlined="true" Elevation="0" Class="pa-8 rounded-lg">
+                <MudSkeleton Width="120px" Height="24px" Class="mb-4" />
+                <div class="d-flex gap-4">
+                    @for (int i = 0; i < 2; i++)
+                    {
+                        <div class="flex-grow-1">
+                            @for (int j = 0; j < 5; j++)
+                            {
+                                <MudSkeleton Width="100%" Height="40px" Class="mb-2" />
+                            }
+                        </div>
+                    }
+                </div>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="6">
+            <MudSkeleton Height="168px" Width="168px" Class="rounded-lg" />
+        </MudItem>
+    </MudGrid>
+
+</MudContainer>

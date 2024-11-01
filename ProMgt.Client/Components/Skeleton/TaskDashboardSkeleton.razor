@@ -1,0 +1,60 @@
+﻿<MudItem Class="mx-10 mt-6 d-flex flex-column">
+    <MudItem Elevation="0">
+        <MudGrid>
+            @for (int i = 0; i < 3; i++)
+            {
+                <MudItem xs="12" md="3">
+                    <MudPaper Outlined="true" Class="mud-width-full rounded-lg statistics">
+                        <MudSkeleton Width="120px" Height="20px" />
+                        <MudItem class="py-2">
+                            <MudSkeleton Width="80px" Height="40px" />
+                        </MudItem>
+                        <MudSkeleton Width="60px" Height="16px" />
+                    </MudPaper>
+                </MudItem>
+            }
+        </MudGrid>
+    </MudItem>
+
+    <MudItem Class="mt-6">
+        <MudGrid>
+            <MudItem xs="12" lg="6">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-4">
+                    <MudItem Class="chart-title pb-8">
+                        <MudSkeleton Width="200px" Height="24px" />
+                    </MudItem>
+                    <MudSkeleton Height="300px" />
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" lg="6">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-4">
+                    <MudItem Class="chart-title pb-8">
+                        <MudSkeleton Width="200px" Height="24px" />
+                    </MudItem>
+                    <MudSkeleton Height="300px" />
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudItem>
+
+    <MudItem Class="mt-6">
+        <MudGrid>
+            <MudItem xs="12" lg="6">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-4">
+                    <MudItem Class="chart-title pb-8">
+                        <MudSkeleton Width="200px" Height="24px" />
+                    </MudItem>
+                    <MudSkeleton Height="300px" />
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" lg="6">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-4">
+                    <MudItem Class="chart-title pb-8">
+                        <MudSkeleton Width="200px" Height="24px" />
+                    </MudItem>
+                    <MudSkeleton Height="300px" />
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudItem>
+</MudItem>

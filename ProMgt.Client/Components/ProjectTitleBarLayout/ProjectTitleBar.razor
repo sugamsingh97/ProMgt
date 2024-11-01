@@ -7,9 +7,17 @@
 @inject IDialogService IDialogService
 
 <MudThemeProvider IsDarkMode="@(ThemeService.CurrentTheme == ProMgtTheme.DarkTheme)" Theme="@ThemeService.CurrentTheme" />
-<MudAppBar Color="Color.Tertiary" Fixed="false" Elevation="0"  Class="pt-2">
-    <MudGrid Justify="Justify.Center" Class="align-center d-flex" Spacing="2">
+<MudAppBar Color="Color.Tertiary" Gutters="false" Fixed="false" Elevation="0"  Class="pt-2">
+    <MudGrid Justify="Justify.Center" Class="align-center d-flex px-4" Spacing="2">
         <MudItem Class="d-flex align-center">
+            <MudTooltip Text="@(Project.IsCompleted ? "Mark project incomplete" : "Mark project complete")" Placement="Placement.End" Delay="600" Arrow="true">
+                <MudCheckBox @bind-Value="Project.IsCompleted"
+                             Color="@(Project.IsCompleted ? Color.Primary : Color.Default)"
+                             @onclick="()=>UpdateProjectCompletion(Project.Id, Project.IsCompleted)"
+                             CheckedIcon="@Icons.Material.Filled.CheckCircle"
+                             UncheckedIcon="@Icons.Material.Filled.CheckCircleOutline"></MudCheckBox>
+            </MudTooltip>
+
             <MudTextField T="string" @bind-Value="Project.Name" OnBlur="UpdateName" Placeholder="Untitled Project" UnderLine="false"></MudTextField>
             <MudMenu AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft" Icon="@Icons.Material.Filled.ArrowDropDown"
                      AriaLabel="Open user menu">
@@ -80,10 +88,10 @@
         <MudItem Class="d-flex align-center">
             <MudAvatarGroup MaxColor="Color.Primary">
                 <MudAvatar Size="Size.Small" Color="Color.Primary">M</MudAvatar>
-                <MudAvatar Size="Size.Small" Color="Color.Secondary">U</MudAvatar>
+                <MudAvatar Size="Size.Small" Color="Color.Info">U</MudAvatar>
                 <MudAvatar Size="Size.Small" Color="Color.Info">D</MudAvatar>
                 <MudAvatar Size="Size.Small" Color="Color.Primary">M</MudAvatar>
-                <MudAvatar Size="Size.Small" Color="Color.Secondary">U</MudAvatar>
+                <MudAvatar Size="Size.Small" Color="Color.Primary">U</MudAvatar>
                 <MudAvatar Size="Size.Small" Color="Color.Info">D</MudAvatar>
             </MudAvatarGroup>
             <MudItem class="px-2">
@@ -169,6 +177,37 @@
         }
     }
 
+    public async Task UpdateProjectCompletion(int _projectId, bool _isCompleted)
+    {
+        // inverse the _isCompleted and send this away to API
+        bool isCompleted = !_isCompleted;
+
+        try
+        {
+            var response = await HttpClient.PatchAsync($"api/project/{ProjectId}/iscompleted", new StringContent(JsonSerializer.Serialize(isCompleted), System.Text.Encoding.UTF8, "application/json"));
+
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Project marked as completed", MudBlazor.Severity.Success);
+                await ProjectService.TriggerProjectNameUpdated(); // Trigger the event
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Snackbar.Add("Project not found", MudBlazor.Severity.Error);
+            }
+            else
+            {
+                Snackbar.Add("An error occurred while updating the project.", MudBlazor.Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating project name: {ex.Message}");
+            Snackbar.Add("An error occurred while updating the project.", MudBlazor.Severity.Error);
+        }
+
+
+    }
     /// <summary>
     /// This gets all the Statuses in a list
     /// </summary>

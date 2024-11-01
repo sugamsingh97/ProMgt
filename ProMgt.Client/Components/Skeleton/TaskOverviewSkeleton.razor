@@ -1,0 +1,52 @@
+﻿<MudContainer Style="border: 0px solid black">
+    <MudGrid Justify="Justify.Center" Class="d-flex mb-8" style="max-width: 1200px;justify-self: center;">
+        <MudItem xs="12">
+            <MudPaper Elevation="0">
+                <MudSkeleton Height="100px" />
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="6">
+            <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-8">
+                <MudItem Class="chart-title pb-1">
+                    <MudSkeleton Width="80px" Height="24px" />
+                </MudItem>
+                <MudGrid>
+                    <MudItem xs="6">
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            <MudItem Class="d-flex align-center py-2">
+                                <MudSkeleton Width="24px" Height="24px" SkeletonType="SkeletonType.Circle" Class="mr-3" />
+                                <MudSkeleton Width="120px" Height="20px" />
+                            </MudItem>
+                        }
+                    </MudItem>
+                    <MudItem xs="6">
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            <MudItem Class="d-flex align-center py-2">
+                                <MudSkeleton Width="24px" Height="24px" Shape="Shape.Circle" Class="mr-3" />
+                                <MudSkeleton Width="120px" Height="20px" />
+                            </MudItem>
+                        }
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="6">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-8">
+                        <MudItem Class="chart-title pb-8">
+                            <MudSkeleton Width="200px" Height="24px" />
+                        </MudItem>
+                        <MudItem Class="d-flex justify-center">
+                            <MudSkeleton Width="300px" Height="300px" Shape="Shape.Circle" />
+                        </MudItem>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+    </MudGrid>
+</MudContainer>

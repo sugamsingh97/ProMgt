@@ -276,5 +276,16 @@ namespace ProMgt.Client.Infrastructure.Settings
             }
         }
 
+        // Info changed
+        public Func<Task> TaskFieldUpdated;
+
+        public async Task TaskFieldIsUpdated()
+        {
+            if (TaskFieldUpdated != null)
+            {
+                await TaskFieldUpdated.Invoke();
+            }
+        }
+
     }
 }

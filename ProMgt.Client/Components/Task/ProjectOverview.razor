@@ -1,0 +1,233 @@
+﻿@using System.Net.Http.Json
+@using System.Text.Json
+@inject HttpClient HttpClient
+@inject ISnackbar Snackbar
+@inject ProjectService ProjectService
+@inject IDialogService IDialogService
+@inject IJSRuntime JSRuntime
+
+@if (!IsDataLoaded)
+{
+    <TaskOverviewSkeleton />
+}
+else
+{   
+<MudContainer Style="border: 0px solid black">
+    <MudGrid Justify="Justify.Center" Class="d-flex mb-8" style="max-width: 1200px;justify-self: center;">
+        <MudItem xs="12">
+            <MudPaper Elevation="0">
+                <MudTextField T="string" Label="Description" Variant="Variant.Outlined" @bind-Value="Project.Description" Lines="3" />
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-8">
+                <MudItem Class="chart-title pb-1">
+                    Tasks
+                </MudItem>
+                <MudGrid>
+                    <MudItem xs="6">
+                        <MudList T="string">
+                            @foreach (var task in TaskResponses.Take(TaskResponses.Count / 2))
+                            {
+                                <MudListItem Style="padding-left: 0; padding-right:0;" OnClick="() => TaskClickHandler(task.Id)">
+                                    <MudItem Class="d-flex align-center">
+                                        <MudTooltip Text="@(task.IsCompleted ? "Mark task incomplete" : "Mark task complete")" Placement="Placement.End" Delay="600" Arrow="true">
+                                            <MudCheckBox @bind-Value="task.IsCompleted"
+                                                         Color="@(task.IsCompleted ? Color.Primary : Color.Default)"
+                                                         Disabled="true"
+                                                         CheckedIcon="@Icons.Material.Filled.CheckCircle"
+                                                         UncheckedIcon="@Icons.Material.Filled.CheckCircleOutline">
+                                            </MudCheckBox>
+                                        </MudTooltip>
+                                        <MudText>@task.Name</MudText>
+                                    </MudItem>
+                                </MudListItem>
+                            }
+                        </MudList>
+                    </MudItem>
+
+                    <MudItem xs="6">
+                        <MudList T="string">
+                            @foreach (var task in TaskResponses.Skip(TaskResponses.Count / 2))
+                            {
+                                <MudListItem Style="padding-left: 0; padding-right:0;" OnClick="() => TaskClickHandler(task.Id)">
+                                    <MudItem Class="d-flex align-center">
+                                        <MudTooltip Text="@(task.IsCompleted ? "Mark task incomplete" : "Mark task complete")" Placement="Placement.End" Delay="600" Arrow="true">
+                                            <MudCheckBox @bind-Value="task.IsCompleted"
+                                                         Color="@(task.IsCompleted ? Color.Primary : Color.Default)"
+                                                         Disabled="true"
+                                                         CheckedIcon="@Icons.Material.Filled.CheckCircle"
+                                                         UncheckedIcon="@Icons.Material.Filled.CheckCircleOutline">
+                                            </MudCheckBox>
+                                        </MudTooltip>
+                                        <MudText>@task.Name</MudText>
+                                    </MudItem>
+                                </MudListItem>
+                            }
+                        </MudList>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-8">
+                        <MudItem Class="chart-title pb-8">
+                            Tasks by completion status
+                        </MudItem>
+                        <MudChart LegendPosition="Position.Bottom"
+                                  ChartType="ChartType.Donut"
+                                  InputData="@TaskData"
+                                  @bind-SelectedIndex="Index"
+                                  InputLabels="@Tasklabels"
+                                  Width="300px"
+                                  Height="300px" />
+                    </MudPaper>
+                </MudItem>                
+            </MudGrid>            
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+}
+@code {
+
+    public bool IsDataLoaded { get; set; } = false;
+    private bool firstRender = true;
+
+    [Parameter]
+    public int ProjectId { get; set; }
+
+    public string? Description { get; set; } = string.Empty;
+    public List<TaskResponse>? TaskResponses { get; set; } = new();
+    public ProjectResponse? Project { get; set; } = new();
+
+    public PieData TaskStat { get; set; } = new();
+
+    private int Index = -1;
+    private double[] TaskData = Array.Empty<double>();
+    private string[] Tasklabels = new[] { "Completed", "Not Completed" };
+
+    protected override void OnInitialized()
+    {
+        // Only initialize basic properties here
+        IsDataLoaded = false;
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetProject();
+            await GetTasks();
+            await UpdateProjectChart();
+            IsDataLoaded = true;
+            StateHasChanged();
+        }
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        
+    }
+
+    public async Task GetProject()
+    {
+        try
+        {      
+            var response = await HttpClient.GetFromJsonAsync<ProjectResponse>($"api/project/{ProjectId}");
+            Project = response ?? new ProjectResponse();            
+            StateHasChanged();
+
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+        }
+        catch (NotSupportedException ex)
+        {
+            Console.WriteLine($"Content type error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON error: {ex.Message}");
+        }
+    }
+
+    public async Task GetTasks()
+    {
+        try
+        {
+
+            var response = await HttpClient.GetFromJsonAsync<List<TaskResponse>>($"api/task/projecttask/{ProjectId}");
+            TaskResponses = (response ?? new List<TaskResponse>())
+                .OrderByDescending(t => t.DateOfCreation)
+                .ToList();
+            await GetTaskStat(TaskResponses);
+            //ProjectService.OnFieldChanges += UpdateFields;
+
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+        }
+        catch (NotSupportedException ex)
+        {
+            Console.WriteLine($"Content type error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON error: {ex.Message}");
+        }
+    }
+
+    public async Task GetTaskStat(List<TaskResponse> TaskResponses)
+    {
+
+       
+        TaskStat.Total += TaskResponses.Count;
+        foreach (var task in TaskResponses)
+            {
+                if (task.IsCompleted)
+                {
+                    TaskStat.Complete += 1;
+                }
+                else if (!task.IsCompleted)
+                {
+                    TaskStat.InComplete += 1;
+                }
+            }
+        
+    }
+
+    private async Task UpdateProjectChart()
+    {
+
+        var completedProjects = TaskStat.Complete;
+        var notCompletedProjects = TaskStat.InComplete;
+
+        TaskData = new double[] { completedProjects, notCompletedProjects };
+    }
+
+    private void TaskClickHandler(int taskId)
+    {
+        ProjectService.OpenTaskInfoDrawer(ProjectId, taskId);
+        //PassTaskToDrawer();
+        Console.WriteLine(ProjectId);
+        Console.WriteLine(taskId);
+
+    }
+    
+    public async Task AddTaskHandler()
+    {
+        
+    }
+
+    public class PieData
+    {
+        public int Total { get; set; } = 0;
+        public int Complete { get; set; } = 0;
+        public int InComplete { get; set; } = 0;
+    }
+}

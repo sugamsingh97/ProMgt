@@ -86,125 +86,12 @@
                     <td>
                         <MudStack>
                             <MudPaper Style="background: none;" Class="pt-4 d-flex align-center">
-                                <MudText Style="font-size: small;">Priority</MudText><MudMenu FullWidth="true" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
-                                    <ActivatorContent>
-                                        <MudButton Size="Size.Small">
-
-                                            @if (TaskResponse.PriorityId >= 1)
-                                            {
-                                                Console.WriteLine("ID is within the valid range.");
-                                                foreach (var p in Priorities)
-                                                {
-
-                                                    if (p.Id == TaskResponse.PriorityId)
-                                                    {
-                                                        <MudChip Size="Size.Small"
-                                                                 Icon="@Icons.Material.Filled.Circle"
-                                                                 IconColor="Color.Default"
-                                                                 Color="Color.Default"
-                                                                 T="string"
-                                                                 Variant="Variant.Text"
-                                                                 Style="@($"--mud-palette-default: {p.HexColor}; --text-color: {p.HexColor}; --bg-color: {GetBackgroundColor(p.HexColor)}; background-color: var(--bg-color); color: var(--text-color);")">
-                                                            @p.Name
-                                                        </MudChip>
-                                                    }
-
-                                                }
-                                            }
-                                            else
-                                            {
-                                                Console.WriteLine("ID is disqualified in Data Grid.");
-                                                <MudChip Size="Size.Small"
-                                                         Icon="@Icons.Material.Filled.Update"
-                                                         IconColor="Color.Default"
-                                                         Color="Color.Default"
-                                                         T="string"
-                                                         Variant="Variant.Text">
-                                                    Add Priority
-                                                </MudChip>
-                                            }
-
-                                            <MudIcon Icon="@Icons.Material.Filled.ArrowDropDown" Title="Favorite" />
-                                        </MudButton>
-                                    </ActivatorContent>
-                                    <ChildContent>
-                                        @foreach (var p in Priorities)
-                                        {
-                                            <MudMenuItem OnClick="()=>UpdateTaskPriorityHandler(TaskId, p.Id)">
-                                                <MudChip Size="Size.Small"
-                                                         Icon="@Icons.Material.Filled.Circle"
-                                                         IconColor="Color.Default"
-                                                         Color="Color.Default"
-                                                         T="string"
-                                                         Variant="Variant.Text"
-                                                         Style="@($"--mud-palette-default: {p.HexColor}; --text-color: {p.HexColor}; --bg-color: {GetBackgroundColor(p.HexColor)}; background-color: var(--bg-color); color: var(--text-color);")">
-                                                    @p.Name.ToUpper()
-                                                </MudChip>
-                                            </MudMenuItem>
-
-                                        }
-                                    </ChildContent>
-                                </MudMenu>
+                                <MudText Style="font-size: small;">Priority</MudText>
+                                <PriorityDropDown ProjectId="@ProjectId" TaskId="@TaskId" />
                             </MudPaper>
                             <MudPaper Style="background: none;" Class="pb-4 d-flex align-center">
-                                <MudText Style="font-size: small;">Status</MudText><MudMenu AnchorOrigin="Origin.BottomLeft" FullWidth="true" TransformOrigin="Origin.TopLeft">
-                                    <ActivatorContent>
-                                        <MudButton FullWidth="true" Size="Size.Large">
-
-                                            @if (TaskResponse.TaskStatusId >= 1)
-                                            {
-                                                Console.WriteLine("ID is within the valid range.");
-                                                foreach (var ts in TaskStatuses)
-                                                {
-
-                                                    if (ts.Id == TaskResponse.TaskStatusId)
-                                                    {
-                                                        <MudChip Size="Size.Small"
-                                                                 Icon="@Icons.Material.Filled.Circle"
-                                                                 IconColor="Color.Default"
-                                                                 Color="Color.Default"
-                                                                 T="string"
-                                                                 Variant="Variant.Text"
-                                                                 Style="@($"--mud-palette-default: {ts.HexColor}; --text-color: {ts.HexColor}; --bg-color: {GetBackgroundColor(ts.HexColor)}; background-color: var(--bg-color); color: var(--text-color);")">
-                                                            @ts.Name
-                                                        </MudChip>
-                                                    }
-
-                                                }
-                                            }
-                                            else
-                                            {
-                                                Console.WriteLine("ID is disqualified in Data Grid.");
-                                                <MudChip Size="Size.Small"
-                                                         Icon="@Icons.Material.Filled.Update"
-                                                         IconColor="Color.Default"
-                                                         Color="Color.Default"
-                                                         T="string"
-                                                         Variant="Variant.Text">
-                                                    Add Status
-                                                </MudChip>
-                                            }
-                                            <MudIcon Icon="@Icons.Material.Filled.ArrowDropDown" Title="Favorite" />
-                                        </MudButton>
-                                    </ActivatorContent>
-                                    <ChildContent>
-                                        @foreach (var ts in TaskStatuses)
-                                        {
-                                            <MudMenuItem OnClick="()=>UpdateTaskStatusHandler(TaskId,ts.Id)">
-                                                <MudChip Size="Size.Small"
-                                                         Icon="@Icons.Material.Filled.Circle"
-                                                         IconColor="Color.Default"
-                                                         Color="Color.Default"
-                                                         T="string"
-                                                         Variant="Variant.Text"
-                                                         Style="@($"--mud-palette-default: {ts.HexColor}; --text-color: {ts.HexColor}; --bg-color: {GetBackgroundColor(ts.HexColor)}; background-color: var(--bg-color); color: var(--text-color);")">
-                                                    @ts.Name.ToUpper()
-                                                </MudChip>
-                                            </MudMenuItem>
-
-                                        }
-                                    </ChildContent>
-                                </MudMenu>
+                                <MudText Style="font-size: small;">Status</MudText>
+                                <TaskStatusDropDown ProjectId="@ProjectId" TaskId="@TaskId" />
                             </MudPaper>
                         </MudStack>
                     </td>

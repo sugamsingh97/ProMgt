@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ProMgt.Client.Models.Task;
+using System.ComponentModel.DataAnnotations;
 
 namespace ProMgt.Client.Models.Project
 {
@@ -21,6 +22,6 @@ namespace ProMgt.Client.Models.Project
         public int? ProjectStatusId { get; set; }
 
 
-        // public virtual ICollection<ProjectTask>? Tasks { get; set; }
+        public List<TaskResponse> Tasks { get; set; } = new();
     }
 }

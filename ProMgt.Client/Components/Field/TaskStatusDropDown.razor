@@ -1,0 +1,200 @@
+﻿@using System.Net.Http.Json
+@using System.Text.Json
+@inject HttpClient HttpClient
+@inject ISnackbar Snackbar
+@inject ProjectService ProjectService
+
+<MudMenu Style="width: 200px;" FullWidth="true" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
+    <ActivatorContent>
+        <MudButton Size="Size.Small">
+
+            @if (TaskResponse.TaskStatusId >= 1)
+            {
+                Console.WriteLine("ID is within the valid range.");
+                foreach (var ts in TaskStatuses)
+                {
+
+                    if (ts.Id == TaskResponse.TaskStatusId)
+                    {
+                        <MudChip Size="Size.Small"
+                                 Icon="@Icons.Material.Filled.Circle"
+                                 IconColor="Color.Default"
+                                 Color="Color.Default"
+                                 T="string"
+                                 Variant="Variant.Text"
+                                 Style="@($"--mud-palette-default: {ts.HexColor}; --text-color: {ts.HexColor}; --bg-color: {GetBackgroundColor(ts.HexColor)}; background-color: var(--bg-color); color: var(--text-color);")">
+                            @ts.Name
+                        </MudChip>
+                    }
+
+                }
+            }
+            else
+            {
+                Console.WriteLine("ID is disqualified in Data Grid.");
+                <MudChip Size="Size.Small"
+                         Icon="@Icons.Material.Filled.Update"
+                         IconColor="Color.Default"
+                         Color="Color.Default"
+                         T="string"
+                         Variant="Variant.Text">
+                    Add Status
+                </MudChip>
+            }
+
+            <MudIcon Icon="@Icons.Material.Filled.ArrowDropDown" Title="Favorite" />
+        </MudButton>
+    </ActivatorContent>
+    <ChildContent>
+        @foreach (var ts in TaskStatuses)
+        {
+            <MudMenuItem OnClick="()=>UpdateTaskStatusHandler(TaskResponse.Id, ts.Id)">
+                <MudChip Size="Size.Small"
+                         Icon="@Icons.Material.Filled.Circle"
+                         IconColor="Color.Default"
+                         Color="Color.Default"
+                         T="string"
+                         Variant="Variant.Text"
+                         Style="@($"--mud-palette-default: {ts.HexColor}; --text-color: {ts.HexColor}; --bg-color: {GetBackgroundColor(ts.HexColor)}; background-color: var(--bg-color); color: var(--text-color);")">
+                    @ts.Name.ToUpper()
+                </MudChip>
+            </MudMenuItem>
+
+        }
+    </ChildContent>
+</MudMenu>
+
+@code {
+    [Parameter]
+    public int ProjectId { get; set; }
+
+    [Parameter]
+    public int TaskId { get; set; }
+
+    public TaskResponse TaskResponse { get; set; } = new();
+    public List<TaskStatusResponse> TaskStatuses { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProjectService.OnNewTaskAddedChanged += UpdateData;
+        ProjectService.OnFieldChanges += UpdateData;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        ProjectService.OnNewTaskAddedChanged += UpdateData;
+
+        await GetTask();
+        await GetTaskStatuses();
+    }
+
+    public async Task GetTask()
+    {
+        try
+        {
+            var response = await HttpClient.GetFromJsonAsync<TaskResponse>($"api/task/gettask/{TaskId}");
+            TaskResponse = response ?? new TaskResponse();
+
+            StateHasChanged();
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+        }
+        catch (NotSupportedException ex)
+        {
+            Console.WriteLine($"Content type error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// This gets all the Statuses by project
+    /// </summary>
+    /// <returns></returns>
+    public async Task GetTaskStatuses()
+    {
+        try
+        {
+            if (ProjectId != null)
+            {
+                var response = await HttpClient.GetFromJsonAsync<List<TaskStatusResponse>>($"api/field/projecttaskstatus/{ProjectId}");
+                TaskStatuses = (response ?? new List<TaskStatusResponse>())
+                                .ToList();
+
+                StateHasChanged();
+            }
+
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+        }
+        catch (NotSupportedException ex)
+        {
+            Console.WriteLine($"Content type error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON error: {ex.Message}");
+        }
+    }
+
+    public async Task UpdateTaskStatusHandler(int _taskId, int _statusId)
+    {
+        try
+        {
+            var response = await HttpClient.PatchAsync($"api/task/{_taskId}/taskstatus", new StringContent(JsonSerializer.Serialize(_statusId), System.Text.Encoding.UTF8, "application/json"));
+
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Task status updated successfully", MudBlazor.Severity.Success);
+                await GetTask();
+                await GetTaskStatuses();
+                await ProjectService.TaskFieldIsUpdated();
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Snackbar.Add("Task not found", MudBlazor.Severity.Error);
+            }
+            else
+            {
+                Snackbar.Add("An error occurred while updating the Task status", MudBlazor.Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating Task name: {ex.Message}");
+            Snackbar.Add("An error occurred while updating the project name", MudBlazor.Severity.Error);
+        }
+    }
+
+    public async Task UpdateData()
+    {
+        await GetTask();
+        await GetTaskStatuses();
+    }
+
+    /// <summary>
+    /// This converts HexValue to RGB and gives us a color with 20% opacity for MudChip background.
+    /// </summary>
+    /// <param name="hexColor"></param>
+    /// <returns></returns>
+    private string GetBackgroundColor(string hexColor)
+    {
+        if (string.IsNullOrEmpty(hexColor) || !hexColor.StartsWith("#") || hexColor.Length != 7)
+        {
+            return "rgba(0, 0, 0, 0.2)"; // Default color if invalid hex
+        }
+
+        int r = Convert.ToInt32(hexColor.Substring(1, 2), 16);
+        int g = Convert.ToInt32(hexColor.Substring(3, 2), 16);
+        int b = Convert.ToInt32(hexColor.Substring(5, 2), 16);
+
+        return $"rgba({r}, {g}, {b}, 0.2)";
+    }
+}
+ 

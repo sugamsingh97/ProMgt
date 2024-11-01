@@ -16,8 +16,7 @@
 <ProjectTitleBar ProjectId="@ProjectId" />
 <MudDivider DividerType="DividerType.Middle" Class="mx-0" />
 
-@* Mud Drawer Start *@
-
+@* Mud drawer for Fields *@
 <MudDrawerContainer Class="mud-height-full">
     <MudDrawer @bind-Open="@_openInfoDrawer" Width="30%" Fixed="true" Anchor="Anchor.End" Style="z-index:1301!important; position: fixed" Variant="@DrawerVariant.Persistent">
         <MudDrawerHeader Class="d-flex pa-4 align-center">
@@ -92,12 +91,11 @@
         <MudDivider />
     </MudDrawer>
 </MudDrawerContainer>
-
 @* Mud Drawer End *@
 
+@* Mud Drawer Task Info *@
 <MudDrawerContainer Class="mud-height-full">
-    <MudDrawer @bind-Open="@_openTaskInfoDrawer" Width="30%" Fixed="true" Anchor="Anchor.End" Style="z-index:1301!important; position: fixed" Variant="@DrawerVariant.Persistent">
-        
+    <MudDrawer @bind-Open="@_openTaskInfoDrawer" Width="30%" Fixed="true" Anchor="Anchor.End" Style="z-index:1301!important; position: fixed" Variant="@DrawerVariant.Persistent">        
         <TaskInfoContainer ProjectId="@ProjectId" TaskId="@_currentTaskId" />
     </MudDrawer>
 </MudDrawerContainer>

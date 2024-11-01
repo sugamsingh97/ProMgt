@@ -8,10 +8,12 @@
 @inject ProjectService ProjectService
 
 <MudNavMenu>
-    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
+   
+    
     <MudNavLink Href="auth" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Lock">Auth Required</MudNavLink>
     <AuthorizeView>
         <Authorized>
+            <MudNavLink Href="dashboard" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">ProMgt</MudNavLink>
             <MudNavLink Icon="@Icons.Material.Rounded.ViewList" OnClick="OnExpandCollapseClick">
                 <MudItem Class="d-flex" Style="justify-content: space-between;">
                     <MudText style="font-size: revert;">Projects</MudText>
@@ -42,6 +44,7 @@
         <NotAuthorized>
             @* <MudNavLink Href="Account/Register" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person">Register</MudNavLink>
             <MudNavLink Href="Account/Login" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Password">Login</MudNavLink> *@
+            <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">ProMgt</MudNavLink>
             <MudNavLink Href="signup" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PersonAdd">Sign Up</MudNavLink>
             <MudNavLink Href="signin" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Login">Sign In</MudNavLink>
         </NotAuthorized>
@@ -54,7 +57,6 @@
     private bool _isAuthenticated = false;
     private string? currentUrl;
     private string errorMessage = string.Empty; 
-    public List<ProjectResponse> ProjectResponse { get; set; } = new();
     public List<ProjectDisplay> Projects { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
@@ -153,11 +155,11 @@
     {
         try
         {
-            var response = await HttpClient.GetFromJsonAsync<List<ProjectResponse>>("api/project/getstring");
-            ProjectResponse = (response ?? new List<ProjectResponse>())
+            var response = await HttpClient.GetFromJsonAsync<List<ProjectDisplay>>("api/project/getprojectlist");
+            Projects = (response ?? new List<ProjectDisplay>())
                             .OrderByDescending(p => p.DateOfCreation)
                             .ToList();
-            Projects = ConvertToProjectDisplay(ProjectResponse);
+            
             StateHasChanged();
         }
         catch (HttpRequestException ex)
@@ -174,29 +176,7 @@
         }
     }
 
-    #region Helper functions
-    /// <summary>
-    /// This Takes the List<ProjectResponse> and then converts it to List<ProjectDisplay>
-    /// </summary>
-    /// <param name="projects"></param>
-    /// <returns></returns>
-    internal List<ProjectDisplay> ConvertToProjectDisplay(List<ProjectResponse> projects)
-    {
-        List<ProjectDisplay> localList = new List<ProjectDisplay>();
-        foreach (var project in projects)
-        {
-            localList.Add(new()
-                {
-                    Id = project.Id,
-                    Name = project.Name,
-                    DeadLine = project.DeadLine,
-                    IsCompleted = project.IsCompleted,
-                    DateOfCreation = project.DateOfCreation
-                });
-        }
-        return localList;
-    }
-    #endregion
+   
 
 }
 

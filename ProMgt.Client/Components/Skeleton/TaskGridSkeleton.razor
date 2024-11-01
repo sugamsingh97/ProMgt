@@ -1,0 +1,38 @@
+﻿<MudSimpleTable Hover="true" Elevation="0" Bordered="true" Style="overflow-x: auto;" Class="custom-table by-1">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Deadline</th>
+            <th>Priority</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < 5; i++)
+        {
+            <tr>
+                <td style="width: 40px;">
+                    <MudSkeleton Width="24px" Height="24px" Shape="Shape.Circle" />
+                </td>
+                <td>
+                    <MudSkeleton Width="150px" Height="40px" />
+                </td>
+                <td>
+                    <MudSkeleton Width="200px" Height="40px" />
+                </td>
+                <td>
+                    <MudSkeleton Width="120px" Height="40px" />
+                </td>
+                <td>
+                    <MudSkeleton Width="100px" Height="40px" />
+                </td>
+                <td>
+                    <MudSkeleton Width="100px" Height="40px" />
+                </td>
+            </tr>
+        }
+    </tbody>
+</MudSimpleTable>
+<MudDivider DividerType="DividerType.Middle" Class="mx-0" />

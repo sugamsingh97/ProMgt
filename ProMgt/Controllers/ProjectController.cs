@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProMgt.Client.Models.Project;
+using ProMgt.Client.Models.Task;
 using ProMgt.Components.Account;
 using ProMgt.Data;
 using ProMgt.Data.Model;
@@ -95,14 +96,67 @@ namespace ProMgt.Controllers
         /// <returns></returns>
         [Authorize]
         [HttpGet]
-        [HttpGet("getstring")]
-        public async Task<ActionResult<List<ProjectResponse>>> GetProjects()
+        [HttpGet("getprojectlist")]
+        public async Task<ActionResult<List<ProjectDisplay>>> GetProjects()
         {
             var user = await _userAccessor.GetRequiredUserAsync(HttpContext);
 
-            var projects = await _db.Projects.Where(p => p.CreatedBy == user.Id).ToListAsync();
-            return Ok(projects);
-        }   
+            var projects = await _db.Projects.Where(p => p.CreatedBy == user.Id).Include(p => p.Tasks).ToListAsync();
+            var projectResponse = projects.Select( project => new ProjectDisplay {
+                Id = project.Id,
+                Name = project.Name,
+                DateOfCreation = project.DateOfCreation,
+                DeadLine = project.DeadLine,
+                IsCompleted = project.IsCompleted,
+                ProjectStatusId = project.ProjectStatusId
+            }).ToList();
+            return Ok(projectResponse);
+        }
+
+        [HttpGet("getprojectswithtasks")]
+        public async Task<ActionResult<List<ProjectResponse>>> GetProjectsAndTask()
+        {
+            var user = await _userAccessor.GetRequiredUserAsync(HttpContext);
+            var projects = await _db.Projects
+                .Where(p => p.CreatedBy == user.Id)
+                .Include(p => p.Tasks)
+                    .ThenInclude(t => t.Priority)
+                .Include(p => p.Tasks)
+                    .ThenInclude(t => t.TaskStatus)
+                .ToListAsync();
+
+            var projectResponses = projects.Select(project => new ProjectResponse
+            {
+                Id = project.Id,
+                Name = project.Name,
+                Description = project.Description,
+                ProjectSummery = project.ProjectSummery,
+                DateOfCreation = project.DateOfCreation,
+                DeadLine = project.DeadLine,
+                CreatedBy = project.CreatedBy,
+                IsCompleted = project.IsCompleted,
+                ProjectStatusId = project.ProjectStatusId,
+                Tasks = project.Tasks?.Select(task => new TaskResponse
+                {
+                    Id = task.Id,
+                    Name = task.Name,
+                    ProjectId = task.ProjectId,
+                    Description = task.Description,
+                    TaskSummery = task.ProjectSummery,
+                    DateOfCreation = task.DateOfCreation,
+                    DeadLine = task.DeadLine,
+                    CreatedBy = task.CreatedBy,
+                    IsCompleted = task.IsCompleted,
+                    PriorityId = task.PriorityId,
+                    TaskStatusId = task.TaskStatusId,
+                    SectionId = task.SectionId ?? 0,
+                    PriorityName = task.Priority?.Name,
+                    TaskStatusName = task.TaskStatus?.Name                    
+                }).ToList() ?? new List<TaskResponse>()
+            }).ToList();
+
+            return Ok(projectResponses);
+        }
 
         /// <summary>
         /// This Action methods gets a project by Id
@@ -354,6 +408,33 @@ namespace ProMgt.Controllers
             }
 
         }
+
+        [Authorize]
+        [HttpPatch("{id}/iscompleted")]
+        public async Task<ActionResult> PatchCompletion(int id, [FromBody] bool isCompleted)
+        {
+            try
+            {
+                var project = await _db.Projects.FindAsync(id);
+                if (project == null)
+                {
+
+                    return NotFound(new { message = "Project not found" });
+                }
+
+                project.IsCompleted = isCompleted;
+                await _db.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(500, new { message = "An error occurred while updating the project name" });
+            }
+
+        }
+
         #endregion
 
         #region Delete

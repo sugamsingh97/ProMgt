@@ -30,7 +30,9 @@
 <MudTabs ApplyEffectsToContainer="true" PanelClass="pa-2">
 
     <MudTabPanel Text="Overview" Icon="@Icons.Material.Rounded.ContentPaste">
-        <MudText>Content One</MudText>
+        <MudDivider DividerType="DividerType.Middle" Class="mx-0" />
+        <AddTaskBar ProjectId="ProjectId" />
+        <ProjectOverview ProjectId="ProjectId"/>        
     </MudTabPanel>
 
     <MudTabPanel Text="List" Icon="@Icons.Material.Rounded.ListAlt">
