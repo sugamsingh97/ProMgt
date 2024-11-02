@@ -1,5 +1,5 @@
 ﻿# ProMgt - Project Management Application
- 
+
 ProMgt is a powerful project management web application built with ASP.NET Core 8 Blazor and MudBlazor, inspired by Asana. It offers a comprehensive suite of features for efficient project and task management.
 
 ## 🌟 Key Features
@@ -23,19 +23,19 @@ ProMgt is a powerful project management web application built with ASP.NET Core 
 - Easy field management through right-side drawer
 
 ### Multiple Views
-1. Overview
+1. **Overview**
    - Comprehensive project and task information
    - Quick project status assessment
 
-2. List View
+2. **List View**
    - Detailed task listing
    - Inline task editing capabilities
 
-3. Board View
+3. **Board View**
    - Kanban-style task organization
    - Drag-and-drop functionality between sections
 
-4. Dashboard View
+4. **Dashboard View**
    - Visual project analytics
    - Pie and donut chart representations
    - Task summary statistics
@@ -56,6 +56,10 @@ ProMgt is a powerful project management web application built with ASP.NET Core 
 - Intuitive drag-and-drop interface
 - Customizable workflows
 - Visual project analytics
+- Enhanced loading states using MudSkeleton
+  - Smooth loading experience
+  - Visual feedback during data fetching
+  - Placeholder content while loading
 
 ## 🎯 Target Users
 - Project managers
@@ -73,9 +77,4 @@ ProMgt is a powerful project management web application built with ASP.NET Core 
 - Dark/Light mode toggle
 - Responsive drawer components
 - Intuitive navigation
-
-## 📊 Project Organization
-- Hierarchical project structure
-- Flexible task categorization
-- Customizable fields and statuses
-- Section-based task organization
+- Skeleton loading states for better UX
