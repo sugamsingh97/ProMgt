@@ -6,6 +6,11 @@ ProMgt is a powerful project management web application built with ASP.NET Core 
 
 ## 🌟 Key Features
 
+## 🚀 Technical Stack
+- ASP.NET Core 8
+- Blazor Framework
+- MudBlazor Component Library
+  
 ### Project Management
 - Create and manage multiple projects
 - Update project properties dynamically
@@ -46,11 +51,6 @@ ProMgt is a powerful project management web application built with ASP.NET Core 
 - Right-side drawer for detailed task information
 - Real-time updates across all views
 - Comprehensive task editing capabilities
-
-## 🚀 Technical Stack
-- ASP.NET Core 8
-- Blazor Framework
-- MudBlazor Component Library
 
 ## 💡 Features Highlight
 - Responsive design
