@@ -1,4 +1,6 @@
-﻿# ProMgt - Project Management Application
+![ProMgt](Capture.PNG)
+*"Board View: Kanban-style workflow visualization with intuitive drag-and-drop.*
+ # ProMgt - Project Management Application
  
 ProMgt is a powerful project management web application built with ASP.NET Core 8 Blazor and MudBlazor, inspired by Asana. It offers a comprehensive suite of features for efficient project and task management.
 
