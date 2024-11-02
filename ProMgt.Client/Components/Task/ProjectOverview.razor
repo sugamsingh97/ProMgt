@@ -12,12 +12,21 @@
 }
 else
 {   
-<MudContainer Style="border: 0px solid black">
+<MudContainer>
     <MudGrid Justify="Justify.Center" Class="d-flex mb-8" style="max-width: 1200px;justify-self: center;">
         <MudItem xs="12">
-            <MudPaper Elevation="0">
-                <MudTextField T="string" Label="Description" Variant="Variant.Outlined" @bind-Value="Project.Description" Lines="3" />
-            </MudPaper>
+                <MudPaper Elevation="0" Outlined="true" Class="rounded-lg pa-8">
+                    <MudTextField @bind-Value="Project.Description"                
+                 AutoGrow 
+                 Lines="5"
+                 Label="Description"
+                 Class="rounded-lg"
+                 @onclick="() => _isClicked = true"                 
+                 OnBlur="() => UpdateDescription(Project.Description)"
+                 Underline="@_isClicked">
+    </MudTextField>
+                </MudPaper>
+
         </MudItem>
         <MudItem xs="12" md="6">
             <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-8">
@@ -94,7 +103,7 @@ else
 
     public bool IsDataLoaded { get; set; } = false;
     private bool firstRender = true;
-
+    private bool _isClicked { get; set; } = false;
     [Parameter]
     public int ProjectId { get; set; }
 
@@ -127,9 +136,33 @@ else
         }
     }
 
-    protected async override Task OnInitializedAsync()
+
+    public async Task UpdateDescription(string _description)
     {
-        
+        _isClicked = false;
+        try
+        {
+            var response = await HttpClient.PatchAsync($"api/project/{ProjectId}/description", new StringContent(JsonSerializer.Serialize(_description), System.Text.Encoding.UTF8, "application/json"));
+
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Project description updated successfully", MudBlazor.Severity.Success);
+                await ProjectService.TriggerProjectNameUpdated(); // Trigger the event
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Snackbar.Add("Project not found", MudBlazor.Severity.Error);
+            }
+            else
+            {
+                Snackbar.Add("An error occurred while updating the project name", MudBlazor.Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating project name: {ex.Message}");
+            Snackbar.Add("An error occurred while updating the project name", MudBlazor.Severity.Error);
+        }
     }
 
     public async Task GetProject()

@@ -8,11 +8,18 @@
 
 @* <h3>TaskBoard @ProjectId</h3> *@
 
-<MudDropContainer T="TaskResponse"
-                  @ref="_dropContainer"
-                  Items="@TaskResponses"
-                  ItemsSelector="@((TaskResponse  task, string dropzone) => task.SectionId.ToString() == dropzone)"
-                  ItemDropped="TaskMoved">
+@* Add this at the top of your file *@
+@if (!isLoaded)
+{
+    <TaskBoardSkeleton />
+}
+else
+{
+    <MudDropContainer T="TaskResponse"
+                      @ref="_dropContainer"
+                      Items="@(TaskResponses ?? new())"
+                      ItemsSelector="@((TaskResponse task, string dropzone) => task.SectionId.ToString() == dropzone)"
+                      ItemDropped="TaskMoved">
     <ChildContent>
         <MudPaper Elevation="0" Style="display: flex;">
             @foreach (var thissection in Sections)
@@ -99,7 +106,11 @@
         cursor: grabbing;
     }
 </style>
+
+}
+
 @code {
+    private bool isLoaded { get; set; } = false;
     [Parameter]
     public int ProjectId { get; set; }
     public List<TaskResponse> TaskResponses { get; set; } = new List<TaskResponse>();
@@ -110,19 +121,24 @@
 
     public bool _disableDelete { get; set; }
 
-
-    private MudDropContainer<TaskResponse>? _dropContainer;
+    private MudDropContainer<TaskResponse>? _dropContainer = new();
     public SectionInputModel? newSection { get; set; } = new SectionInputModel();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         ProjectService.OnNewTaskAddedChanged += UpdateBoardContent;
         ProjectService.TaskInforUpdated += UpdateBoardContent;
+        await GetGlobalDataPool();
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        await GetGlobalDataPool();
+        if (ProjectId > 0)
+        {
+            isLoaded = false;
+            await GetGlobalDataPool();
+            StateHasChanged();
+        }
     }
 
     public async Task GetTasks()
@@ -133,6 +149,7 @@
             TaskResponses = (response ?? new List<TaskResponse>())
                 .OrderByDescending(t => t.DateOfCreation)
                 .ToList();
+            isLoaded = true;
             _dropContainer.Refresh();
             // ProjectService.OnFieldChanges += UpdateFields;
 
@@ -262,16 +279,31 @@
 
     private async Task GetGlobalDataPool()
     {
-        await GetTasks();
-        await GetSections();
-        _dropContainer.Refresh();
+        try
+        {
+            await GetTasks();
+            await GetSections();
+            isLoaded = true;
+            StateHasChanged();
+            if (_dropContainer != null)
+            {
+                _dropContainer.Refresh();
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading data: {ex.Message}", MudBlazor.Severity.Error);
+        }
 
     }
 
     public void Dispose()
     {
-        ProjectService.OnNewTaskAddedChanged -= UpdateBoardContent;
-
+        if (ProjectService != null)
+        {
+            ProjectService.OnNewTaskAddedChanged -= UpdateBoardContent;
+            ProjectService.TaskInforUpdated -= UpdateBoardContent;
+        }
     }
 
 

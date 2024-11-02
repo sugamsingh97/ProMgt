@@ -67,7 +67,7 @@
                                        Disabled="true" />
                     </td>
                 </tr>
-               
+
                 <tr>
                     <td Class="lable-key">Deadline</td>
                     <td>
@@ -101,18 +101,31 @@
     </MudItem>
 
     <MudItem xs="12" Style="font-size: smaller;">
-        <MudTextField Label="Description"
-                      Placeholder="Add description..."
-                      Lines="3"
-                      Variant="Variant.Filled"
-                      @onmouseover="@(() => IsDescriptionHover = true)"
-                      @onmouseenter="@(() => IsDescriptionHover = true)"
-                      @onmouseout="@(() => IsDescriptionHover = false)"
-                      @onfocus="@(() => IsDescriptionHover = true)"
-                      Underline="@(IsDescriptionHover ? true : false)"
-                      @bind-Value="TaskResponse.Description"
-                      OnBlur="()=>UpdateTaskDescription(TaskResponse.Id, TaskResponse.Description)"></MudTextField>
+        @* <MudTextField Label="Description"
+        Placeholder="Add description..."
+        Lines="3"
+        Variant="Variant.Filled"
+        @onmouseover="@(() => IsDescriptionHover = true)"
+        @onmouseenter="@(() => IsDescriptionHover = true)"
+        @onmouseout="@(() => IsDescriptionHover = false)"
+        @onfocus="@(() => IsDescriptionHover = true)"
+        Underline="@(IsDescriptionHover ? true : false)"
+        @bind-Value="TaskResponse.Description"
+        OnBlur="()=>UpdateTaskDescription(TaskResponse.Id, TaskResponse.Description)"></MudTextField> *@
 
+        <MudPaper Elevation="0" Outlined="true" Class="rounded-lg pa-8">
+            <MudTextField Label="Description"
+                          Placeholder="Add description..."
+                          Lines="5"
+                          @onmouseover="@(() => IsDescriptionHover = true)"
+                          @onmouseenter="@(() => IsDescriptionHover = true)"
+                          @onmouseout="@(() => IsDescriptionHover = false)"
+                          @onfocus="@(() => IsDescriptionHover = true)"
+                          Underline="@(IsDescriptionHover ? true : false)"
+                          @bind-Value="TaskResponse.Description"
+                          OnBlur="()=>UpdateTaskDescription(TaskResponse.Id, TaskResponse.Description)"
+                          AutoGrow></MudTextField>
+        </MudPaper>
     </MudItem>
 </MudGrid>
 

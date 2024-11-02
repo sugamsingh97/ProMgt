@@ -6,6 +6,12 @@
 
 <MudDivider DividerType="DividerType.Middle" Class="mx-0" />
 
+@if (!IsDataLoaded)
+{
+    <TaskGridSkeleton /> 
+}
+else
+{
 <MudSimpleTable Hover="true" Elevation="0" Bordered="true" Style="overflow-x: auto;" Class="custom-table by-1">
     <thead>
         <tr>
@@ -80,7 +86,7 @@
     </tbody>
 </MudSimpleTable>
 <MudDivider DividerType="DividerType.Middle" Class="mx-0" />
-
+}
 <style>
     .completed-task {
         background-color: rgba(55, 201, 90, 0.12);
@@ -139,6 +145,9 @@
     }
 </style>
 @code {
+    public bool IsDataLoaded { get; set; } = false;
+    private bool firstRender = true;
+
 
     [Parameter]
     public int ProjectId { get; set; }
@@ -148,15 +157,31 @@
     public List<TaskStatusResponse>? TaskStatuses { get; set; } = new();
     public int _hoveringContent { get; set; } = 0;
 
+    protected override void OnInitialized()
+    {
+        // Only initialize basic properties here
+        IsDataLoaded = false;
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetTaskPriorities();
+            await GetTasks();
+            await GetTaskStatuses();
+            IsDataLoaded = true;
+            StateHasChanged();
+        }
+    }
 
     protected async override Task OnInitializedAsync()
     {
         ProjectService.OnNewTaskAddedChanged += UpdateTaskList;
         ProjectService.TaskInforUpdated += UpdateTaskList;
         ProjectService.TaskFieldUpdated += UpdateTaskList;
-        await GetTaskPriorities();
-        await GetTasks();
-        await GetTaskStatuses();
+        
     }
 
     #region Fetching methods

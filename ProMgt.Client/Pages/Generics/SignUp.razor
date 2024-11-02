@@ -8,12 +8,12 @@
 <PageTitle>Sign Up</PageTitle>
 <MudContainer MaxWidth="MaxWidth.Large" Class="d-flex justify-center align-center" style="height: 94vh;" Gutters="false">
     <MudGrid Style="height:800px!important" Spacing="0">
-        <MudItem Class="@GetClass()" xl="6" xxl="6" lg="6" md="0" sm="0" xs="0">
+        @* <MudItem Class="@GetClass()" xl="6" xxl="6" lg="6" md="0" sm="0" xs="0">
             <MudText Typo="Typo.h3">ProMgt</MudText>
             <MudText Typo="Typo.h4">Sign Up</MudText>
-        </MudItem>
+        </MudItem> *@
         <MudItem lg="6" md="12" sm="12" xs="12">
-            <MudPaper Style="height:800px!important" Class="pa-8 rounded-r-xl">
+            <MudPaper Style="height:800px!important" Class="pa-8 rounded-xl">
                 @* MudStepper *@
                 <MudStepperExtended @ref="_stepper"
                                     Class="mud-width-full"
@@ -222,12 +222,12 @@
     [SupplyParameterFromForm]
     public SignupModel Input { get; set; } = new SignupModel()
         {
-            Title = "Mr",
-            FirstName = "Ron",
-            LastName = "Wesely",
-            Email = "ron@wesely.com",
-            Password = "Abc@123",
-            ConfirmPassword = "Abc@123"
+            // Title = "Mr",
+            // FirstName = "Ron",
+            // LastName = "Wesely",
+            // Email = "ron@wesely.com",
+            // Password = "Abc@123",
+            // ConfirmPassword = "Abc@123"
         };
 
     MudStepperExtended? _stepper = new();

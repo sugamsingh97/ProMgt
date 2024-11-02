@@ -1,5 +1,11 @@
 ﻿@using MudBlazor
 
+@if (!IsDataLoaded)
+{
+    <TaskDashboardSkeleton />
+}
+else
+{
 <MudItem Class="mx-10 mt-6 d-flex flex-column">
     <MudItem Elevation="0">
         <MudGrid>
@@ -67,6 +73,8 @@
         </MudGrid>
     </MudItem>
 </MudItem>
+
+
 @*
 <TaskCompletionStatusChart ProjectId="ProjectId" />
 
@@ -90,11 +98,23 @@
         font-weight: 500;        
     }
 </style>
-
+}
 @code {
+    public bool IsDataLoaded { get; set; } = false;
+    private bool firstRender = true;
+
+
     [Parameter]
     public int ProjectId { get; set; }
+
     public int TotalTasks { get; set; } = 5;
     public int IncompleteTasks { get; set; } = 3;
     public int CompletedTasks { get; set; } = 2;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(3000); // 3 seconds delay
+        IsDataLoaded = true;
+        StateHasChanged();
+    }
 }

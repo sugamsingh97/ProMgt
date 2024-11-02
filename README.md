@@ -1,42 +1,81 @@
-# [Project Management in Blazor .Net 8](https://github.com/sugamsingh97/ProMgt)
+﻿# ProMgt - Project Management Application
 
-Welcome to the Project Management in Blazor .Net 8 repository! This project aims to showcase a comprehensive project management tool built using the latest Blazor .NET 8 framework.
+ProMgt is a powerful project management web application built with ASP.NET Core 8 Blazor and MudBlazor, inspired by Asana. It offers a comprehensive suite of features for efficient project and task management.
 
-<img src="ProMgt/wwwroot/day2.jpg" alt="Day 2" width="300px">
-*Image source credits: Pexels*
+## 🌟 Key Features
 
-## Overview
+### Project Management
+- Create and manage multiple projects
+- Update project properties dynamically
+- Flexible project status management
+- Dark/Light mode theme support
 
-This repository contains the source code and documentation for a project management application. The application provides functionalities for managing tasks, teams, and project timelines, making it a robust tool for any project manager.
+### Task Management
+- Create, update, and delete tasks within projects
+- Organize tasks into customizable sections
+- Default sections: To-do, Doing, Done
+- Add/remove sections with automatic task redistribution
 
-## Features
+### Custom Fields
+- Project-specific custom fields
+- Customizable Priority levels
+- Flexible Task Status definitions
+- Easy field management through right-side drawer
 
-- **Task Management**: Create, update, and delete tasks with ease.
-- **Team Collaboration**: Manage team members, assign tasks, and track progress.
-- **Timeline View**: Visualize project timelines and track milestones.
-- **Notifications**: Get real-time notifications for task updates and deadlines.
-- **Reports**: Generate detailed reports to analyze project performance.
+### Multiple Views
+1. Overview
+   - Comprehensive project and task information
+   - Quick project status assessment
 
-## Technologies Used
+2. List View
+   - Detailed task listing
+   - Inline task editing capabilities
 
-- **Blazor .NET 8**: Leveraging the latest version of Blazor for a seamless single-page application experience.
-- **ASP.NET Core**: Backend API for managing data and authentication.
-- **Entity Framework Core**: Database interaction and ORM.
-- **SQL Server**: Relational database for storing project data.
-- **MudBlazor**: UI components for a sleek and modern interface.
-- **Tailwind CSS**: For custom styling and responsive design.
-- **Figma**: UI/UX design and prototyping.
+3. Board View
+   - Kanban-style task organization
+   - Drag-and-drop functionality between sections
 
-## Getting Started
+4. Dashboard View
+   - Visual project analytics
+   - Pie and donut chart representations
+   - Task summary statistics
 
-### Prerequisites
+### Task Details
+- Right-side drawer for detailed task information
+- Real-time updates across all views
+- Comprehensive task editing capabilities
 
-- .NET 8 SDK
-- SQL Server
-- Visual Studio or Visual Studio Code
+## 🚀 Technical Stack
+- ASP.NET Core 8
+- Blazor Framework
+- MudBlazor Component Library
 
-### Installation
+## 💡 Features Highlight
+- Responsive design
+- Real-time UI updates
+- Intuitive drag-and-drop interface
+- Customizable workflows
+- Visual project analytics
 
-1. **Clone the Repository**:
-   ```sh
-   git clone https://github.com/sugamsingh97/ProMgt.git
+## 🎯 Target Users
+- Project managers
+- Development teams
+- Organizations seeking efficient project management
+- Individual users managing personal projects
+
+## 🔄 Live Updates
+- Real-time UI synchronization
+- Immediate reflection of changes across views
+- Seamless user experience
+
+## 🎨 UI/UX Features
+- Clean and modern interface
+- Dark/Light mode toggle
+- Responsive drawer components
+- Intuitive navigation
+
+## 📊 Project Organization
+- Hierarchical project structure
+- Flexible task categorization
+- Customizable fields and statuses
+- Section-based task organization
