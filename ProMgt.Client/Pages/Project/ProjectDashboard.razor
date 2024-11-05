@@ -54,7 +54,7 @@ else
             </MudItem>
 
             <MudItem xs="12" md="6">
-                <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-8">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-xl pa-8">
                     <MudItem Class="chart-title pb-8">
                         Projects by completion status
                     </MudItem>
@@ -68,7 +68,7 @@ else
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" md="6">
-                <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-8">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-xl pa-8">
                     <MudItem Class="chart-title pb-8">
                         Tasks by completion status
                     </MudItem>
@@ -85,7 +85,7 @@ else
         </MudGrid>
         <MudGrid Class="d-flex" style="max-width: 1200px;justify-self: center;">
             <MudItem xs="12" md="6">
-                <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-8">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-xl pa-8">
                     <MudItem Class="chart-title pb-1">
                         Projects
                     </MudItem>
@@ -137,7 +137,7 @@ else
             <MudItem xs="6" md="3">
                 <MudButton Style="padding:0;" onclick="CreateProjectHandler">
                     <MudPaper Outlined="true"
-                              Class="mud-width-full rounded-lg pa-8 d-flex align-center justify-center flex-column"
+                              Class="mud-width-full rounded-xl pa-8 d-flex align-center justify-center flex-column"
                               Style="border-color: var(--mud-palette-primary); width: 100%; height: 100%;">
                         <MudIcon Icon="@Icons.Material.Rounded.Add"
                                  Color="Color.Primary"
@@ -208,16 +208,24 @@ else
     {
         if (firstRender)
         {
-            await GetProjects();
-            await UpdateProjectChart();
-            await UpdateTaskChart();
-            await GetDate();
+            await LoadData();
             IsDataLoaded = true;
             StateHasChanged();
         }
     }
 
+    protected async override Task OnInitializedAsync()
+    {
+       ProjectService.OnNewProjectAddedChanged += LoadData;
+    }
 
+    public async Task LoadData()
+    {
+        await GetProjects();
+        await UpdateProjectChart();
+        await UpdateTaskChart();
+        await GetDate();
+    }
 
     private async Task GetDate()
     {

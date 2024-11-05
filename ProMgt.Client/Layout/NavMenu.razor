@@ -73,6 +73,7 @@
         }
         ProjectService.OnNewProjectAddedChanged += UpdateProjectList;
         ProjectService.OnProjectNameUpdated += UpdateProjectList; // Add this line
+        ProjectService.OnProjectDeleted += UpdateProjectList;
 
     }
 

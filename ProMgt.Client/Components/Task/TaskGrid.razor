@@ -21,6 +21,8 @@ else
             <th>Deadline</th>
             <th>Priority</th>
             <th>Status</th>
+                <th></th>
+
         </tr>
     </thead>
     <tbody>
@@ -81,6 +83,9 @@ else
                 <td>
                    <TaskStatusDropDown ProjectId="ProjectId" TaskId="@task.Id"/>
                 </td>
+                    <td>
+                        <MudIconButton Icon="@Icons.Material.TwoTone.Delete" Size="Size.Small" Style="color: #e32d47;" OnClick="@(() => DeleteTask(task.Id, task.Name))" />
+                    </td>
             </tr>
         }
     </tbody>
@@ -128,7 +133,13 @@ else
             .custom-table td:nth-child(5),
             .custom-table th:nth-child(6),
             .custom-table td:nth-child(6) {
-                width: 15%;
+                width: 14.33%;
+                padding: 4px;
+            }
+
+            .custom-table th:nth-child(7),
+            .custom-table td:nth-child(7) {
+                width: 2%;
                 padding: 4px;
             }
 
@@ -181,7 +192,8 @@ else
         ProjectService.OnNewTaskAddedChanged += UpdateTaskList;
         ProjectService.TaskInforUpdated += UpdateTaskList;
         ProjectService.TaskFieldUpdated += UpdateTaskList;
-        
+        ProjectService.OnTaskDeleted += UpdateTaskList;
+
     }
 
     #region Fetching methods
@@ -498,6 +510,16 @@ else
 
         int calculatedWidth = baseWidth + (_name.Length * charWidth);
         return Math.Min(Math.Max(calculatedWidth, baseWidth), maxWidth);
+    }
+
+    public async Task DeleteTask(int _taskId, string _taskName)
+    {
+        bool response =  await ProjectService.DeleteTask(_taskId, _taskName);
+        if (response)
+        {
+            Snackbar.Add($"Task \"{_taskName}\" deleted!", MudBlazor.Severity.Error);
+        }
+
     }
 
     #region Helper functions

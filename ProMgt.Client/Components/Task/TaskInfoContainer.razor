@@ -17,6 +17,8 @@
 
     </MudButton>
     <MudSpacer />
+    <MudIconButton Class="pa-0" OnClick="()=>DeleteTaskHandler(TaskResponse.Name)" Icon="@Icons.Material.TwoTone.Delete" Style="text-transform:none; color: #e32d47;"></MudIconButton>
+
     <MudIconButton Class="pa-0" OnClick="@CloseTaskInfoDrawer" Icon="@Icons.Material.Rounded.ChevronRight"></MudIconButton>
 
 </MudDrawerHeader>
@@ -113,7 +115,7 @@
         @bind-Value="TaskResponse.Description"
         OnBlur="()=>UpdateTaskDescription(TaskResponse.Id, TaskResponse.Description)"></MudTextField> *@
 
-        <MudPaper Elevation="0" Outlined="true" Class="rounded-lg pa-8">
+        <MudPaper Elevation="0" Outlined="true" Class="rounded-xl pa-8">
             <MudTextField Label="Description"
                           Placeholder="Add description..."
                           Lines="5"
@@ -253,6 +255,16 @@
         catch (JsonException ex)
         {
             Console.WriteLine($"JSON error: {ex.Message}");
+        }
+    }
+
+    public async Task DeleteTaskHandler(string _taskName)
+    {
+        bool response = await ProjectService.DeleteTask(TaskId, _taskName);
+       if (response)
+        {
+            Snackbar.Add($"Task \"{_taskName}\" deleted!", MudBlazor.Severity.Error);
+
         }
     }
 

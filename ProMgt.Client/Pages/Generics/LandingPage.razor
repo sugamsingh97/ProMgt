@@ -1,19 +1,24 @@
 ﻿@page "/"
 
 <MudContainer MaxWidth="MaxWidth.Small" >
-    <MudPaper Elevation="3" Class="pa-8 text-center">
-        <MudIcon Icon="@Icons.Material.Filled.TaskAlt" Size="Size.Large" Color="Color.Primary" />
+    <MudPaper Elevation="0" Outlined="true" Class="text-center rounded-xl">
 
-        <MudText Typo="Typo.h4" Class="mt-4" Color="Color.Primary">
-            Welcome to ProMgt! 🎉
-        </MudText>
+        <MudItem Class="pa-8">
+            <MudText Typo="Typo.h4" Color="Color.Primary">
+                Welcome to ProMgt! 🎉
+            </MudText>
+        </MudItem>
+        
+        <MudDivider/>
 
-        <MudText Typo="Typo.body1" Class="mt-4">
-            Hey there! This is your friendly project management app.
-            Let's get organized together! ✨
-        </MudText>
+        <MudItem Class="pa-8">
+            <MudText Typo="Typo.body1">
+                Hey there! This is your friendly project management app.
+                Let's get organized together! ✨
+            </MudText>
+        </MudItem>      
 
-        <MudStack Spacing="4" Class="mt-8">
+        <MudStack Spacing="4" Class="pa-8">
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
                        Size="Size.Large"
@@ -28,6 +33,7 @@
                 Create New Account
             </MudButton>
         </MudStack>
+
     </MudPaper>
 </MudContainer>
 

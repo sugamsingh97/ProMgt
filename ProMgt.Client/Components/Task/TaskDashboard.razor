@@ -1,4 +1,5 @@
 ﻿@using MudBlazor
+@inject HttpClient HttpClient
 
 @if (!IsDataLoaded)
 {
@@ -10,32 +11,32 @@ else
     <MudItem Elevation="0">
         <MudGrid>
             <MudItem xs="12" md="3">
-                <MudPaper Outlined="true" Class="mud-width-full rounded-lg statistics">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-xl statistics">
                     <MudText>Completed Task</MudText>
-                    <MudItem class="py-2"><MudText Class="statistics-text" Typo="Typo.h3">@CompletedTasks</MudText> </MudItem>
-                    <MudText Typo="Typo.caption">@CompletedTasks / @TotalTasks</MudText>
+                        <MudItem class="py-2"><MudText Class="statistics-text" Typo="Typo.h3">@TaskStats.Complete</MudText> </MudItem>
+                        <MudText Typo="Typo.caption">@TaskStats.Complete / @TaskStats.Total </MudText>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" md="3">
-                <MudPaper Outlined="true" Class="mud-width-full rounded-lg statistics">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-xl statistics">
                     <MudText>Incomplete Task</MudText>
-                    <MudItem class="py-2"><MudText Class="statistics-text" Typo="Typo.h3">@IncompleteTasks</MudText></MudItem>
-                    <MudText Typo="Typo.caption">@IncompleteTasks / @TotalTasks</MudText>
+                        <MudItem class="py-2"><MudText Class="statistics-text" Typo="Typo.h3">@TaskStats.InComplete</MudText></MudItem>
+                    <MudText Typo="Typo.caption">@TaskStats.InComplete / @TaskStats.Total</MudText>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" md="3">
-                <MudPaper Outlined="true" Class="mud-width-full rounded-lg statistics">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-xl statistics">
                     <MudText>Total Task</MudText>
-                    <MudItem class="py-2"><MudText Class="statistics-text" Typo="Typo.h3">@TotalTasks</MudText></MudItem>
-                    <MudText Typo="Typo.caption"> @TotalTasks / @TotalTasks</MudText>
-                </MudPaper>
+                        <MudItem class="py-2"><MudText Class="statistics-text" Typo="Typo.h3">@TaskStats.Total</MudText></MudItem>
+                        <MudText Typo="Typo.caption"> @TaskStats.Total / @TaskStats.Total</MudText>
+                </MudPaper>                   
             </MudItem>
         </MudGrid>
     </MudItem>
     <MudItem Class="mt-6">
         <MudGrid>
             <MudItem xs="12" lg="6">
-                <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-4">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-xl pa-4">
                     <MudItem Class="chart-title pb-8">
                         Tasks by completion status
                     </MudItem>
@@ -43,7 +44,7 @@ else
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" lg="6">
-                <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-4">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-xl pa-4">
                     <MudItem Class="chart-title  pb-8">
                         Tasks by status
                     </MudItem>
@@ -55,7 +56,7 @@ else
     <MudItem Class="mt-6">
         <MudGrid>
             <MudItem xs="12" lg="6">
-                <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-4">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-xl pa-4">
                     <MudITem Class="chart-title pb-8">
                         Tasks by section
                     </MudITem>
@@ -63,7 +64,7 @@ else
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" lg="6">
-                <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-4">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-xl pa-4">
                      <MudITem Class="chart-title  pb-8">
                         Tasks by priority
                     </MudITem>
@@ -102,19 +103,55 @@ else
 @code {
     public bool IsDataLoaded { get; set; } = false;
     private bool firstRender = true;
+    public List<TaskResponse> TaskResponses { get; set; } = new();
 
+    StatData TaskStats { get; set; } = new();
 
     [Parameter]
     public int ProjectId { get; set; }
 
-    public int TotalTasks { get; set; } = 5;
-    public int IncompleteTasks { get; set; } = 3;
-    public int CompletedTasks { get; set; } = 2;
-
     protected override async Task OnInitializedAsync()
     {
+        await GetTasks();
         await Task.Delay(3000); // 3 seconds delay
         IsDataLoaded = true;
+
         StateHasChanged();
+    }
+
+    public async Task GetTasks()
+    {
+        try
+        {
+
+            var response = await HttpClient.GetFromJsonAsync<List<TaskResponse>>($"api/task/projecttask/{ProjectId}");
+            TaskResponses = (response ?? new List<TaskResponse>())
+                .OrderByDescending(t => t.DateOfCreation)
+                .ToList();   
+
+            if (TaskResponses.Count > 0)
+            {
+                TaskStats.Total = TaskResponses.Count;
+                TaskStats.Complete = TaskResponses.Where(tr => tr.IsCompleted == true).ToList().Count;
+                TaskStats.InComplete = TaskResponses.Where(tr => tr.IsCompleted == false).ToList().Count;
+            }
+
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+        }
+        catch (NotSupportedException ex)
+        {
+            Console.WriteLine($"Content type error: {ex.Message}");
+        }       
+    }
+
+
+    public class StatData
+    {
+        public int Total { get; set; } = 0;
+        public int Complete { get; set; } = 0;
+        public int InComplete { get; set; } = 0;
     }
 }

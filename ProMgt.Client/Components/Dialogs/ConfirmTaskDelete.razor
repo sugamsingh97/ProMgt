@@ -1,0 +1,54 @@
+﻿@* <MudDialog Style="border-radius: 24px; padding: 0px;"> *@
+<MudDialog Style="border-radius: 24px;"
+           Class="blur dialog-background"
+           TitleClass="blur dialog-background-title"
+           ContentClass="dialog-background-surface py-2"
+           ActionsClass="dialog-background-surface">
+
+    <DialogContent>
+        <MudText Typo="Typo.body1" Class="mt-4">
+            By clicking delete you will delete this task permanently.
+        </MudText>        
+        <MudText Typo="Typo.body2" Color="Color.Error" Class="py-2">
+            Are you sure you want to proceed with deleting this task?
+        </MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudItem Class="d-flex flex-row justify-end pt-2 px-4 pb-4">
+            <MudButton Variant="Variant.Outlined" OnClick="Cancel">Cancel</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Error" Class="mx-4" OnClick="Submit">Delete</MudButton>
+        </MudItem>
+    </DialogActions>
+</MudDialog>
+
+<style>
+    .blur {
+        backdrop-filter: blur(10px);
+    }
+
+    .dialog-background {
+        background-color: transparent;
+    }
+
+    .dialog-background-title {
+        background: #e32d478a;
+        color: var(--mud-palette-white);
+    }
+
+    .dialog-background-surface {
+        background: rgb(from var(--mud-palette-surface) r g b / 75%);
+    }
+
+    .mud-dialog .mud-dialog-content {
+        margin: 0px;
+        border-bottom: 1px solid #bbbbbb;
+    }
+</style>
+@code {
+    [CascadingParameter]
+    private MudDialogInstance? MudDialog { get; set; }
+
+    private void Submit() => MudDialog?.Close(DialogResult.Ok(bool.Parse("true")));
+
+    private void Cancel() => MudDialog?.Cancel();
+}

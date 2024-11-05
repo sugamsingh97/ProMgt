@@ -11,93 +11,98 @@
     <TaskOverviewSkeleton />
 }
 else
-{   
-<MudContainer>
-    <MudGrid Justify="Justify.Center" Class="d-flex mb-8" style="max-width: 1200px;justify-self: center;">
-        <MudItem xs="12">
-                <MudPaper Elevation="0" Outlined="true" Class="rounded-lg pa-8">
-                    <MudTextField @bind-Value="Project.Description"                
-                 AutoGrow 
-                 Lines="5"
-                 Label="Description"
-                 Class="rounded-lg"
-                 @onclick="() => _isClicked = true"                 
-                 OnBlur="() => UpdateDescription(Project.Description)"
-                 Underline="@_isClicked">
-    </MudTextField>
+{
+    <MudContainer>
+        <MudGrid Justify="Justify.Center" Class="d-flex mb-8" style="max-width: 1200px;justify-self: center;">
+            <MudItem xs="12">
+                <MudPaper Elevation="0" Outlined="true" Class="rounded-xl pa-8">
+                    <MudTextField @bind-Value="Project.Description"
+                                  AutoGrow
+                                  Lines="5"
+                                  Label="Description"
+                                  Class="rounded-xl"
+                                  @onclick="() => _isClicked = true"
+                                  OnBlur="() => UpdateDescription(Project.Description)"
+                                  Underline="@_isClicked">
+                    </MudTextField>
                 </MudPaper>
 
-        </MudItem>
-        <MudItem xs="12" md="6">
-            <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-8">
-                <MudItem Class="chart-title pb-1">
-                    Tasks
-                </MudItem>
-                <MudGrid>
-                    <MudItem xs="6">
-                        <MudList T="string">
-                            @foreach (var task in TaskResponses.Take(TaskResponses.Count / 2))
-                            {
-                                <MudListItem Style="padding-left: 0; padding-right:0;" OnClick="() => TaskClickHandler(task.Id)">
-                                    <MudItem Class="d-flex align-center">
-                                        <MudTooltip Text="@(task.IsCompleted ? "Mark task incomplete" : "Mark task complete")" Placement="Placement.End" Delay="600" Arrow="true">
-                                            <MudCheckBox @bind-Value="task.IsCompleted"
-                                                         Color="@(task.IsCompleted ? Color.Primary : Color.Default)"
-                                                         Disabled="true"
-                                                         CheckedIcon="@Icons.Material.Filled.CheckCircle"
-                                                         UncheckedIcon="@Icons.Material.Filled.CheckCircleOutline">
-                                            </MudCheckBox>
-                                        </MudTooltip>
-                                        <MudText>@task.Name</MudText>
-                                    </MudItem>
-                                </MudListItem>
-                            }
-                        </MudList>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-xl">
+                    <MudItem Class="chart-title pl-8 pt-4 pr-8 pb-2 d-flex flex-row align-center">
+                        <MudText>Tasks</MudText>
+                        <MudSpacer />
+                        <MudTooltip Text="Add Task" Arrow="true" Delay="600">
+                            <MudIconButton OnClick="AddTaskHandler" Icon="@Icons.Material.Rounded.Add" Size="Size.Medium" />
+                        </MudTooltip>
                     </MudItem>
+                    <MudDivider />
+                    <MudGrid Class="pa-8">
+                        <MudItem xs="6">
+                            <MudList T="string">
+                                @foreach (var task in TaskResponses.Skip(TaskResponses.Count / 2))
+                                {
+                                    <MudListItem Style="padding-left: 0; padding-right:0;" OnClick="() => TaskClickHandler(task.Id)">
+                                        <MudItem Class="d-flex align-center">
+                                            <MudTooltip Text="@(task.IsCompleted ? "Mark task incomplete" : "Mark task complete")" Placement="Placement.End" Delay="600" Arrow="true">
+                                                <MudCheckBox @bind-Value="task.IsCompleted"
+                                                             Color="@(task.IsCompleted ? Color.Primary : Color.Default)"
+                                                             Disabled="true"
+                                                             CheckedIcon="@Icons.Material.Filled.CheckCircle"
+                                                             UncheckedIcon="@Icons.Material.Filled.CheckCircleOutline">
+                                                </MudCheckBox>
+                                            </MudTooltip>
+                                            <MudText>@task.Name</MudText>
+                                        </MudItem>
+                                    </MudListItem>
+                                }
+                            </MudList>
+                        </MudItem>
 
-                    <MudItem xs="6">
-                        <MudList T="string">
-                            @foreach (var task in TaskResponses.Skip(TaskResponses.Count / 2))
-                            {
-                                <MudListItem Style="padding-left: 0; padding-right:0;" OnClick="() => TaskClickHandler(task.Id)">
-                                    <MudItem Class="d-flex align-center">
-                                        <MudTooltip Text="@(task.IsCompleted ? "Mark task incomplete" : "Mark task complete")" Placement="Placement.End" Delay="600" Arrow="true">
-                                            <MudCheckBox @bind-Value="task.IsCompleted"
-                                                         Color="@(task.IsCompleted ? Color.Primary : Color.Default)"
-                                                         Disabled="true"
-                                                         CheckedIcon="@Icons.Material.Filled.CheckCircle"
-                                                         UncheckedIcon="@Icons.Material.Filled.CheckCircleOutline">
-                                            </MudCheckBox>
-                                        </MudTooltip>
-                                        <MudText>@task.Name</MudText>
-                                    </MudItem>
-                                </MudListItem>
-                            }
-                        </MudList>
+                        <MudItem xs="6">
+                            <MudList T="string">
+                                @foreach (var task in TaskResponses.Take(TaskResponses.Count / 2))
+                                {
+                                    <MudListItem Style="padding-left: 0; padding-right:0;" OnClick="() => TaskClickHandler(task.Id)">
+                                        <MudItem Class="d-flex align-center">
+                                            <MudTooltip Text="@(task.IsCompleted ? "Mark task incomplete" : "Mark task complete")" Placement="Placement.End" Delay="600" Arrow="true">
+                                                <MudCheckBox @bind-Value="task.IsCompleted"
+                                                             Color="@(task.IsCompleted ? Color.Primary : Color.Default)"
+                                                             Disabled="true"
+                                                             CheckedIcon="@Icons.Material.Filled.CheckCircle"
+                                                             UncheckedIcon="@Icons.Material.Filled.CheckCircleOutline">
+                                                </MudCheckBox>
+                                            </MudTooltip>
+                                            <MudText>@task.Name</MudText>
+                                        </MudItem>
+                                    </MudListItem>
+                                }
+                            </MudList>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudPaper Outlined="true" Class="mud-width-full rounded-xl pa-8">
+                            <MudItem Class="chart-title pb-8">
+                                Tasks by completion status
+                            </MudItem>
+                            <MudChart LegendPosition="Position.Bottom"
+                                      ChartType="ChartType.Donut"
+                                      InputData="@TaskData"
+                                      @bind-SelectedIndex="Index"
+                                      InputLabels="@Tasklabels"
+                                      Width="300px"
+                                      Height="300px" />
+                        </MudPaper>
                     </MudItem>
                 </MudGrid>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12" md="6">
-            <MudGrid>
-                <MudItem xs="12">
-                    <MudPaper Outlined="true" Class="mud-width-full rounded-lg pa-8">
-                        <MudItem Class="chart-title pb-8">
-                            Tasks by completion status
-                        </MudItem>
-                        <MudChart LegendPosition="Position.Bottom"
-                                  ChartType="ChartType.Donut"
-                                  InputData="@TaskData"
-                                  @bind-SelectedIndex="Index"
-                                  InputLabels="@Tasklabels"
-                                  Width="300px"
-                                  Height="300px" />
-                    </MudPaper>
-                </MudItem>                
-            </MudGrid>            
-        </MudItem>
-    </MudGrid>
-</MudContainer>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
 }
 @code {
 
@@ -121,19 +126,30 @@ else
     {
         // Only initialize basic properties here
         IsDataLoaded = false;
+    }
 
+    protected async override Task OnInitializedAsync()
+    { 
+        ProjectService.OnTaskDeleted += GetData;
+        ProjectService.OnNewTaskAddedChanged += GetData;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await GetProject();
-            await GetTasks();
-            await UpdateProjectChart();
+            await GetData();
             IsDataLoaded = true;
             StateHasChanged();
         }
+    }
+
+    public async Task GetData()
+    {
+        await GetProject();
+        await GetTasks();
+        await UpdateProjectChart();
+        StateHasChanged();
     }
 
 
@@ -168,9 +184,9 @@ else
     public async Task GetProject()
     {
         try
-        {      
+        {
             var response = await HttpClient.GetFromJsonAsync<ProjectResponse>($"api/project/{ProjectId}");
-            Project = response ?? new ProjectResponse();            
+            Project = response ?? new ProjectResponse();
             StateHasChanged();
 
         }
@@ -218,20 +234,20 @@ else
     public async Task GetTaskStat(List<TaskResponse> TaskResponses)
     {
 
-       
+
         TaskStat.Total += TaskResponses.Count;
         foreach (var task in TaskResponses)
+        {
+            if (task.IsCompleted)
             {
-                if (task.IsCompleted)
-                {
-                    TaskStat.Complete += 1;
-                }
-                else if (!task.IsCompleted)
-                {
-                    TaskStat.InComplete += 1;
-                }
+                TaskStat.Complete += 1;
             }
-        
+            else if (!task.IsCompleted)
+            {
+                TaskStat.InComplete += 1;
+            }
+        }
+
     }
 
     private async Task UpdateProjectChart()
@@ -251,10 +267,10 @@ else
         Console.WriteLine(taskId);
 
     }
-    
-    public async Task AddTaskHandler()
+
+    public void AddTaskHandler()
     {
-        
+        ProjectService.CreateNewTask(ProjectId);
     }
 
     public class PieData

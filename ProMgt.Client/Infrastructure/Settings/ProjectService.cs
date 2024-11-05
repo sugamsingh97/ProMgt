@@ -1,9 +1,12 @@
-﻿using MudBlazor;
+﻿using Microsoft.AspNetCore.Components;
+using MudBlazor;
 using ProMgt.Client.Components.Dialogs;
 using ProMgt.Client.Models.Project;
 using ProMgt.Client.Models.Section;
 using ProMgt.Client.Models.Task;
+using System.Net;
 using System.Net.Http.Json;
+
 
 
 namespace ProMgt.Client.Infrastructure.Settings
@@ -13,12 +16,27 @@ namespace ProMgt.Client.Infrastructure.Settings
         private bool _isCompleted;
         private readonly IDialogService _dialogService;
         private readonly HttpClient _httpClient;
-        public ProjectService(IDialogService dialogService, HttpClient httpClient)
+        private readonly NavigationManager _navigationManager;
+        private readonly ISnackbar _snackbar;
+
+        public ProjectService(
+            IDialogService dialogService, 
+            HttpClient httpClient, 
+            NavigationManager navigationManager, 
+            ISnackbar snackbar)
         {
             _dialogService = dialogService;
             _httpClient = httpClient;
+            _navigationManager = navigationManager;
+            _snackbar = snackbar;
         }
+
         public Func<Task> OnTaskCompletedChanged;
+        public Func<Task> OnDrawerOpenChange;
+        public event Func<Task> OnFieldChanges;
+        public event Func<Task> OnProjectNameUpdated;
+        public Func<Task> OnNewProjectAddedChanged;
+
         public bool IsCompleted()
         {
             return _isCompleted;
@@ -34,7 +52,6 @@ namespace ProMgt.Client.Infrastructure.Settings
         }
 
         private bool _isDrawerOpen = false;
-        public Func<Task> OnDrawerOpenChange;
 
         public bool IsDrawerOpen()
         {
@@ -53,7 +70,6 @@ namespace ProMgt.Client.Infrastructure.Settings
         }
 
         // New Field updated
-        public event Func<Task> OnFieldChanges;
         public async Task TriggerFieldChanges()
         {
             if (OnFieldChanges != null)
@@ -63,7 +79,6 @@ namespace ProMgt.Client.Infrastructure.Settings
         }
 
         // Update Project List
-        public event Func<Task> OnProjectNameUpdated;
 
         public async Task TriggerProjectNameUpdated()
         {
@@ -74,7 +89,6 @@ namespace ProMgt.Client.Infrastructure.Settings
         }
 
         //project added
-        public Func<Task> OnNewProjectAddedChanged;  
 
         public string errorMessage { get; set; } = string.Empty;
 
@@ -287,5 +301,116 @@ namespace ProMgt.Client.Infrastructure.Settings
             }
         }
 
+        // Delete Project
+
+        public Func<Task> OnProjectDeleted;
+
+        public async Task<bool>  DeleteProject(int ProjectId, string ProjectName)
+        {
+            errorMessage = string.Empty;
+            var options = new DialogOptions
+            {
+                CloseOnEscapeKey = true,
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true
+            };
+
+            var DialogResponse = await _dialogService.ShowAsync<ConfirmProjectDelete>($"Are you sure you want to delete \"{ProjectName}\" project?", options);
+
+            var result = await DialogResponse.Result;           
+
+            if (result != null && !result.Canceled)
+            {                              
+
+                try
+                {
+                   
+                    var response = await _httpClient.DeleteAsync($"api/project/{ProjectId}");
+                    
+
+                    if (response.StatusCode == HttpStatusCode.NoContent)
+                    {
+                        if (OnProjectDeleted != null)
+                        {
+                            await OnProjectDeleted.Invoke();
+                        }
+                       return true;
+                    }
+                    else
+                        return false;
+                }
+                catch (HttpRequestException ex)
+                {
+                    Console.WriteLine($"Request error: {ex.Message}");
+                    return false;
+                }
+                catch (NotSupportedException ex)
+                {
+                    Console.WriteLine($"Content type error: {ex.Message}");
+                    return false;
+
+                }
+               
+            }
+            else
+                return false;
+            
+        }
+
+        public Func<Task> OnTaskDeleted;
+
+        public async Task<bool> DeleteTask(int TaskId, string TaskName)
+        {
+            errorMessage = string.Empty;
+            var options = new DialogOptions
+            {
+                CloseOnEscapeKey = true,
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true
+            };
+
+            var DialogResponse = await _dialogService.ShowAsync<ConfirmTaskDelete>($"Are you sure you want to delete \"{TaskName}\" Task?", options);
+
+            var result = await DialogResponse.Result;
+
+            if (result != null && !result.Canceled)
+            {
+
+                try
+                {
+
+                    var response = await _httpClient.DeleteAsync($"api/task/{TaskId}");
+
+
+                    if (response.StatusCode == HttpStatusCode.NoContent)
+                    {
+                        if (OnTaskDeleted != null)
+                        {
+                            await OnTaskDeleted.Invoke();
+                        }
+                        return true;
+                    }
+                    else
+                        return false;
+                }
+                catch (HttpRequestException ex)
+                {
+                    Console.WriteLine($"Request error: {ex.Message}");
+                    return false;
+                }
+                catch (NotSupportedException ex)
+                {
+                    Console.WriteLine($"Content type error: {ex.Message}");
+                    return false;
+
+                }
+
+            }
+            else
+                return false;
+
+        }
     }
 }

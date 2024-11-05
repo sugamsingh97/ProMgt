@@ -224,6 +224,8 @@
         ProjectService.OnDrawerOpenChange += ToggleDrawerHandler;
         ProjectService.OnTaskInfoDrawerOpen += ToggleTaskInfoDrawer;
         ProjectService.OnTaskInfoDrawerClose += CloseTaskInfoDrawer;
+        ProjectService.OnTaskDeleted += CloseTaskInfoDrawer;
+        ProjectService.OnTaskDeleted += GetTasks;
         await GetTaskPriorities();
         await GetTaskStatuses();
         await GetProject();
@@ -358,65 +360,6 @@
         catch (JsonException ex)
         {
             Console.WriteLine($"JSON error: {ex.Message}");
-        }
-    }
-
-
-
-    /// <summary>
-    /// This deletes the project
-    /// </summary>
-    /// <returns></returns>
-    private async Task DeleteHandler()
-    {
-        errorMessage = string.Empty;
-        var options = new DialogOptions
-            {
-                CloseOnEscapeKey = true,
-                CloseButton = true,
-                MaxWidth = MaxWidth.Small,
-                FullWidth = true
-            };
-        var DialogResponse = await IDialogService.ShowAsync<ConfirmDelete>("Confirm delete", options);
-        var result = await DialogResponse.Result;
-
-        if (!result.Canceled)
-        {
-            try
-            {
-                var response = await HttpClient.DeleteAsync($"/api/project/{ProjectId}");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    Snackbar.Add("Project deleted successfully!", MudBlazor.Severity.Success);
-                    NavigationManager.NavigateTo("/");
-                }
-                else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    Snackbar.Add("Project not found.", MudBlazor.Severity.Error);
-                }
-                else
-                {
-                    Snackbar.Add($"Error: {response.ReasonPhrase}", MudBlazor.Severity.Error);
-                }
-
-                StateHasChanged();
-            }
-            catch (HttpRequestException ex)
-            {
-                Snackbar.Add($"Request error: {ex.Message}", MudBlazor.Severity.Error);
-
-            }
-            catch (NotSupportedException ex)
-            {
-                Snackbar.Add($"Content type error: {ex.Message}", MudBlazor.Severity.Error);
-
-            }
-            catch (JsonException ex)
-            {
-                Snackbar.Add($"JSON error: {ex.Message}", MudBlazor.Severity.Error);
-
-            }
         }
     }
 

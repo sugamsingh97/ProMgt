@@ -24,7 +24,7 @@ else
         <MudPaper Elevation="0" Style="display: flex;">
             @foreach (var thissection in Sections)
             {
-                <MudPaper Elevation="0" Width="300px" MinHeight="400px" Class="pa-2 ma-2 d-flex flex-column rounded-lg">
+                <MudPaper Elevation="0" Width="300px" MinHeight="400px" Class="pa-2 ma-2 d-flex flex-column rounded-xl">
                     <MudItem Class="d-flex align-center">
                         <MudTooltip Text="Edit name" Arrow="true" Delay="600">
                             <MudTextField T="string" @bind-Value="thissection.Name" OnBlur="()=>UpdateSectionName(thissection.Id, thissection.Name)" Placeholder="Untitled Section" UnderLine="false"></MudTextField>
@@ -39,16 +39,16 @@ else
                             </MudTooltip>
                         </MudMenu>
                     </MudItem>
-                    <MudDropZone Class="mud-background-gray rounded-lg px-2 " style="min-height: 400px;" T="TaskResponse" Identifier="@thissection.Id.ToString()">
+                    <MudDropZone Class="mud-background-gray rounded-xl px-2 " style="min-height: 400px;" T="TaskResponse" Identifier="@thissection.Id.ToString()">
 
                     </MudDropZone>
                 </MudPaper>
             }
-            <MudButton OnClick="CreateSection" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary" Style="height: fit-content;" Class="rounded-lg py-2">Add Section</MudButton>
+            <MudButton OnClick="CreateSection" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary" Style="height: fit-content;" Class="rounded-xl py-2">Add Section</MudButton>
         </MudPaper>
     </ChildContent>
     <ItemRenderer>
-        <MudPaper @onclick="()=>rowClickHandler(context.Id)" Elevation="0" Outlined="true" Class="pa-4 rounded-lg d-flex flex-column my-3 task-item">
+        <MudPaper @onclick="()=>rowClickHandler(context.Id)" Elevation="0" Outlined="true" Class="pa-4 rounded-xl d-flex flex-column my-3 task-item">
             <MudItem Class="d-flex flex-row justify-space-between align-center">
                 @* <MudText Style="font-size: larger; font-weight: 300;" Typo="Typo.h5">@context.Name</MudText> *@
                 <MudTextField T="string" Style="font-size: larger; font-weight: 300;" @onclick:stopPropagation @bind-Value="context.Name" OnBlur="()=>UpdateTaskName(context.Id, context.Name)" Placeholder="Untitled Task" UnderLine="false"></MudTextField>
@@ -128,6 +128,7 @@ else
     {
         ProjectService.OnNewTaskAddedChanged += UpdateBoardContent;
         ProjectService.TaskInforUpdated += UpdateBoardContent;
+        ProjectService.OnTaskDeleted += UpdateBoardContent;
         await GetGlobalDataPool();
     }
 

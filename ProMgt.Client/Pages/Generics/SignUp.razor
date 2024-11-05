@@ -7,13 +7,13 @@
 
 <PageTitle>Sign Up</PageTitle>
 <MudContainer MaxWidth="MaxWidth.Large" Class="d-flex justify-center align-center" style="height: 94vh;" Gutters="false">
-    <MudGrid Style="height:800px!important" Spacing="0">
+    <MudGrid Style="height:800px!important" Justify="Justify.Center" Spacing="0">
         @* <MudItem Class="@GetClass()" xl="6" xxl="6" lg="6" md="0" sm="0" xs="0">
             <MudText Typo="Typo.h3">ProMgt</MudText>
             <MudText Typo="Typo.h4">Sign Up</MudText>
         </MudItem> *@
         <MudItem lg="6" md="12" sm="12" xs="12">
-            <MudPaper Style="height:800px!important" Class="pa-8 rounded-xl">
+            <MudPaper Style="height:800px!important" Elevation="0" Outlined="true" Class="pa-8 rounded-xl">
                 @* MudStepper *@
                 <MudStepperExtended @ref="_stepper"
                                     Class="mud-width-full"
@@ -39,7 +39,7 @@
                                     <DataAnnotationsValidator />
                                     <MudItem Style="height: 543px">
                                         <MudItem Class="mt-4">
-                                            <MudSelect Label="Title" T="string" For="@(() => Input.Title)" @bind-Value="Input.Title" Placeholder="Select a title" AnchorOrigin="Origin.BottomCenter">
+                                            <MudSelect Variant="Variant.Outlined" Label="Title" T="string" For="@(() => Input.Title)" @bind-Value="Input.Title" Placeholder="Select a title" AnchorOrigin="Origin.BottomCenter">
                                                 @foreach (var title in Enum.GetValues(typeof(Title)))
                                                 {
                                                     <MudSelectItem Value="@title.ToString()">@title.ToString()</MudSelectItem>
@@ -48,6 +48,7 @@
                                         </MudItem>
                                         <MudItem Class="mt-4">
                                             <MudTextField Label="First Name"
+                                                          Variant="Variant.Outlined"
                                                           Required="true"
                                                           For="@(() => Input.FirstName)"
                                                           @bind-Value="Input.FirstName"
@@ -56,6 +57,7 @@
                                         </MudItem>
                                         <MudItem Class="mt-4">
                                             <MudTextField Label="Last Name"
+                                                          Variant="Variant.Outlined"
                                                           Required="true"
                                                           For="@(() => Input.LastName)"
                                                           @bind-Value="Input.LastName"
@@ -64,6 +66,7 @@
                                         </MudItem>
                                         <MudItem Class="mt-4">
                                             <MudTextField Label="E-mail"
+                                                          Variant="Variant.Outlined"
                                                           Required="true"
                                                           For="@(() => Input.Email)"
                                                           @bind-Value="Input.Email"
@@ -73,6 +76,7 @@
                                         <MudItem Class="mt-4">
                                             <MudTextField InputType="InputType.Password"
                                                           Label="Password"
+                                                          Variant="Variant.Outlined"
                                                           Required="true"
                                                           For="@(() => Input.Password)"
                                                           @bind-Value="Input.Password"
@@ -82,6 +86,7 @@
                                         <MudItem Class="mt-4">
                                             <MudTextField InputType="InputType.Password"
                                                           Label="Confirm Password"
+                                                          Variant="Variant.Outlined"
                                                           Required="true"
                                                           For="@(() => Input.ConfirmPassword)"
                                                           @bind-Value="Input.ConfirmPassword"
@@ -126,6 +131,7 @@
                                     <EditForm Model="Input">
                                         <MudItem Class="mt-4">
                                             <MudDatePicker Label="Date of birth"
+                                                           Variant="Variant.Outlined"
                                                            For="@(() => Input.DateOfBirth)"
                                                            @bind-Date="Input.DateOfBirth"
                                                            Placeholder="Set your birthday" />

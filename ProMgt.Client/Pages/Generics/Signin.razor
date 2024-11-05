@@ -8,7 +8,7 @@
 <PageTitle>Sign in</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex justify-center align-center" Style="height: 100vh;">
-    <MudPaper Elevation="3" Class="pa-8 rounded">
+    <MudPaper Elevation="0" Outlined="true" Class="pa-8 rounded-xl">
         <EditForm Model="@Input" OnValidSubmit="SignInHandler">
             <MudGrid Spacing="3">
                 <DataAnnotationsValidator />
@@ -26,12 +26,14 @@
 
                 <MudItem xs="12">
                     <MudTextField Label="Email"
+                                  Variant="Variant.Outlined"
                                   @bind-Value="Input.Email"
                                   For="@(() => Input.Email)" />
                 </MudItem>
 
                 <MudItem xs="12">
                     <MudTextField Label="Password"
+                                  Variant="Variant.Outlined"
                                   @bind-Value="Input.Password"
                                   For="@(() => Input.Password)"
                                   InputType="InputType.Password" />

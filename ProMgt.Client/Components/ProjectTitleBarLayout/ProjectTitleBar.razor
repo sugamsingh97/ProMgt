@@ -5,6 +5,7 @@
 @using System.Text.Json
 @inject ISnackbar Snackbar
 @inject IDialogService IDialogService
+@inject NavigationManager NavigationManager
 
 <MudThemeProvider IsDarkMode="@(ThemeService.CurrentTheme == ProMgtTheme.DarkTheme)" Theme="@ThemeService.CurrentTheme" />
 <MudAppBar Color="Color.Tertiary" Gutters="false" Fixed="false" Elevation="0"  Class="pt-2">
@@ -21,9 +22,22 @@
             <MudTextField T="string" @bind-Value="Project.Name" OnBlur="UpdateName" Placeholder="Untitled Project" UnderLine="false"></MudTextField>
             <MudMenu AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft" Icon="@Icons.Material.Filled.ArrowDropDown"
                      AriaLabel="Open user menu">
-                <MudMenuItem>Edit info</MudMenuItem>
-                <MudMenuItem>Copy project link</MudMenuItem>
-                <MudMenuItem>Delete</MudMenuItem>
+                <MudMenuItem>
+                    <MudButton Class="custom-button"
+                               OnClick="AddTaskHandler"
+                               Target="_blank"
+                               Variant="Variant.Text"
+                               StartIcon="@Icons.Material.Rounded.Add"
+                               Style="text-transform:none; width: 100%;">Add task</MudButton>
+                </MudMenuItem>
+                <MudMenuItem>
+                    <MudButton Class="custom-button"
+                               OnClick="()=>ProjectDeleteHandler(Project.Name)"
+                               Target="_blank"
+                               Variant="Variant.Text"
+                               StartIcon="@Icons.Material.TwoTone.Delete"
+                               Style="text-transform:none; color: #e32d47; width: 100%;">DELETE</MudButton>
+                </MudMenuItem>
             </MudMenu>
             <MudMenu FullWidth="true" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
                 <ActivatorContent>
@@ -105,9 +119,14 @@
         </MudItem>
     </MudGrid>
 </MudAppBar>
+<style>
+    .custom-button:hover {
+        background-color: #e32d4740 !important;
+    }
+</style>
 @code {
     [Parameter]
-    public int? ProjectId { get; set; }
+    public int ProjectId { get; set; }
     public ProjectResponse Project { get; set; } = new();
     public List<ProjectStatusResponse> ProjectStatuses { get; set; } = new();
 
@@ -304,6 +323,21 @@
         }
     }
 
+
+    public async Task ProjectDeleteHandler(string _projectName)
+    {
+        bool response = await ProjectService.DeleteProject(ProjectId, _projectName);
+        if (response)
+        {
+            Snackbar.Add("Project deleted!", MudBlazor.Severity.Error);
+            NavigationManager.NavigateTo("/dashboard");
+        }
+    }
+
+    public void AddTaskHandler()
+    {
+        ProjectService.CreateNewTask(ProjectId);
+    }
     #endregion
 
     #region Helper functions
