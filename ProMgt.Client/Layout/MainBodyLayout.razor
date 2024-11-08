@@ -19,8 +19,8 @@
             <MudMenuItem>Invite</MudMenuItem>
         </ChildContent>
     </MudMenu>
-    <MudSpacer />
-    <MudTextField Margin="Margin.Dense" Class="rounded-xl" @bind-Value="TextValue" Placeholder="Searching..." Variant="Variant.Outlined"></MudTextField>
+    @* <MudSpacer /> *@
+    @* <MudTextField Margin="Margin.Dense" Class="rounded-xl" @bind-Value="TextValue" Placeholder="Searching..." Variant="Variant.Outlined"></MudTextField> *@
     <MudSpacer />
     <MudTooltip Text="Toggle Dark Mode">
         <MudIconButton Icon="@Icons.Material.Filled.Draw" Color="Color.Inherit" OnClick="@InfoDrawer" />
@@ -44,7 +44,7 @@
     </MudNavMenu>
 </MudDrawer>
 <MudMainContent Class="">
-    <MudContainer MaxWidth="MaxWidth.False" DisableGutters="true" Class="full-width-container">
+    <MudContainer MaxWidth="MaxWidth.False" DisableGutters="true" Style="padding-left: 0px; padding-right:0px;">
         <CascadingValue Value="@IsDarkMode">
             @ChildContent
         </CascadingValue>

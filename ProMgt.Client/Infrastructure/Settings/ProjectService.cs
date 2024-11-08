@@ -14,6 +14,8 @@ namespace ProMgt.Client.Infrastructure.Settings
     public class ProjectService
     {
         private bool _isCompleted;
+        private bool _isDrawerOpen = false;
+        public string errorMessage { get; set; } = string.Empty;
         private readonly IDialogService _dialogService;
         private readonly HttpClient _httpClient;
         private readonly NavigationManager _navigationManager;
@@ -31,70 +33,21 @@ namespace ProMgt.Client.Infrastructure.Settings
             _snackbar = snackbar;
         }
 
-        public Func<Task> OnTaskCompletedChanged;
-        public Func<Task> OnDrawerOpenChange;
+        public event Func<Task> TaskInforUpdated;
+        public event Func<Task> OnTaskCompletedChanged;
+        public event Func<Task> OnDrawerOpenChange;
         public event Func<Task> OnFieldChanges;
         public event Func<Task> OnProjectNameUpdated;
-        public Func<Task> OnNewProjectAddedChanged;
+        public event Func<Task> OnNewProjectAddedChanged;
+        public event Func<int, int, Task> OnTaskInfoDrawerOpen;
+        public event Func<Task> OnTaskInfoDrawerClose;
+        public event Func<Task> OnNewTaskAddedChanged;
+        public event Func<Task> TaskFieldUpdated;
+        public event Func<Task> OnProjectDeleted;
+        public event Func<Task> OnTaskDeleted;  
 
-        public bool IsCompleted()
-        {
-            return _isCompleted;
-        }
-        public async void ToggleTaskCompleted()
-        {
-            _isCompleted = !_isCompleted;           
-
-            if (OnTaskCompletedChanged != null)
-            {
-                await OnTaskCompletedChanged.Invoke();
-            }
-        }
-
-        private bool _isDrawerOpen = false;
-
-        public bool IsDrawerOpen()
-        {
-            return _isDrawerOpen;
-        }
-
-        public async void ToggleDrawer()
-        {
-            _isDrawerOpen = !_isDrawerOpen;
-
-            if (OnDrawerOpenChange != null)
-            {
-                await OnDrawerOpenChange.Invoke();
-            }
-
-        }
-
-        // New Field updated
-        public async Task TriggerFieldChanges()
-        {
-            if (OnFieldChanges != null)
-            {
-                await OnFieldChanges.Invoke();
-            }
-        }
-
-        // Update Project List
-
-        public async Task TriggerProjectNameUpdated()
-        {
-            if (OnProjectNameUpdated != null)
-            {
-                await OnProjectNameUpdated.Invoke();
-            }
-        }
-
-        //project added
-
-        public string errorMessage { get; set; } = string.Empty;
-
-        /// <summary>
-        /// This creates new project.
-        /// </summary>
+        #region Project
+        // This creates a new project.
         public async void CreateNewProject()
         {
             errorMessage = string.Empty;
@@ -116,7 +69,7 @@ namespace ProMgt.Client.Infrastructure.Settings
             {
 
                 dialogResponseProject = result.Data as ProjectCreateModel ?? new ProjectCreateModel();
-                
+
             }
 
             ProjectInputModel _projectInputModel = new()
@@ -169,32 +122,72 @@ namespace ProMgt.Client.Infrastructure.Settings
             }
         }
 
-        // Open Task info drawer
-        public Func<int, int, Task> OnTaskInfoDrawerOpen;
-        public Func<Task> OnTaskInfoDrawerClose;
-        public async Task OpenTaskInfoDrawer(int projectId, int taskId)
+        // This invokes event when Project name is updated.
+        public async Task TriggerProjectNameUpdated()
         {
-            if (OnTaskInfoDrawerOpen != null)
+            if (OnProjectNameUpdated != null)
             {
-                await OnTaskInfoDrawerOpen.Invoke( projectId, taskId);
+                await OnProjectNameUpdated.Invoke();
             }
         }
 
-        public async Task CloseTaskInfoDrawer()
+        // This invokes an event when a project is deleted.
+        public async Task<bool> DeleteProject(int ProjectId, string ProjectName)
         {
-            if (OnTaskInfoDrawerClose != null)
+            errorMessage = string.Empty;
+            var options = new DialogOptions
             {
-                await OnTaskInfoDrawerClose.Invoke();
+                CloseOnEscapeKey = true,
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true
+            };
+
+            var DialogResponse = await _dialogService.ShowAsync<ConfirmProjectDelete>($"Are you sure you want to delete \"{ProjectName}\" project?", options);
+
+            var result = await DialogResponse.Result;           
+
+            if (result != null && !result.Canceled)
+            {                              
+
+                try
+                {
+                   
+                    var response = await _httpClient.DeleteAsync($"api/project/{ProjectId}");
+                    
+
+                    if (response.StatusCode == HttpStatusCode.NoContent)
+                    {
+                        if (OnProjectDeleted != null)
+                        {
+                            await OnProjectDeleted.Invoke();
+                        }
+                       return true;
+                    }
+                    else
+                        return false;
+                }
+                catch (HttpRequestException ex)
+                {
+                    Console.WriteLine($"Request error: {ex.Message}");
+                    return false;
+                }
+                catch (NotSupportedException ex)
+                {
+                    Console.WriteLine($"Content type error: {ex.Message}");
+                    return false;
+
+                }
+               
             }
+            else
+                return false;
+            
         }
+        #endregion
 
-        //New task added
-        public Func<Task> OnNewTaskAddedChanged;
-
-        /// <summary>
-        /// This creates new task.
-        /// </summary>
-        /// <param name="ProjectId"></param>
+        #region Task
+        // This creates a new task.
         public async void CreateNewTask(int ProjectId)
         {
             errorMessage = string.Empty;
@@ -249,39 +242,18 @@ namespace ProMgt.Client.Infrastructure.Settings
             }
         }
 
-        /// <summary>
-        /// This is where a new section is created
-        /// </summary>
-        /// <param name="newSection"></param>
-        /// <returns></returns>
-        public async Task CreateSection(SectionInputModel newSection)
-        {            
-            try
-            {
-                var response = await _httpClient.PostAsJsonAsync<SectionInputModel>("api/section/createsection", newSection);
-                if (response.IsSuccessStatusCode)
-                {
-                    Console.WriteLine("New SectionCreated");
-                }
-                else
-                {
-                    errorMessage = $"Error: {response.ReasonPhrase}";
-                }
+        // This invokes an event when task status is changed.
+        public async void ToggleTaskCompleted()
+        {
+            _isCompleted = !_isCompleted;
 
-            }
-            catch (HttpRequestException httpEx)
+            if (OnTaskCompletedChanged != null)
             {
-                errorMessage = $"Request error: {httpEx.Message}";
-            }
-            catch (Exception ex)
-            {
-                errorMessage = $"An unexpected error occurred: {ex.Message}";
+                await OnTaskCompletedChanged.Invoke();
             }
         }
 
-        // Refresh the page
-        public Func<Task> TaskInforUpdated;
-
+        // This invokes an event when task info is updated.
         public async Task TaskInfoIsUpdated()
         {
             if (TaskInforUpdated != null)
@@ -290,9 +262,7 @@ namespace ProMgt.Client.Infrastructure.Settings
             }
         }
 
-        // Info changed
-        public Func<Task> TaskFieldUpdated;
-
+        // This invokes an event when a field is updated.
         public async Task TaskFieldIsUpdated()
         {
             if (TaskFieldUpdated != null)
@@ -301,65 +271,52 @@ namespace ProMgt.Client.Infrastructure.Settings
             }
         }
 
-        // Delete Project
-
-        public Func<Task> OnProjectDeleted;
-
-        public async Task<bool>  DeleteProject(int ProjectId, string ProjectName)
+        // This invokes an event after field changes.
+        public async Task TriggerFieldChanges()
         {
-            errorMessage = string.Empty;
-            var options = new DialogOptions
+            if (OnFieldChanges != null)
             {
-                CloseOnEscapeKey = true,
-                CloseButton = true,
-                MaxWidth = MaxWidth.Small,
-                FullWidth = true
-            };
-
-            var DialogResponse = await _dialogService.ShowAsync<ConfirmProjectDelete>($"Are you sure you want to delete \"{ProjectName}\" project?", options);
-
-            var result = await DialogResponse.Result;           
-
-            if (result != null && !result.Canceled)
-            {                              
-
-                try
-                {
-                   
-                    var response = await _httpClient.DeleteAsync($"api/project/{ProjectId}");
-                    
-
-                    if (response.StatusCode == HttpStatusCode.NoContent)
-                    {
-                        if (OnProjectDeleted != null)
-                        {
-                            await OnProjectDeleted.Invoke();
-                        }
-                       return true;
-                    }
-                    else
-                        return false;
-                }
-                catch (HttpRequestException ex)
-                {
-                    Console.WriteLine($"Request error: {ex.Message}");
-                    return false;
-                }
-                catch (NotSupportedException ex)
-                {
-                    Console.WriteLine($"Content type error: {ex.Message}");
-                    return false;
-
-                }
-               
+                await OnFieldChanges.Invoke();
             }
-            else
-                return false;
-            
         }
 
-        public Func<Task> OnTaskDeleted;
+        // Checking if drawer is open.
+        public bool IsDrawerOpen()
+        {
+            return _isDrawerOpen;
+        }
 
+        // This opens fields drawer.
+        public async void ToggleDrawer()
+        {
+            _isDrawerOpen = !_isDrawerOpen;
+
+            if (OnDrawerOpenChange != null)
+            {
+                await OnDrawerOpenChange.Invoke();
+            }
+
+        }
+
+        // This opens task info drawer.
+        public async Task OpenTaskInfoDrawer(int projectId, int taskId)
+        {
+            if (OnTaskInfoDrawerOpen != null)
+            {
+                await OnTaskInfoDrawerOpen.Invoke(projectId, taskId);
+            }
+        }
+
+        // This closes task info drawer.
+        public async Task CloseTaskInfoDrawer()
+        {
+            if (OnTaskInfoDrawerClose != null)
+            {
+                await OnTaskInfoDrawerClose.Invoke();
+            }
+        }
+
+        // This envokes an event when a task is deleted.
         public async Task<bool> DeleteTask(int TaskId, string TaskName)
         {
             errorMessage = string.Empty;
@@ -412,5 +369,38 @@ namespace ProMgt.Client.Infrastructure.Settings
                 return false;
 
         }
+        #endregion
+
+        #region Section
+        /// <summary>
+        /// This creates a new section.
+        /// </summary>
+        /// <param name="newSection"></param>
+        /// <returns></returns>
+        public async Task CreateSection(SectionInputModel newSection)
+        {
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync<SectionInputModel>("api/section/createsection", newSection);
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("New SectionCreated");
+                }
+                else
+                {
+                    errorMessage = $"Error: {response.ReasonPhrase}";
+                }
+
+            }
+            catch (HttpRequestException httpEx)
+            {
+                errorMessage = $"Request error: {httpEx.Message}";
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"An unexpected error occurred: {ex.Message}";
+            }
+        }
+        #endregion
     }
 }

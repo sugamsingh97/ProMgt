@@ -1,52 +1,455 @@
 ﻿@page "/"
 
-<MudContainer MaxWidth="MaxWidth.Small" >
-    <MudPaper Elevation="0" Outlined="true" Class="text-center rounded-xl">
+<MudContainer Gutters="false" MaxWidth="MaxWidth.ExtraLarge" Style="align-items: unset;" Class="d-flex main-containers">
+    <MudGrid>
+        <!-- Section 1 -->
+        <MudItem xs="12">
+            <MudPaper Class="mt-4 p-3" Elevation="0">
+                <MudGrid class="justify-center">
+                    <MudItem xs="12" md="8">
+                        <MudPaper Class="mt-2 p-2 d-flex align-center flex-column pt-8" Elevation="0">
+                            <MudText class="pt-4" Style="font-weight: 600;" Typo="Typo.h3">Where work Connects</MudText>
+                            <MudText class="pt-4" Typo="Typo.body1"> Connect work to goals and skyrocket productivity with your team mates.</MudText>
+                            <MudItem class="pt-4">
+                                <MudButton class="rounded-xl mr-2"
+                                           Variant="Variant.Filled"
+                                           Color="Color.Primary"
+                                           Size="Size.Large"
+                                           Href="/signin">
+                                    Sign in
+                                </MudButton>
 
-        <MudItem Class="pa-8">
-            <MudText Typo="Typo.h4" Color="Color.Primary">
-                Welcome to ProMgt! 🎉
-            </MudText>
+                                <MudButton class="rounded-xl ml-2"
+                                           Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           Size="Size.Large"
+                                           Href="/signup">
+                                    Sign up
+                                </MudButton>
+                            </MudItem>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" md="8">
+                        <MudPaper Class="mt-2 p-2  rounded-xl" Elevation="0">
+                            <MudCarousel Class="mud-width-full" Style="height:700px;" ShowArrows="true" ShowBullets="true" EnableSwipeGesture="false" AutoCycle="true" TData="object">
+                                <MudCarouselItem Transition="Transition.Slide" Style="height:100%; width:100%;">
+
+                                    <MudImage ObjectFit="ObjectFit.Cover" src="/images/hero/connections.png" class="mx-auto my-auto" style="height:100%; width:100%;" />
+
+                                </MudCarouselItem>
+                                <MudCarouselItem Transition="Transition.Slide" Style="height:100%; width:100%;">
+
+                                    <MudImage ObjectFit="ObjectFit.Cover" src="/images/hero/goal.png" class="mx-auto my-auto" style="height:100%; width:100%;" />
+
+                                </MudCarouselItem>
+                                <MudCarouselItem Transition="Transition.Slide" Style="height:100%; width:100%;">
+
+                                    <MudImage ObjectFit="ObjectFit.Cover" src="/images/hero/platform.png" class="mx-auto my-auto" style="height:100%; width:100%;" />
+
+                                </MudCarouselItem>
+                                <MudCarouselItem Transition="Transition.Slide" Style="height:100%; width:100%;">
+
+                                    <MudImage ObjectFit="ObjectFit.Cover" src="/images/hero/workflow.png" class="mx-auto my-auto" style="height:100%; width:100%;" />
+
+                                </MudCarouselItem>
+                            </MudCarousel>
+
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
         </MudItem>
-        
-        <MudDivider/>
 
-        <MudItem Class="pa-8">
-            <MudText Typo="Typo.body1">
-                Hey there! This is your friendly project management app.
-                Let's get organized together! ✨
-            </MudText>
-        </MudItem>      
+        <!-- Section 2 -->
+        <MudItem xs="12">
+            <MudPaper Class="mt-4 py-16" Elevation="0">
+                <MudGrid class="justify-center">
+                    <MudItem xs="12" md="3">
+                        <MudText Typo="Typo.h5">85% of Fortune 100 companies choose ProMgt</MudText>
+                    </MudItem>
+                    <MudItem xs="12" md="1" Class="brand-logo">
+                        <MudImage ObjectFit="ObjectFit.Cover" src="/images/brands/ibm.svg" class="mx-auto my-auto" style="height:auto; width:100px;" />
+                    </MudItem>
+                    <MudItem xs="12" md="1" Class="brand-logo">
+                        <MudImage ObjectFit="ObjectFit.Cover" src="/images/brands/microsoft-6.svg" class="mx-auto my-auto" style="height:auto; width:100px;" />
+                    </MudItem>
+                    <MudItem xs="12" md="1" Class="brand-logo">
+                        <MudImage ObjectFit="ObjectFit.Cover" src="/images/brands/figma.svg" class="mx-auto my-auto" style="height:auto; width:100px;" />
+                    </MudItem>
+                    <MudItem xs="12" md="1" Class="brand-logo">
+                        <MudImage ObjectFit="ObjectFit.Cover" src="/images/brands/dell.svg" class="mx-auto my-auto" style="height:auto; width:100px;" />
+                    </MudItem>
+                    <MudItem xs="12" md="1" Class="brand-logo">
+                        <MudImage ObjectFit="ObjectFit.Cover" src="/images/brands/netflix-3.svg" class="mx-auto my-auto" style="height:auto; width:100px;" />
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </MudItem>
+        <!-- Section 3 -->
+        <MudItem xs="12">
+            <MudPaper Class="mt-4 p-3" Elevation="0">
+                <MudGrid Justify="Justify.Center">
+                    <MudItem xs="12" Class="d-flex justify-center"><MudText Style="font-weight: 600;" Typo="Typo.h4">Comprehensive Project Management Features</MudText></MudItem>
+                    <MudItem xs="12" md="8">
 
-        <MudStack Spacing="4" Class="pa-8">
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       Size="Size.Large"
-                       Href="/signin">
-                Sign In
-            </MudButton>
+                        <MudPaper Class="px-16 py-6 rounded-xl d-flex flex-column" style="background:#ededed;" Outlined="true">
+                            <MudItem Class="d-flex flex-row pb-4">
+                                <MudButton Class="@(activeContent == 1 ? "active-button" : "inactive-button")"
+                                           OnClick="@(() => HandleClick(1))">Kanban</MudButton>
 
-            <MudButton Variant="Variant.Outlined"
-                       Color="Color.Primary"
-                       Size="Size.Large"
-                       Href="/signup">
-                Create New Account
-            </MudButton>
-        </MudStack>
+                                <MudButton Class="@(activeContent == 2 ? "active-button" : "inactive-button")"
+                                           OnClick="@(() => HandleClick(2))">Dashboard</MudButton>
 
-    </MudPaper>
+                                <MudButton Class="@(activeContent == 3 ? "active-button" : "inactive-button")"
+                                           OnClick="@(() => HandleClick(3))">List</MudButton>
+
+                                <MudButton Class="@(activeContent == 4 ? "active-button" : "inactive-button")"
+                                           OnClick="@(() => HandleClick(4))">Overview</MudButton>
+                            </MudItem>
+
+                            <MudItem Class="mt-4">
+                                @switch (activeContent)
+                                {
+                                    case 1:
+                                        <MudGrid>
+                                            <MudItem xs="12" lg="6">
+                                                <MudPaper Elevation="12" Class="pa-4">
+                                                    <MudImage ObjectFit="ObjectFit.Cover" src="/images/taskview/kanban.PNG" class="mx-auto my-auto" style="height:auto; width:100%;" />
+                                                </MudPaper>
+                                            </MudItem>
+                                            <MudItem xs="12" lg="6">
+                                                <MudPaper Elevation="0" style="background:#ededed;" Class="pa-4 rounded-xl">
+                                                    <MudItem Class="d-flex flex-column">
+                                                        <MudText Typo="Typo.h4" Class="pb-6">Kanban Board</MudText>
+                                                        <MudItem class="d-flex align-center gap-2">
+                                                            <MudIcon Icon="@Icons.Material.Rounded.CheckCircleOutline" Size="Size.Small" />
+                                                            <MudText> Kanban-style task organization</MudText>
+                                                        </MudItem>
+                                                        <MudItem class="d-flex align-center gap-2 pb-8">
+                                                            <MudIcon Icon="@Icons.Material.Rounded.CheckCircleOutline" Size="Size.Small" />
+                                                            <MudText> Drag-and-drop functionality</MudText>
+                                                        </MudItem>
+                                                        <MudItem>
+                                                            <MudButton class="how-it-works mr-2"
+                                                                       Variant="Variant.Outlined"
+                                                                       Color="Color.Primary"
+                                                                       Size="Size.Large"
+                                                                       Href="/signin">
+                                                                See how it works
+                                                            </MudButton>
+                                                        </MudItem>
+                                                    </MudItem>
+                                                </MudPaper>
+                                            </MudItem>
+                                        </MudGrid>
+                                        break;
+                                    case 2:
+                                        <MudGrid>
+                                            <MudItem xs="12" lg="6">
+                                                <MudPaper Elevation="12" Class="pa-4">
+                                                    <MudImage ObjectFit="ObjectFit.Cover" src="/images/taskview/Dashboard.PNG" class="mx-auto my-auto" style="height:auto; width:100%;" />
+                                                </MudPaper>
+                                            </MudItem>
+                                            <MudItem xs="12" lg="6">
+                                                <MudPaper Elevation="0" style="background:#ededed;" Class="pa-4 rounded-xl">
+                                                    <MudItem Class="d-flex flex-column">
+                                                        <MudText Typo="Typo.h4" Class="pb-6">Visual Dashboard</MudText>
+                                                        <MudItem class="d-flex align-center gap-2">
+                                                            <MudIcon Icon="@Icons.Material.Rounded.CheckCircleOutline" Size="Size.Small" />
+                                                            <MudText>Visual project analytics displaying project health</MudText>
+                                                        </MudItem>
+                                                        <MudItem class="d-flex align-center gap-2">
+                                                            <MudIcon Icon="@Icons.Material.Rounded.CheckCircleOutline" Size="Size.Small" />
+                                                            <MudText>Pie and donut chart visualization of task</MudText>
+                                                        </MudItem>
+                                                        <MudItem class="d-flex align-center gap-2 pb-8">
+                                                            <MudIcon Icon="@Icons.Material.Rounded.CheckCircleOutline" Size="Size.Small" />
+                                                            <MudText>Task summary statistics</MudText>
+                                                        </MudItem>
+                                                        <MudItem>
+
+                                                            <MudButton class="how-it-works mr-2"
+                                                                       Variant="Variant.Outlined"
+                                                                       Color="Color.Primary"
+                                                                       Size="Size.Large"
+                                                                       Href="/signin">
+                                                                See how it works
+                                                            </MudButton>
+                                                        </MudItem>
+                                                    </MudItem>
+                                                </MudPaper>
+                                            </MudItem>
+                                        </MudGrid>
+                                        break;
+
+                                    case 3:
+                                        <MudGrid>
+                                            <MudItem xs="12" lg="6">
+                                                <MudPaper Elevation="12" Class="pa-4">
+                                                    <MudImage ObjectFit="ObjectFit.Cover" src="/images/taskview/List.PNG" class="mx-auto my-auto" style="height:auto; width:100%;" />
+                                                </MudPaper>
+                                            </MudItem>
+                                            <MudItem xs="12" lg="6">
+                                                <MudPaper Elevation="0" style="background:#ededed;" Class="pa-4 rounded-xl">
+                                                    <MudItem Class="d-flex flex-column">
+                                                        <MudText Typo="Typo.h4" Class="pb-6">Detailed Task List</MudText>
+                                                        <MudItem class="d-flex align-center gap-2">
+                                                            <MudIcon Icon="@Icons.Material.Rounded.CheckCircleOutline" Size="Size.Small" />
+                                                            <MudText>Detailed task listing with customizable columns</MudText>
+                                                        </MudItem>
+                                                        <MudItem class="d-flex align-center gap-2 pb-8">
+                                                            <MudIcon Icon="@Icons.Material.Rounded.CheckCircleOutline" Size="Size.Small" />
+                                                            <MudText>Inline task editing capabilities</MudText>
+                                                        </MudItem>
+                                                        <MudItem>
+                                                            <MudButton class="how-it-works mr-2"
+                                                                       Variant="Variant.Outlined"
+                                                                       Color="Color.Primary"
+                                                                       Size="Size.Large"
+                                                                       Href="/signin">
+                                                                See how it works
+                                                            </MudButton>
+                                                        </MudItem>
+                                                    </MudItem>
+                                                </MudPaper>
+                                            </MudItem>
+                                        </MudGrid>
+                                        break;
+
+                                    case 4:
+                                        <MudGrid>
+                                            <MudItem xs="12" lg="6">
+                                                <MudPaper Elevation="12" Class="pa-4">
+                                                    <MudImage ObjectFit="ObjectFit.Cover" src="/images/taskview/Overview.PNG" class="mx-auto my-auto" style="height:auto; width:100%;" />
+                                                </MudPaper>
+                                            </MudItem>
+                                            <MudItem xs="12" lg="6">
+                                                <MudPaper Elevation="0" style="background:#ededed;" Class="pa-4 rounded-xl">
+                                                    <MudText Typo="Typo.h4" Class="pb-6">Project Overview</MudText>
+                                                    <MudItem Class="d-flex flex-column">
+                                                        <MudItem class="d-flex align-center gap-2">
+                                                            <MudIcon Icon="@Icons.Material.Rounded.CheckCircleOutline" Size="Size.Small" />
+                                                            <MudText>Comprehensive project and task information</MudText>
+                                                        </MudItem>
+                                                        <MudItem class="d-flex align-center gap-2 pb-8">
+                                                            <MudIcon Icon="@Icons.Material.Rounded.CheckCircleOutline" Size="Size.Small" />
+                                                            <MudText>Quick project status assessment</MudText>
+                                                        </MudItem>
+                                                        <MudItem>
+
+                                                            <MudButton class="how-it-works mr-2"
+                                                                       Variant="Variant.Outlined"
+                                                                       Color="Color.Primary"
+                                                                       Size="Size.Large"
+                                                                       Href="/signin">
+                                                                See how it works
+                                                            </MudButton>
+                                                        </MudItem>
+
+                                                    </MudItem>
+                                                </MudPaper>
+                                            </MudItem>
+                                        </MudGrid>
+                                        break;
+                                }
+                            </MudItem>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </MudItem>
+
+        <!-- Section 4 -->
+        <MudItem class="my-8 d-flex flex-column justify-center align-center " xs="12">
+            <MudItem xs="8" Class="d-flex justify-center">
+                <MudText Style="font-weight: 600;" Typo="Typo.h4">Client Testimony</MudText>
+            </MudItem>
+            <MudItem>
+                <MudGrid class="d-flex flex-row px-2 align-center justify-center">
+
+                    <MudItem class="d-flex justify-center" xs="12" lg="4">
+                        <MudPaper Elevation="0" Square="true" Class="mt-5 pa-4 testimonial">
+                            <MudCard Elevation="0" Outlined="false" style="width: 350px;" Class="rounded-xl">
+                                <MudCardHeader>
+                                    <CardHeaderAvatar>
+                                        <MudImage Src="/images/people/person1.jpg" class="avatar-image"></MudImage>
+                                    </CardHeaderAvatar>
+                                    <CardHeaderContent>
+                                        <MudText Typo="Typo.h6">Emma Thompson</MudText>
+                                        <MudText style="color: #4dca60;" Typo="Typo.caption">Product Manager</MudText>
+                                    </CardHeaderContent>
+                                </MudCardHeader>
+                                <MudCardContent>
+                                    <MudText Typo="Typo.body2" style="font-weight: 300;">
+                                        "This platform transformed our deadline handling. The intuitive interface made project planning feel effortless. Truly amazing!"
+                                    </MudText>
+                                </MudCardContent>
+                            </MudCard>
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem class="d-flex justify-center" xs="12" lg="4">
+                        <MudPaper Elevation="0" Square="true" Class="mt-5 pa-4 testimonial">
+                            <MudCard Elevation="0" Outlined="false" style="width: 350px;" Class="rounded-xl">
+                                <MudCardHeader>
+                                    <CardHeaderAvatar>
+                                        <MudImage Src="/images/people/person2.jpg" class="avatar-image"></MudImage>
+                                    </CardHeaderAvatar>
+                                    <CardHeaderContent>
+                                        <MudText Typo="Typo.h6">Marcus Rodriguez</MudText>
+                                        <MudText style="color: #4dca60;" Typo="Typo.caption">Startup Founder</MudText>
+                                    </CardHeaderContent>
+                                </MudCardHeader>
+                                <MudCardContent>
+                                    <MudText Typo="Typo.body2" style="font-weight: 300;">
+                                        "Finally found a project tool that speaks my language. Onboarding new team members is now quick and seamless. A game changer!"
+                                    </MudText>
+                                </MudCardContent>
+                            </MudCard>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem class="d-flex justify-center" xs="12" lg="4">
+                        <MudPaper Elevation="0" Square="true" Class="mt-5 pa-4 testimonial">
+                            <MudCard Elevation="0" Outlined="false" style="width: 350px;" Class="rounded-xl">
+                                <MudCardHeader>
+                                    <CardHeaderAvatar>
+                                        <MudImage Src="/images/people/person3.jpg" class="avatar-image"></MudImage>
+                                    </CardHeaderAvatar>
+                                    <CardHeaderContent>
+                                        <MudText Typo="Typo.h6">Sarah Chen</MudText>
+                                        <MudText style="color: #4dca60;" Typo="Typo.caption">Marketing Director</MudText>
+                                    </CardHeaderContent>
+                                </MudCardHeader>
+                                <MudCardContent>
+                                    <MudText Typo="Typo.body2" style="font-weight: 300;">
+                                        "The project tracking features streamlined our campaigns perfectly. Team productivity jumped 40% in the first month. Incredible!"
+                                    </MudText>
+                                </MudCardContent>
+                            </MudCard>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+
+        </MudItem>
+        <!-- Footer Section -->
+        <MudItem xs="12" class="mt-4" style="background: #37c95a;">
+            @*  <MudPaper Class="mt-4 p-3" Elevation="2"> <MudText Typo="Typo.h5">Footer Section</MudText> </MudPaper> *@
+            @using MudBlazor
+
+            <MudContainer class="footer-container">
+                <MudGrid>
+                    <MudItem xs="12" md="6">
+                        <MudIconButton Icon="@Icons.Material.Filled.Home" />
+                        <MudIconButton Icon="@Icons.Custom.Brands.LinkedIn" />
+                        <MudIconButton Icon="@Icons.Custom.Brands.Instagram" />
+                        <MudIconButton Icon="@Icons.Custom.Brands.Facebook" />
+                        <MudIconButton Icon="@Icons.Custom.Brands.YouTube" />
+                    </MudItem>
+                    <MudItem xs="12" md="6" Class="d-flex justify-end">
+                        <MudButton Class="rounded-xl mr-2"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Dark"
+                                   Size="Size.Large"
+                                   Href="/signin">
+                            Sign in
+                        </MudButton>
+                        <MudButton Class="rounded-xl ml-2"
+                                   Variant="Variant.Outlined"
+                                   Size="Size.Large"
+                                   Href="/signup">
+                            Sign up
+                        </MudButton>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudText Class="pl-4" Typo="Typo.caption">© 2024 ProMgt, Inc.</MudText>
+                    </MudItem>
+                    <MudItem xs="12" md="6" Class="d-flex justify-end">
+                        <MudScrollToTop>
+                            <MudFab Color="Color.Secondary" StartIcon="@Icons.Material.Filled.ArrowCircleUp" />
+                        </MudScrollToTop>
+                    </MudItem>
+                </MudGrid>
+            </MudContainer>
+
+        </MudItem>
+    </MudGrid>
 </MudContainer>
 
 <style>
-    .mud-container {
+
+    .footer-container {
+        padding: 20px;
+        bottom: 0;
+        width: 100%;
+        height: 20vh;
+    }
+
+    .testimonial {
+        border: 1px solid #4dca60;
+        border-radius: 24px;
+        min-height: 250px;
+    }
+
+
+    .avatar-image {
+        height: 100px;
+        border-radius: 120px;
+    }
+
+    .main-containers {
         height: 70vh;
         display: flex;
         align-items: center;
         justify-content: center;
+    }   
+
+    .brand-logo {
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
-    .mud-paper {
-        min-width: 300px;
-        background: linear-gradient(to bottom right, #ffffff, #f3f8ff);
+    .active-button {
+        background-color: var(--mud-palette-primary);
+        color: white;
+        border-radius: 146px;
+        padding: 16px 32px;
+        margin-top: 4px;
+        margin-right: 8px;
+        margin-bottom: 4px;
     }
+
+    .how-it-works {
+        border-radius: 146px;
+        padding: 16px 32px;
+    }
+
+    .active-button:hover {
+        background-color: var(--mud-palette-primary);
+        color: white;
+    }
+
+    .inactive-button {
+        background-color: #dfdfdf;
+        border-radius: 146px;
+        padding: 16px 32px;
+        margin-top: 4px;
+        margin-right: 8px;
+        margin-bottom: 4px;
+    }
+
+        .inactive-button:hover {
+            background-color: #bbbaba;
+        }
+
 </style>
+
+@code {
+    private int activeContent = 1;
+    public MudBlazor.Utilities.MudColor? PrimaryColor { get; set; }
+    private void HandleClick(int contentId)
+    {
+        activeContent = contentId;
+    }
+}

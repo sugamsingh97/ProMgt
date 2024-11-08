@@ -175,10 +175,6 @@
     private int _currentTaskId;
     public bool _openInfoDrawer { get; set; } = false;
     public bool _openTaskInfoDrawer { get; set; } = false;
-    private bool _expanded = false;
-    private bool _openTaskDrawer;
-    bool _statusExpanded = false;
-    bool _priorityExpanded = false;
     public string CollapseBg { get; set; } = string.Empty;
     public string ProjectName { get; set; } = string.Empty;
     public string? ProjectDescription { get; set; } = string.Empty;
@@ -210,10 +206,7 @@
     }
 
     #region Initialize
-    /// <summary>
-    /// This initializes the page.
-    /// </summary>
-    /// <returns></returns>
+  
     protected async override Task OnInitializedAsync()
     {
         ThemeService.OnThemeChanged += HandleThemeChange;
@@ -235,45 +228,8 @@
     }
     #endregion
 
-    #region Toggles and Collapses
-    /// <summary>
-    /// This toggles the Summary.
-    /// </summary>
-    private void OnExpandCollapseClick()
-    {
-        _expanded = !_expanded;
-    }
-    /// <summary>
-    /// This Expands Status
-    /// </summary>
-    /// <returns></returns>
-    private async Task OnExpandStatus()
-    {
-        _statusExpanded = !_statusExpanded;
-        await Task.CompletedTask;
-    }
-    /// <summary>
-    /// This Expands Priority
-    /// </summary>
-    /// <returns></returns>
-    private async Task OnExpandPriority()
-    {
-        _priorityExpanded = !_priorityExpanded;
-        await Task.CompletedTask;
-    }
-    /// <summary>
-    /// Task drawer expand is true
-    /// </summary>
-    /// <returns></returns>
-    private void TaskDrawer()
-    {
-        _openTaskDrawer = true;
-
-    }
-    /// <summary>
-    /// This Toggles the drawer
-    /// </summary>
-    /// <returns></returns>
+    #region Toggles and Collapses       
+    // This Toggles the drawer    
     private async Task ToggleDrawerHandler()
     {
         _openInfoDrawer = !_openInfoDrawer;
@@ -320,21 +276,11 @@
     #endregion
 
     #region Get and Delete a project
-
-    /// <summary>
-    /// This Gets the project
-    /// </summary>
-    /// <returns></returns>
+    // This Gets the project    
     public async Task GetProject()
     {
         try
         {
-            // var response = await HttpClient.GetFromJsonAsync<List<ProjectResponse>>("api/project/getstring");
-            // Projects = (response ?? new List<ProjectResponse>())
-            //                 .OrderByDescending(p => p.DateOfCreation)
-            //                 .ToList();
-            // StateHasChanged();
-
             var response = await HttpClient.GetFromJsonAsync<ProjectResponse>($"api/project/{ProjectId}");
             Project = response ?? new ProjectResponse();
 
@@ -471,12 +417,8 @@
     }
     #endregion Patch Project fields
 
-    #region Add and Get Tasks and Get progress and Task completed Handler.
-
-    /// <summary>
-    /// This gets tasks.
-    /// </summary>
-    /// <returns></returns>
+    #region Add and Get Tasks and Get progress and Task completed Handler.  
+    // This gets tasks.
     public async Task GetTasks()
     {
         try
@@ -788,22 +730,6 @@
     }
     #endregion
 
-    //Code from data grid
-
-    void StartedEditingItem(TaskResponse item)
-    {
-        // Handle edit start if needed
-    }
-
-    void CanceledEditingItem(TaskResponse item)
-    {
-        // Handle edit cancellation if needed
-    }
-
-    void CommittedItemChanges(TaskResponse item)
-    {
-        // Handle changes commit if needed
-    }
 }
 
 
