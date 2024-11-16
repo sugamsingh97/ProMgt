@@ -14,11 +14,11 @@ else
 {
     <MudContainer>
         <MudGrid Justify="Justify.Center" Class="d-flex mb-8" style="max-width: 1200px;justify-self: center;">
-            <MudItem xs="12">
+            <MudItem xs="12" md="8">
                 <MudPaper Elevation="0" Outlined="true" Class="rounded-xl pa-8">
                     <MudTextField @bind-Value="Project.Description"
                                   AutoGrow
-                                  Lines="5"
+                                  Lines="20"
                                   Label="Description"
                                   Class="rounded-xl"
                                   @onclick="() => _isClicked = true"
@@ -28,8 +28,36 @@ else
                 </MudPaper>
 
             </MudItem>
+            <MudItem xs="12" md="4">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-xl" Style="min-height: 475px;">
+                    <MudItem Class="chart-title pl-8 pt-4 pr-8 pb-2 d-flex flex-row align-center">
+                        <MudText>Members</MudText>
+                        <MudSpacer />
+                        <MudTooltip Text="Add Members" Arrow="true" Delay="600">
+                            <MudIconButton OnClick="AddNewMember" Icon="@Icons.Material.Rounded.Add" Size="Size.Medium" />
+                        </MudTooltip>
+                    </MudItem>
+                    <MudDivider />
+                    <MudGrid Class="pa-8">
+                        <MudItem xs="12" Style="overflow-y: auto; max-height: 360px">
+                            <MudList T="string">
+                                @foreach (var member in members)
+                                {
+                                    <MudItem Class="d-flex align-center py-1">
+                                        <MudAvatar Size="Size.Small" Color="@GetRandomColor()"
+                                                   Variant="@GetRandomVariant()">
+                                            @member.FirstName[0]
+                                        </MudAvatar>
+                                        <MudText Style="font-weight: lighter;" Class="px-4" >@member.FirstName @member.LastName</MudText>
+                                    </MudItem>
+                                }
+                            </MudList>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            </MudItem>
             <MudItem xs="12" md="6">
-                <MudPaper Outlined="true" Class="mud-width-full rounded-xl">
+                <MudPaper Outlined="true" Class="mud-width-full rounded-xl" Style="min-height: 474px">
                     <MudItem Class="chart-title pl-8 pt-4 pr-8 pb-2 d-flex flex-row align-center">
                         <MudText>Tasks</MudText>
                         <MudSpacer />
@@ -106,6 +134,13 @@ else
 }
 @code {
 
+    private Color[] colors = { Color.Info, Color.Success, Color.Warning };
+    private Variant[] variants = { Variant.Outlined, Variant.Filled };
+    private Random random = new Random();
+
+    private Color GetRandomColor() => colors[random.Next(colors.Length)];
+    private Variant GetRandomVariant() => variants[random.Next(variants.Length)];
+
     public bool IsDataLoaded { get; set; } = false;
     private bool firstRender = true;
     private bool _isClicked { get; set; } = false;
@@ -115,6 +150,7 @@ else
     public string? Description { get; set; } = string.Empty;
     public List<TaskResponse>? TaskResponses { get; set; } = new();
     public ProjectResponse? Project { get; set; } = new();
+    public List<UserResponse> members = new();
 
     public PieData TaskStat { get; set; } = new();
 
@@ -129,9 +165,10 @@ else
     }
 
     protected async override Task OnInitializedAsync()
-    { 
+    {
         ProjectService.OnTaskDeleted += GetData;
         ProjectService.OnNewTaskAddedChanged += GetData;
+        ProjectService.OnNewMemberAdded += GetData;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -149,6 +186,7 @@ else
         await GetProject();
         await GetTasks();
         await UpdateProjectChart();
+        await GetMembers();
         StateHasChanged();
     }
 
@@ -278,5 +316,15 @@ else
         public int Total { get; set; } = 0;
         public int Complete { get; set; } = 0;
         public int InComplete { get; set; } = 0;
+    }
+
+    public void AddNewMember()
+    {
+        ProjectService.AddMember(ProjectId);
+    }
+
+    public async Task GetMembers()
+    {
+        members = await ProjectService.GetProjectMembers(ProjectId);
     }
 }

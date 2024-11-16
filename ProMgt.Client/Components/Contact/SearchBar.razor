@@ -1,0 +1,47 @@
+﻿@inject ProjectService ProjectService
+<MudAutocomplete T="UserResponse"
+                 Variant="Variant.Outlined"
+                 Label="Search Users"
+                 @bind-Value="selectedUser"
+                 SearchFunc="@SearchUsers"
+                 ToStringFunc="@(user => user == null ? null : $"{user.FirstName} {user.LastName} ({user.Email})")"
+                 AdornmentIcon="@Icons.Material.Outlined.PersonSearch"
+                 AdornmentColor="Color.Primary"
+                 >
+    <ItemTemplate Context="user">
+        <MudItem Style="width:100%" @onclick="()=>ContactSelect(user)">
+            <MudText>@user.FirstName @user.LastName @user.Email</MudText>
+        </MudItem>
+    </ItemTemplate>
+</MudAutocomplete>
+
+@code {
+    public List<UserResponse> users { get; set; } = new();
+    private UserResponse selectedUser;
+
+    protected async override Task OnInitializedAsync()
+    {
+        users = await ProjectService.GetUserList();
+    }
+
+    private async Task<IEnumerable<UserResponse>> SearchUsers(string searchText, CancellationToken cancellationToken)
+    {
+        // Simulate some async work to demonstrate cancellation
+        await Task.Delay(50, cancellationToken);
+
+        return string.IsNullOrEmpty(searchText)
+            ? users
+            : users.Where(user =>
+                user.FirstName.Contains(searchText, StringComparison.InvariantCultureIgnoreCase) ||
+                user.LastName.Contains(searchText, StringComparison.InvariantCultureIgnoreCase) ||
+                user.Email.Contains(searchText, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task ContactSelect(UserResponse _user)
+    {
+        UserResponse newContact = new();
+        newContact = _user;
+        await ProjectService.AddNewContact(newContact);
+    }
+}
+

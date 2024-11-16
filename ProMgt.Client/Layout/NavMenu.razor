@@ -14,9 +14,10 @@
     <AuthorizeView>
         <Authorized>
             <MudNavLink Href="dashboard" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">ProMgt</MudNavLink>
+
             <MudNavLink Icon="@Icons.Material.Rounded.ViewList" OnClick="OnExpandCollapseClick">
                 <MudItem Class="d-flex" Style="justify-content: space-between;">
-                    <MudText style="font-size: revert;">Projects</MudText>
+                    <MudText style="font-size: revert;">My Projects</MudText>
                     <MudIcon Size="@Size.Small" Icon="@(_expanded ? Icons.Material.Filled.KeyboardArrowUp : Icons.Material.Filled.KeyboardArrowDown)" />
                 </MudItem>
             </MudNavLink>
@@ -29,9 +30,42 @@
                         </MudText>
                     </MudNavLink>
                 }
-            </MudCollapse>
+            </MudCollapse> 
             
-
+            <MudNavLink Icon="@Icons.Material.Rounded.ViewList" OnClick="OnProjectExpandCollapseClick">
+                <MudItem Class="d-flex" Style="justify-content: space-between;">
+                    <MudText style="font-size: revert;">Assigned Projects</MudText>
+                    <MudIcon Size="@Size.Small" Icon="@(_projectExpanded ? Icons.Material.Filled.KeyboardArrowUp : Icons.Material.Filled.KeyboardArrowDown)" />
+                </MudItem>
+            </MudNavLink>
+            <MudCollapse Expanded="_projectExpanded">
+                @foreach (var item in AssignedProjects)
+                {
+                    <MudNavLink OnClick="() => AssignmentNavigateHandler(item.Id)" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Book">
+                        <MudText Typo="Typo.caption">
+                            @item.Name
+                        </MudText>
+                    </MudNavLink>
+                }
+            </MudCollapse>
+                        
+            <MudNavLink Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Rounded.Contacts" OnClick="OnContactExpandCollapseClick">
+                <MudItem Class="d-flex" Style="justify-content: space-between;">
+                    <MudText style="font-size: revert;">Team</MudText>
+                    <MudIcon Size="@Size.Small" Icon="@(_contactExpanded ? Icons.Material.Filled.KeyboardArrowUp : Icons.Material.Filled.KeyboardArrowDown)" />
+                </MudItem>
+            </MudNavLink>
+            <MudCollapse Expanded="_contactExpanded">
+                <MudNavLink Href="contact" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Outlined.Add">Add contact</MudNavLink>
+                @foreach (var c in contactList)
+                {
+                    <MudNavLink Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Rounded.AccountCircle">
+                        <MudText Typo="Typo.caption">
+                            @c.ContactFirstName @c.ContactLastName
+                        </MudText>
+                    </MudNavLink>
+                }
+            </MudCollapse>
             <MudNavLink Href="#" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person">@context.User.Identity?.Name</MudNavLink>
             <form @onsubmit="HandleSignOut">
                 <AntiforgeryToken />
@@ -53,11 +87,16 @@
 
 
 @code {
-    public bool _expanded = false;
+    public bool _expanded = false;    
+    public bool _contactExpanded { get; set; } = false;
+    public bool _projectExpanded { get; set; } = false;
     private bool _isAuthenticated = false;
     private string? currentUrl;
     private string errorMessage = string.Empty; 
+    public List<ContactDisplay> contactList { get; set; } = new();
     public List<ProjectDisplay> Projects { get; set; } = new();
+    public List<ProjectDisplay> AssignedProjects { get; set; } = new();
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -70,11 +109,13 @@
         if (_isAuthenticated)
         {
             await GetProjects();
+            await GetAssignedProjects();
         }
         ProjectService.OnNewProjectAddedChanged += UpdateProjectList;
         ProjectService.OnProjectNameUpdated += UpdateProjectList; // Add this line
         ProjectService.OnProjectDeleted += UpdateProjectList;
-
+        await GetUserContacts();
+        ProjectService.ContactChanges += GetUserContacts;
     }
 
     #region project list collapse
@@ -82,11 +123,20 @@
     /// This Toggles the Collapse
     /// </summary>
     private void OnExpandCollapseClick()
-
     {
         _expanded = !_expanded;
+    }   
+
+    private void OnContactExpandCollapseClick()
+    {
+        _contactExpanded = !_contactExpanded;
     }
 
+    
+    private void OnProjectExpandCollapseClick()
+    {
+        _projectExpanded = !_projectExpanded;
+    }
     #endregion
 
     /// <summary>
@@ -109,6 +159,12 @@
     {
         await Task.CompletedTask;
         NavigationManager.NavigateTo($"/project-space/{Id}", true);
+    }
+
+    private async Task AssignmentNavigateHandler(int Id)
+    {
+        await Task.CompletedTask;
+        NavigationManager.NavigateTo($"/assigned-project/{Id}", true);
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
@@ -177,7 +233,40 @@
         }
     }
 
-   
+    /// <summary>
+    /// This Gets all the project.
+    /// </summary>
+    /// <returns></returns>
+    public async Task GetAssignedProjects()
+    {
+        try
+        {
+            var response = await HttpClient.GetFromJsonAsync<List<ProjectDisplay>>("api/project/getassignedprojectlist");
+            AssignedProjects = (response ?? new List<ProjectDisplay>())
+                            .OrderByDescending(p => p.DateOfCreation)
+                            .ToList();
+
+            StateHasChanged();
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+        }
+        catch (NotSupportedException ex)
+        {
+            Console.WriteLine($"Content type error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON error: {ex.Message}");
+        }
+    }
+
+    public async Task GetUserContacts()
+    {
+        contactList = await ProjectService.GetUserContactList();
+        StateHasChanged();
+    }
 
 }
 

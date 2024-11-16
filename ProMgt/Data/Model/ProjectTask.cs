@@ -33,6 +33,8 @@ namespace ProMgt.Data.Model
         [ForeignKey("Section")]
         public int? SectionId { get; set; }
         public virtual Section? Section { get; set; }
+
+        public virtual ICollection<TaskAssignment>? TaskAssignments { get; set; }
     }
 
 }

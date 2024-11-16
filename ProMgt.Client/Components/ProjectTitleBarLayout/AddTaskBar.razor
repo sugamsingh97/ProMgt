@@ -25,9 +25,11 @@
 @code {
     [Parameter]
     public int ProjectId { get; set; }
+    public List<UserResponse> users { get; set; } = new();
     public async Task AddTaskHandler()
     {
         ProjectService.CreateNewTask(ProjectId);
         await Task.CompletedTask;
-    }
+    }      
+   
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProMgt.Data;
 
@@ -10,9 +11,11 @@ using ProMgt.Data;
 namespace ProMgt.Migrations.ProjectDb
 {
     [DbContext(typeof(ProjectDbContext))]
-    partial class ProjectDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241114163514_ProjectAssignedMigration")]
+    partial class ProjectAssignedMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
@@ -79,28 +82,6 @@ namespace ProMgt.Migrations.ProjectDb
                     b.HasIndex("ProjectStatusId");
 
                     b.ToTable("Projects");
-                });
-
-            modelBuilder.Entity("ProMgt.Data.Model.ProjectAssignment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("AssigneeId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("ProjectId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("ProjectAssignments");
                 });
 
             modelBuilder.Entity("ProMgt.Data.Model.ProjectMgtColor", b =>
@@ -268,16 +249,6 @@ namespace ProMgt.Migrations.ProjectDb
                     b.Navigation("ProjectStatus");
                 });
 
-            modelBuilder.Entity("ProMgt.Data.Model.ProjectAssignment", b =>
-                {
-                    b.HasOne("ProMgt.Data.Model.Project", "Project")
-                        .WithMany("ProjectAssignments")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Project");
-                });
-
             modelBuilder.Entity("ProMgt.Data.Model.ProjectTask", b =>
                 {
                     b.HasOne("ProMgt.Data.Model.Priority", "Priority")
@@ -348,8 +319,6 @@ namespace ProMgt.Migrations.ProjectDb
             modelBuilder.Entity("ProMgt.Data.Model.Project", b =>
                 {
                     b.Navigation("Priorities");
-
-                    b.Navigation("ProjectAssignments");
 
                     b.Navigation("Sections");
 

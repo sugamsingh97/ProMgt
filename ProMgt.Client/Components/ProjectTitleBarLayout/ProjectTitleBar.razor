@@ -100,14 +100,19 @@
         </MudItem>
         <MudSpacer />
         <MudItem Class="d-flex align-center">
-            <MudAvatarGroup MaxColor="Color.Primary">
-                <MudAvatar Size="Size.Small" Color="Color.Primary">M</MudAvatar>
-                <MudAvatar Size="Size.Small" Color="Color.Info">U</MudAvatar>
-                <MudAvatar Size="Size.Small" Color="Color.Info">D</MudAvatar>
-                <MudAvatar Size="Size.Small" Color="Color.Primary">M</MudAvatar>
-                <MudAvatar Size="Size.Small" Color="Color.Primary">U</MudAvatar>
-                <MudAvatar Size="Size.Small" Color="Color.Info">D</MudAvatar>
-            </MudAvatarGroup>
+            @if (members.Count > 0)
+            {
+                <MudAvatarGroup Max="3" Spacing="2" MaxSize="Size.Small" MaxColor="Color.Error">
+                    @foreach (var member in members)
+                    {                        
+                            <MudAvatar Size="Size.Small" Color="@GetRandomColor()"
+                                       Variant="Variant.Filled">
+                                @member.FirstName[0]
+                            </MudAvatar>                           
+                       
+                    }
+                </MudAvatarGroup>
+            }            
             <MudItem class="px-2">
                 <MudButton Size="Size.Small" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.FolderShared" Color="Color.Secondary">Share</MudButton>
             </MudItem>
@@ -136,6 +141,7 @@
         await GetProjectStatuses();
         await GetProject();
         // await GetTasks();
+        await GetMembers();
         StateHasChanged();
         await base.OnInitializedAsync();
     }
@@ -255,6 +261,13 @@
         }
     }
 
+    public List<UserResponse> members { get; set; } = new();
+
+    public async Task GetMembers()
+    {
+        members = await ProjectService.GetProjectMembers(ProjectId);
+    }
+
     #endregion
 
     #region Event Handlers
@@ -359,6 +372,13 @@
 
         return $"rgba({r}, {g}, {b}, 0.2)";
     }
+
+    private Color[] colors = { Color.Info, Color.Success, Color.Warning };
+    private Variant[] variants = { Variant.Outlined, Variant.Filled };
+    private Random random = new Random();
+
+    private Color GetRandomColor() => colors[random.Next(colors.Length)];
+    private Variant GetRandomVariant() => variants[random.Next(variants.Length)];
     #endregion
 
 }

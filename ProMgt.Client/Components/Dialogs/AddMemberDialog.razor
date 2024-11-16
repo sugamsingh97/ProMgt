@@ -1,0 +1,83 @@
+﻿@inject ProjectService ProjectService
+
+<MudDialog Class="blur dialog-background"
+           TitleClass="blur dialog-background-title"
+           ContentClass="dialog-background-surface py-10"
+           ActionsClass="dialog-background-surface">
+    <TitleContent>
+        Add a new Member
+    </TitleContent>
+    <DialogContent>
+        <MudSelect T="string" Label="Contact Names" HelperText="Pick a contact" @bind-Value="newMemberAssignment.AssigneeId" >
+            @foreach (var contact in contacts)
+            {
+                <MudSelectItem T="string" Value="@contact.ContactUserId">@contact.ContactFirstName</MudSelectItem>
+            }
+        </MudSelect>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="Submit">Add</MudButton>
+    </DialogActions>
+</MudDialog>
+
+<style>
+    .custom-chip {
+        width: 100px; /* Set your desired width */
+    }
+
+    .blur {
+        backdrop-filter: blur(10px);
+    }
+
+    .dialog-background {
+        background-color: transparent;
+    }
+
+    .dialog-background-title {
+        background: rgb(from var(--mud-palette-primary) r g b / 50%);
+        color: var(--mud-palette-white);
+    }
+
+    .dialog-background-surface {
+        background: rgb(from var(--mud-palette-surface) r g b / 75%);
+    }
+</style>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance? MudDialog { get; set; }
+
+    List<ContactDisplay> contacts = new(); // List of contacts of this User is displayed here
+    ProjectAssignedInputModel newMemberAssignment { get; set; } = new(); // binding the id of the contact to this object
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    public async Task LoadData()
+    {
+        contacts = await ProjectService.GetUserContactList();
+    }
+
+    private async void Submit()
+    {
+        
+        if (newMemberAssignment != null)
+        {
+            // send the object with asignee Id.
+            await Task.CompletedTask;
+            MudDialog!.Close(DialogResult.Ok(newMemberAssignment));
+        }
+    }
+
+    private void Cancel() => MudDialog!.Cancel();
+
+    private void OnContactSelected(string contactId)
+    {
+        // Handle the selected contact ID here
+        Console.WriteLine($"Selected Contact ID: {contactId}");
+        newMemberAssignment.AssigneeId = contactId;
+    }
+}

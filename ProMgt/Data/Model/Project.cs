@@ -23,7 +23,8 @@ namespace ProMgt.Data.Model
         public virtual ICollection<ProjectTask>? Tasks { get; set; }
         public virtual ICollection<Priority>? Priorities { get; set; }
         public virtual ICollection<TaskStatus>? TaskStatuses { get; set; }
-        public virtual ICollection<Section>? Sections { get; set; }
+        public virtual ICollection<Section>? Sections { get; set; }       
+        public virtual ICollection<ProjectAssignment>? ProjectAssignments { get; set; }
 
     }
 }

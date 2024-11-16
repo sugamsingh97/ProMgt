@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
 using ProMgt.Client.Components.Dialogs;
 using ProMgt.Client.Models.Project;
 using ProMgt.Client.Models.Section;
 using ProMgt.Client.Models.Task;
+using ProMgt.Client.Models.User;
+using System;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -19,18 +22,18 @@ namespace ProMgt.Client.Infrastructure.Settings
         private readonly IDialogService _dialogService;
         private readonly HttpClient _httpClient;
         private readonly NavigationManager _navigationManager;
-        private readonly ISnackbar _snackbar;
-
+        private readonly AuthenticationStateProvider _autStateProvider;
         public ProjectService(
-            IDialogService dialogService, 
-            HttpClient httpClient, 
-            NavigationManager navigationManager, 
-            ISnackbar snackbar)
+            IDialogService dialogService,
+            HttpClient httpClient,
+            NavigationManager navigationManager,
+            AuthenticationStateProvider autStateProvider
+            )
         {
             _dialogService = dialogService;
             _httpClient = httpClient;
             _navigationManager = navigationManager;
-            _snackbar = snackbar;
+            _autStateProvider = autStateProvider;
         }
 
         public event Func<Task> TaskInforUpdated;
@@ -44,13 +47,24 @@ namespace ProMgt.Client.Infrastructure.Settings
         public event Func<Task> OnNewTaskAddedChanged;
         public event Func<Task> TaskFieldUpdated;
         public event Func<Task> OnProjectDeleted;
-        public event Func<Task> OnTaskDeleted;  
+        public event Func<Task> OnTaskDeleted;
 
         #region Project
         // This creates a new project.
         public async void CreateNewProject()
         {
+            var authState = await _autStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            var IsAuthenticated = user.Identity.IsAuthenticated;
+
+            if (IsAuthenticated == false)
+            {
+                _navigationManager.NavigateTo("/signin");
+                return;
+            }
+
             errorMessage = string.Empty;
+
             var options = new DialogOptions
             {
                 CloseOnEscapeKey = true,
@@ -60,6 +74,8 @@ namespace ProMgt.Client.Infrastructure.Settings
             };
 
             var dialogResponse = await _dialogService.ShowAsync<CreateProjectDialog>("Create new Project", options);
+
+
 
             var result = await dialogResponse.Result;
             ProjectCreateModel dialogResponseProject = new();
@@ -145,16 +161,16 @@ namespace ProMgt.Client.Infrastructure.Settings
 
             var DialogResponse = await _dialogService.ShowAsync<ConfirmProjectDelete>($"Are you sure you want to delete \"{ProjectName}\" project?", options);
 
-            var result = await DialogResponse.Result;           
+            var result = await DialogResponse.Result;
 
             if (result != null && !result.Canceled)
-            {                              
+            {
 
                 try
                 {
-                   
+
                     var response = await _httpClient.DeleteAsync($"api/project/{ProjectId}");
-                    
+
 
                     if (response.StatusCode == HttpStatusCode.NoContent)
                     {
@@ -162,7 +178,7 @@ namespace ProMgt.Client.Infrastructure.Settings
                         {
                             await OnProjectDeleted.Invoke();
                         }
-                       return true;
+                        return true;
                     }
                     else
                         return false;
@@ -178,11 +194,11 @@ namespace ProMgt.Client.Infrastructure.Settings
                     return false;
 
                 }
-               
+
             }
             else
                 return false;
-            
+
         }
         #endregion
 
@@ -401,6 +417,213 @@ namespace ProMgt.Client.Infrastructure.Settings
                 errorMessage = $"An unexpected error occurred: {ex.Message}";
             }
         }
+        #endregion
+
+        #region Users
+        public async Task<List<UserResponse>> GetUserList()
+        {
+            try
+            {
+
+
+                var users = await _httpClient.GetFromJsonAsync<List<UserResponse>>("api/project/getAppUserList");
+
+
+                if (users != null)
+                {
+                    return users;
+                }
+
+                else
+                {
+                    return new List<UserResponse>();
+                    // Return an empty list if users is null
+                }
+            }
+
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Request error: {ex.Message}");
+            }
+            catch (NotSupportedException ex)
+            {
+                Console.WriteLine($"Content type error: {ex.Message}");
+            }
+            return new List<UserResponse>();
+        }
+
+        //Add contact
+        public event Func<Task> ContactChanges;
+
+        public async Task AddNewContact(UserResponse user)
+        {
+            var parameters = new DialogParameters { ["User"] = user };
+            var dialog = await _dialogService.ShowAsync<AddContactDialog>("User Details", parameters);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {
+                var addedUser = (UserResponse)result.Data;
+                await HandleAddUser(addedUser);
+            }
+        }
+
+        private async Task HandleAddUser(UserResponse user)
+        {
+            try
+            {
+                ContactResponse newContact = new ContactResponse
+                {
+                    ContactUserId = user.UserId
+                };
+                var response = await _httpClient.PostAsJsonAsync<ContactResponse>("api/contact", newContact);
+                if (ContactChanges != null)
+                {
+                    await ContactChanges.Invoke();
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<List<ContactDisplay>> GetUserContactList()
+        {
+            List<ContactDisplay> contactList = new();
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<List<ContactDisplay>>("api/contact/getallcontact");
+
+                contactList = (response ?? new List<ContactDisplay>())
+                                .ToList();
+                return contactList;
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Request error: {ex.Message}");
+            }
+            catch (NotSupportedException ex)
+            {
+                Console.WriteLine($"Content type error: {ex.Message}");
+            }
+            return contactList;
+        }
+
+        public async Task<bool> DeleteContact(int _contactId)
+        {
+            try
+            {
+
+                var response = await _httpClient.DeleteAsync($"api/contact/{_contactId}");
+
+
+                if (response.StatusCode == HttpStatusCode.NoContent)
+                {
+                    if (ContactChanges != null)
+                    {
+                        await ContactChanges.Invoke();
+                    }
+                    return true;
+                }
+                else
+                    return false;
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Request error: {ex.Message}");
+                return false;
+            }
+            catch (NotSupportedException ex)
+            {
+                Console.WriteLine($"Content type error: {ex.Message}");
+                return false;
+
+            }
+        }
+
+        #endregion
+
+        #region MemberAssignments
+        public event Func<Task> OnNewMemberAdded;
+
+        public async void AddMember(int ProjectId)
+        {
+            errorMessage = string.Empty;
+            var options = new DialogOptions
+            {
+                CloseOnEscapeKey = true,
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true
+            };
+
+            var DialogResponse = await _dialogService.ShowAsync<AddMemberDialog>("Add Member", options);
+
+            var result = await DialogResponse.Result;
+
+            ProjectAssignedInputModel newMemberAssignment = new();
+
+            if (result != null && !result.Canceled)
+            {
+                newMemberAssignment = result.Data as ProjectAssignedInputModel ?? new();
+                // adding the ProjectId to the object received with asignee Id.
+
+                newMemberAssignment.ProjectId = ProjectId;
+            }
+
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync("/api/projectassignment", newMemberAssignment);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    if (OnNewMemberAdded != null)
+                    {
+                        await OnNewMemberAdded.Invoke();
+                    }
+
+                }
+                else
+                {
+                    errorMessage = $"Error: {response.ReasonPhrase}";
+                }
+            }
+            catch (HttpRequestException httpEx)
+            {
+                errorMessage = $"Request error: {httpEx.Message}";
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"An unexpected error occurred: {ex.Message}";
+            }          
+        }
+
+        public async Task<List<UserResponse>> GetProjectMembers(int ProjectId)
+        {
+            List<UserResponse> Members = new();
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<List<UserResponse>>($"/api/projectassignment/getmembers/{ProjectId}");
+                if (response != null) 
+                { 
+                    Members = response; 
+                }
+            }
+            catch (HttpRequestException httpEx)
+            {
+                errorMessage = $"Request error: {httpEx.Message}";
+                
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"An unexpected error occurred: {ex.Message}";
+            }
+
+            return Members;
+        }
+
         #endregion
     }
 }

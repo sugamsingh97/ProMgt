@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProMgt.Client.Models.Project;
 using ProMgt.Client.Models.Task;
+using ProMgt.Client.Models.User;
 using ProMgt.Components.Account;
 using ProMgt.Data;
 using ProMgt.Data.Model;
@@ -21,16 +22,36 @@ namespace ProMgt.Controllers
         // private readonly ILogger _logger;
         // Http Context can help in recognizing the current user
         private readonly IdentityUserAccessor _userAccessor;
+
+        //This is just an example. detelet this after POC
+        private readonly ApplicationDbContext _applicationDbContext;
         #endregion
 
         #region Constructor
-        public ProjectController(ProjectDbContext db, IdentityUserAccessor userAccessor)
+        public ProjectController(ProjectDbContext db, IdentityUserAccessor userAccessor, ApplicationDbContext applicationDbContext)
         {
             _db = db;
             // _logger = logger;
             _userAccessor = userAccessor;
+
+            _applicationDbContext = applicationDbContext;
         }
         #endregion
+
+        //
+       
+        [HttpGet("getAppUserlist")]
+        public async Task<ActionResult<List<UserResponse>>> GetUserList()
+        {
+            var users = await _applicationDbContext.Users.ToListAsync() ;
+            var _users = users.Select(user => new UserResponse { 
+                UserId = user.Id, 
+                FirstName = user.FirstName, 
+                LastName = user.LastName, 
+                Email = user?.Email }).ToList(); 
+            return _users;
+           
+        }
 
         #region POST
         /// <summary>
@@ -236,6 +257,38 @@ namespace ProMgt.Controllers
 
             return Ok(result);
         }
+
+        //Get projects by asignees
+        [Authorize]
+        [HttpGet]
+        [HttpGet("getassignedprojectlist")]
+        public async Task<ActionResult<List<ProjectDisplay>>> GetAssignedProjects()
+        {
+            List<ProjectResponse> projects = new();
+            var user = await _userAccessor.GetRequiredUserAsync(HttpContext);
+
+            // we are geting the project assignments assigned to a user
+            var projectAssignments = await _db.ProjectAssignments.Where(pa => pa.AssigneeId == user.Id).ToListAsync();
+            // for each assignedmenet we are collecting the project and adding it to the project response list. 
+            foreach (var pa in projectAssignments)
+            {
+                var response = await _db.Projects.FindAsync(pa.ProjectId);
+                ProjectResponse _project = new ProjectResponse() 
+                {
+                    Name = response.Name,
+                    DeadLine = response.DeadLine,
+                    CreatedBy = response.CreatedBy,
+                    DateOfCreation = response.DateOfCreation,
+                    Description = response.Description,
+                    Id = response.Id,
+                    IsCompleted = response.IsCompleted,
+                    ProjectStatusId = response.ProjectStatusId,  
+                };
+                projects.Add(_project);
+            }
+            return Ok(projects);
+        }
+
         #endregion        
 
         #region PUT

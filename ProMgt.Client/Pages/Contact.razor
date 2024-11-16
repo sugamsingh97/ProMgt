@@ -1,0 +1,78 @@
+﻿@page "/contact"
+@using System.Net.Http.Json
+@using System.Text.Json
+@using ProMgt.Client.Infrastructure.HelperFunctions
+@using ProMgt.Client.Components.ProjectTitleBarLayout
+@using ProMgt.Client.Components.Task
+@inject ThemeService ThemeService
+@inject HttpClient HttpClient
+@inject IDialogService IDialogService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+@inject ProjectService ProjectService
+@attribute [Authorize]
+
+
+<MudAppBar Color="Color.Tertiary" Fixed="false" class="pt-4 py-1" Dense="true" Elevation="0">
+    <MudGrid Justify="Justify.Center">
+        <MudItem xs="12" md="5">
+            <SearchBar />
+        </MudItem>
+    </MudGrid>
+</MudAppBar>
+<MudGrid Justify="Justify.Center">
+    <MudItem xs="12" md="8">
+        <MudSimpleTable Hover="true" Elevation="0" Bordered="false" Style="overflow-x: auto;" Class="custom-table by-1">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in contactList)
+                {
+                    <tr>
+                        <td><MudAvatar Size="Size.Small" Color="Color.Primary">@char.ToUpper(c.ContactFirstName[0])</MudAvatar></td>
+                        <td><MudText>@c.ContactFirstName @c.ContactLastName</MudText></td>
+                        <td><MudText>@c.ContactEmail</MudText></td>
+                        <td><MudIconButton Icon="@Icons.Material.TwoTone.Delete" Size="Size.Small" Style="color: #e32d47;" OnClick="()=>DeleteContact(c.Id)" /></td>
+                    </tr>
+                }
+            </tbody>
+        </MudSimpleTable>
+    </MudItem>
+</MudGrid>
+
+@code {
+
+    public List<ContactDisplay> contactList { get; set; } = new();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await GetUserContacts();
+        ProjectService.ContactChanges += GetUserContacts;
+    }
+
+    public async Task GetUserContacts()
+    {
+        contactList = await ProjectService.GetUserContactList();
+        StateHasChanged();
+    }
+
+    public async Task DeleteContact(int _contactId)
+    {
+        bool isDeleted = await  ProjectService.DeleteContact(_contactId);
+
+        if (isDeleted == true)
+        {
+            Snackbar.Add("Contact deleted.", MudBlazor.Severity.Error);
+        }
+        else if (isDeleted == false)
+        {
+            Snackbar.Add("failed to delete contact.", MudBlazor.Severity.Error);
+        }
+    }
+}

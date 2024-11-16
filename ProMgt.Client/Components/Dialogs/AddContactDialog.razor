@@ -1,0 +1,26 @@
+﻿<MudDialog Class="pa-4" Style="border-radius: 24px; width: 500px">
+    <DialogContent>
+        <MudGrid Class="align-center">
+            <MudItem xs="3">
+                <MudAvatar Size="Size.Large" Color="Color.Primary">@User.FirstName[0]</MudAvatar>
+            </MudItem>
+
+            <MudItem xs="9">
+                <MudText>@User.FirstName @User.LastName</MudText>
+                <MudText Typo="Typo.body2">@User.Email</MudText>
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="AddUser">Add</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public UserResponse User { get; set; }
+
+    private void Cancel() => MudDialog.Cancel();
+    private void AddUser() => MudDialog.Close(DialogResult.Ok(User));
+}
