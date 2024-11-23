@@ -113,16 +113,16 @@ namespace ProMgt.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Project>()
-            .HasMany(p => p.ProjectAssignments)
-            .WithOne(pu => pu.Project)
-            .HasForeignKey(pu => pu.ProjectId)
-            .OnDelete(DeleteBehavior.Restrict);
+                .HasMany(p => p.ProjectAssignments)
+                .WithOne(pu => pu.Project)
+                .HasForeignKey(pu => pu.ProjectId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ProjectTask>()
-            .HasMany(p => p.TaskAssignments)
-            .WithOne(ta => ta.ProjectTask)
-            .HasForeignKey(ta => ta.TaskId)
-            .OnDelete(DeleteBehavior.Restrict);
+                .HasMany(p => p.TaskAssignments)
+                .WithOne(ta => ta.ProjectTask)
+                .HasForeignKey(ta => ta.TaskId)
+                .OnDelete(DeleteBehavior.Restrict);
 
         }
     }

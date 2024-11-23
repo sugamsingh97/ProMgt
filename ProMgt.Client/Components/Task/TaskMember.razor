@@ -1,0 +1,211 @@
+﻿@using System.Net.Http.Json
+@using System.Text.Json
+@inject HttpClient HttpClient
+@inject ISnackbar Snackbar
+@inject ProjectService ProjectService
+
+<MudMenu Style="width: 100%;" FullWidth="true" AnchorOrigin="Origin.BottomLeft"  TransformOrigin="Origin.TopLeft">
+    <ActivatorContent>
+        <MudButton Style="width: 100%;justify-content: flex-start; display: flex;" Size="Size.Small">
+            @if (AssignedMember.UserId != "")
+            {
+                @foreach (var member in ProjectMembers)
+                {
+                    if (member.UserId == AssignedMember.UserId)
+                    {@* 
+                        <MudChip T="string" Label="true" Size="Size.Medium">
+                            <AvatarContent>
+                                <MudAvatar Size="Size.Small" Color="Color.Primary">@member.FirstName[0]</MudAvatar>
+                            </AvatarContent>
+                            <ChildContent>@member.FirstName @member.LastName</ChildContent>
+                        </MudChip>
+ *@
+                        <MudButton Style="width: 100%;" Size="Size.Small">
+                            <MudAvatar Class="mx-2" Size="Size.Small" Color="Color.Primary">@member.FirstName[0]</MudAvatar>
+                            <MudText Style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@member.FirstName @member.LastName</MudText>
+                            <MudSpacer />
+                            <MudIconButton Icon="@Icons.Material.Rounded.Close" OnClick="()=>DeleteAssignment(member.UserId)" />
+                        </MudButton>
+                    }
+                }
+                
+            }
+            else {
+            <MudBadge Origin="Origin.BottomRight"
+                      Icon="@Icons.Material.Filled.Add"
+                      Class="my-1"
+                      Overlap="true"
+                      Bordered="false"
+                      Style="padding: 5px;
+                             margin-left: 12px;
+                                            height: 27px;
+                                            width: 27px;
+                                            border: 1px dashed;
+                                            display: flex;
+                                            color: #a5a5a5;
+                                            border-color: #a5a5a5;
+                                            justify-content: center;
+                                            border-radius: 120px;
+                                            align-items: center;">
+                <MudIcon Style="color: #a5a5a5;" Size="Size.Small" Icon="@Icons.Material.Outlined.Person" />
+            </MudBadge>
+            }
+        </MudButton>
+    </ActivatorContent>
+    <ChildContent>
+        @foreach (var pm in ProjectMembers)
+        {
+            <MudMenuItem Onclick="()=>MemberAssignmentHandler(pm.UserId)">
+                <MudChip T="string" Label="true" Size="Size.Small">
+                    <AvatarContent>
+                        <MudAvatar Size="Size.Small" Color="Color.Primary">@pm.FirstName[0]</MudAvatar>
+                    </AvatarContent>
+                    <ChildContent>@pm.FirstName @pm.LastName</ChildContent>
+                </MudChip>
+            </MudMenuItem>
+
+        }
+    </ChildContent>
+</MudMenu>
+@code {
+    [Parameter]
+    public int ProjectId { get; set; }
+    [Parameter]
+    public int TaskId { get; set; }
+    public string errorMessage { get; set; } = string.Empty;
+    public TaskResponse TaskResponse { get; set; } = new();
+    public List<UserResponse> ProjectMembers = new();
+    public UserResponse AssignedMember { get; set; } = new();  
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetTask();
+        await GetProjectMembers();
+        await GetTaskAssignee();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+        await GetTask();       
+        await GetProjectMembers();
+        await GetTaskAssignee();
+
+    }
+
+    public async Task GetTask()
+    {
+        try
+        {
+            var response = await HttpClient.GetFromJsonAsync<TaskResponse>($"api/task/gettask/{TaskId}");
+            TaskResponse = response ?? new TaskResponse();
+
+            StateHasChanged();
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+        }
+        catch (NotSupportedException ex)
+        {
+            Console.WriteLine($"Content type error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON error: {ex.Message}");
+        }
+    }
+
+    public async Task UpdateData()
+    {
+        await GetTask();
+        await GetProjectMembers();
+        await GetTaskAssignee();
+    }
+
+    // get list of ProjectMembers
+    public async Task GetProjectMembers()
+    {
+        ProjectMembers = await ProjectService.GetProjectMembers(ProjectId);
+        StateHasChanged();
+    }
+    // Get TaskMember
+
+    // Assign a task to a member
+    public async Task MemberAssignmentHandler(string asigneeId)
+    {
+        try
+        {
+            TaskAssignmentInputModel taskAssignment = new()
+                {
+                    TaskId = TaskId,
+                    AssigneeId = asigneeId
+                };
+            var response = await HttpClient.PostAsJsonAsync("/api/taskassignment", taskAssignment);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomStart;
+                Snackbar.Add("Task Assigned successfully!");
+                await UpdateData();               
+                await ProjectService.TaskAsigneeIsUpdated();
+                StateHasChanged();
+
+            }
+            else
+            {
+                errorMessage = $"Error: {response.ReasonPhrase}";
+            }
+        }
+        catch (HttpRequestException httpEx)
+        {
+            errorMessage = $"Request error: {httpEx.Message}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An unexpected error occurred: {ex.Message}";
+        }
+    }
+
+    // Check if the task is already assigned
+    public async Task GetTaskAssignee()
+    {
+        try
+        {
+            var response = await HttpClient.GetFromJsonAsync<UserResponse>($"/api/taskassignment/getassignee/{TaskId}");
+            AssignedMember = response ?? new UserResponse();
+            StateHasChanged();
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+            AssignedMember = new UserResponse();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            AssignedMember = new UserResponse();
+            StateHasChanged();
+        }
+    }
+
+    public async Task DeleteAssignment(string asigneeId)
+    {
+        var IsDeleted = await ProjectService.DeleteAssignment(asigneeId);
+        if (IsDeleted)
+        {
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomStart;
+            Snackbar.Add("Assignement Deleted", MudBlazor.Severity.Error);
+            await UpdateData();
+            await ProjectService.TaskAsigneeIsUpdated();
+            StateHasChanged();            
+        }
+        else
+        {
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomStart;
+            Snackbar.Add("Assignement Deletion failed.", MudBlazor.Severity.Error);
+        }
+    }
+
+}

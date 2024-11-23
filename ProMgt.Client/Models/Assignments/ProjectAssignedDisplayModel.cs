@@ -1,4 +1,4 @@
-﻿namespace ProMgt.Client.Models.User
+﻿namespace ProMgt.Client.Models.Assignments
 {
     public class ProjectAssignedDisplayModel
     {

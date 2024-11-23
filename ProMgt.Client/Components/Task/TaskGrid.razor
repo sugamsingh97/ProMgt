@@ -19,9 +19,10 @@ else
             <th>Name</th>
             <th>Description</th>
             <th>Deadline</th>
+            <th>Assignee</th>
             <th>Priority</th>
             <th>Status</th>
-                <th></th>
+            <th></th>
 
         </tr>
     </thead>
@@ -76,6 +77,10 @@ else
                                    UnderLine="false"
                                    DateChanged="@((DateTime? date)=>OnDateChanged(task.Id, date))" />
                 </td>
+                    <td>
+                     <TaskMember ProjectId="ProjectId" TaskId="@task.Id"/>
+
+                    </td>
                 <td>
                    <PriorityDropDown ProjectId="ProjectId" TaskId="@task.Id"/>
                 </td>
@@ -109,39 +114,54 @@ else
             overflow-wrap: break-word;
         }
 
-            .custom-table th:nth-child(1),
+            .custom-table th:nth-child(1), 
             .custom-table td:nth-child(1) {
-                width: 3%;
+                width: 3%; /* Is Completion Status */
                 padding: 4px;
             }
 
             .custom-table th:nth-child(2),
             .custom-table td:nth-child(2) {
-                width: 27%;
+                width: 15%; /* Name */
                 padding: 4px;
             }
 
             .custom-table th:nth-child(3),
             .custom-table td:nth-child(3) {
-                width: 25%;
+                width: 21%; /* Description */
                 padding: 4px;
             }
 
             .custom-table th:nth-child(4),
-            .custom-table td:nth-child(4),
+            .custom-table td:nth-child(4){
+                width: 15%; /* Deadline */
+                padding: 4px;
+            }
+
             .custom-table th:nth-child(5),
-            .custom-table td:nth-child(5),
+            .custom-table td:nth-child(5){
+                width: 20%; /* Asignee */
+                padding: 4px;
+            }
+
             .custom-table th:nth-child(6),
             .custom-table td:nth-child(6) {
-                width: 14.33%;
+                width: 12%; /* Priority */
                 padding: 4px;
             }
 
             .custom-table th:nth-child(7),
             .custom-table td:nth-child(7) {
-                width: 2%;
+                width: 12%; /* Status */
                 padding: 4px;
             }
+
+            .custom-table th:nth-child(8),
+            .custom-table td:nth-child(8) {
+                width: 2%; /* Delete */
+                padding: 4px;
+            }
+
 
     .growing-textname {
         transition: width 0.3s ease;
@@ -193,7 +213,7 @@ else
         ProjectService.TaskInforUpdated += UpdateTaskList;
         ProjectService.TaskFieldUpdated += UpdateTaskList;
         ProjectService.OnTaskDeleted += UpdateTaskList;
-
+        ProjectService.OnTaskAssignementChanged += UpdateTaskList;
     }
 
     #region Fetching methods
@@ -479,8 +499,6 @@ else
 
     #endregion
 
-
-
     private async Task OnMouseEnter(int _contentId)
     {
         _hoveringContent = _contentId;
@@ -543,3 +561,4 @@ else
     }
     #endregion
 }
+

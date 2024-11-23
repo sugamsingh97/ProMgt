@@ -149,6 +149,57 @@ namespace ProMgt.Controllers
             }
         }
 
+        //Get all the assigned task
+        [Authorize]
+        [HttpGet("assignedtask/{projectId}")]
+        public async Task<ActionResult<List<TaskResponse>>> GetAssignedTask(int projectId)
+        {
+            var user = await _userAccessor.GetRequiredUserAsync(HttpContext);
+            try
+            {
+                // tasks by project Id
+                var projectTasks = await _db.ProjectTasks
+                    .Where(t => t.ProjectId == projectId)
+                    .Include(t => t.Project)
+                    .Include(t => t.TaskStatus)
+                    .Include(t => t.TaskStatus.Color)
+                    .Include(t => t.Priority)
+                    .Include(t => t.Priority.Color)
+                    .Include(t => t.Section)
+                    .ToListAsync();
+
+                // tasks assignment by logged in user
+                var taskAssignments = await _db.TasksAssignments
+                    .Where(t => t.AssigneeId == user.Id).ToListAsync();
+
+                // new list of tasks which is gonna be populated with only the tasks assigned to 
+                List<ProjectTask> tasks = new();
+
+                // for each task assignment we are finding the task in the projectTasks list and adding it to the tasks list.
+                foreach (var ts in taskAssignments)
+                {
+                    foreach (var task in projectTasks)
+                    {
+                        if (ts.TaskId == task.Id)
+                        {
+                            tasks.Add(task);
+                        }
+                    }
+                }
+
+                if (tasks == null || !tasks.Any())
+                {
+                    return NotFound($"No tasks found for project with ID {projectId}.");
+                }
+
+                return Ok(ConvertToTaskResponse(tasks));
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An error occurred while retrieving tasks for the project.");
+            }
+        }
+
         [Authorize]
         [HttpGet("tasksection/{sectionId}")]
         public async Task<ActionResult<List<TaskResponse>>> GetTaskBySection(int sectionId)
@@ -220,6 +271,7 @@ namespace ProMgt.Controllers
         [HttpPatch("{id}/status")]
         public async Task<ActionResult> PatchStatus(int id, [FromBody] bool status)
         {
+            // only allow either the creater of the task or the asignee of the task
             try
             {
                 var task = await _db.ProjectTasks.FindAsync(id);

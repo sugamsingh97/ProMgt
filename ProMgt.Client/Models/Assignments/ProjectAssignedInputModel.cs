@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ProMgt.Client.Models.User
+namespace ProMgt.Client.Models.Assignments
 {
     public class ProjectAssignedInputModel
     {
@@ -9,6 +9,6 @@ namespace ProMgt.Client.Models.User
         public string? AssigneeId { get; set; }   // Id of the user to be assigned to a project
 
         [Required]
-        public int ProjectId { get; set; }       
+        public int ProjectId { get; set; }
     }
 }

@@ -1,10 +1,50 @@
 ﻿@page "/assigned-project/{ProjectId:int}"
+@using System.Net.Http.Json
+@using System.Text.Json
+@inject HttpClient HttpClient
+@inject ISnackbar Snackbar
+@inject ProjectService ProjectService
 
-<h3>@ProjectId</h3>
-<h3>AssignedProject</h3>
+<MudTabs ApplyEffectsToContainer="true" PanelClass="pa-2">
+    <MudTabPanel Text="Overview" Icon="@Icons.Material.Rounded.ContentPaste">
+        <MudDivider DividerType="DividerType.Middle" Class="mx-0" />    
+        <AssignedTaskOverview ProjectId="ProjectId"/>
+    </MudTabPanel>
+    <MudTabPanel Text="List" Icon="@Icons.Material.Rounded.ListAlt">
+        <MudDivider DividerType="DividerType.Middle" Class="mx-0" />   
+        <AssignedTaskList />
+    </MudTabPanel>   
+</MudTabs>
 
 
 @code {
     [Parameter]
     public int ProjectId { get; set; }
+    public List<TaskResponse> TaskResponses { get; set; } = new();
+    protected async override Task OnInitializedAsync()
+    {
+        await GetTasks();
+    }
+    public async Task GetTasks()
+    {
+        try
+        { 
+            var response = await HttpClient.GetFromJsonAsync<List<TaskResponse>>($"api/task/assignedtask/{ProjectId}");
+            TaskResponses = (response ?? new List<TaskResponse>())
+                .OrderByDescending(t => t.DateOfCreation)
+                .ToList(); 
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+        }
+        catch (NotSupportedException ex)
+        {
+            Console.WriteLine($"Content type error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON error: {ex.Message}");
+        }
+    }
 }

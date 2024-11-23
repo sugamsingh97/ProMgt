@@ -68,10 +68,12 @@
 
         if (isDeleted == true)
         {
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomStart;
             Snackbar.Add("Contact deleted.", MudBlazor.Severity.Error);
         }
         else if (isDeleted == false)
         {
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomStart;
             Snackbar.Add("failed to delete contact.", MudBlazor.Severity.Error);
         }
     }

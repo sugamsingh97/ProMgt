@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using CsvHelper.TypeConversion;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
 using ProMgt.Client.Components.Dialogs;
+using ProMgt.Client.Models.Assignments;
 using ProMgt.Client.Models.Project;
 using ProMgt.Client.Models.Section;
 using ProMgt.Client.Models.Task;
 using ProMgt.Client.Models.User;
 using System;
+using System.ComponentModel;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -385,6 +388,18 @@ namespace ProMgt.Client.Infrastructure.Settings
                 return false;
 
         }
+
+        // This invokes an event when task asignee is updated.
+
+        public event Func<Task> OnTaskAssignementChanged;
+
+        public async Task TaskAsigneeIsUpdated()
+        {
+            if (OnTaskAssignementChanged != null)
+            {
+                await OnTaskAssignementChanged.Invoke();
+            }
+        }
         #endregion
 
         #region Section
@@ -548,6 +563,10 @@ namespace ProMgt.Client.Infrastructure.Settings
         #region MemberAssignments
         public event Func<Task> OnNewMemberAdded;
 
+        /// <summary>
+        /// This assignes member to a project
+        /// </summary>
+        /// <param name="ProjectId"></param>
         public async void AddMember(int ProjectId)
         {
             errorMessage = string.Empty;
@@ -600,6 +619,11 @@ namespace ProMgt.Client.Infrastructure.Settings
             }          
         }
 
+        /// <summary>
+        /// This Gets users for a perticular project
+        /// </summary>
+        /// <param name="ProjectId"></param>
+        /// <returns></returns>
         public async Task<List<UserResponse>> GetProjectMembers(int ProjectId)
         {
             List<UserResponse> Members = new();
@@ -622,6 +646,34 @@ namespace ProMgt.Client.Infrastructure.Settings
             }
 
             return Members;
+        }
+
+        public async Task<bool> DeleteAssignment(string _asigneeId)
+        {
+            try
+            {
+                //var response = await _httpClient.DeleteAsync($"/api/taskassignment/{_asigneeId}");
+
+                var response = await _httpClient.DeleteAsync($"api/taskassignment/asignee/{_asigneeId}");
+
+                if (response.StatusCode == HttpStatusCode.NoContent)
+                {                    
+                    return true;
+                }
+                else
+                    return false;
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Request error: {ex.Message}");
+                return false;
+            }
+            catch (NotSupportedException ex)
+            {
+                Console.WriteLine($"Content type error: {ex.Message}");
+                return false;
+
+            }
         }
 
         #endregion

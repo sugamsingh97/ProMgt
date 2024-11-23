@@ -13,7 +13,46 @@
 else
 {
     <MudContainer>
-        <MudGrid Justify="Justify.Center" Class="d-flex mb-8" style="max-width: 1200px;justify-self: center;">
+        <MudGrid Justify="Justify.Center" Class="d-flex mt-4 mb-8" style="max-width: 1200px;justify-self: center;">
+            <MudItem xs="12" md="4">
+                <MudPaper Outlined="true" Class="mud-width-full pa-8 rounded-xl" Style="min-height: 475px;">
+                    <MudGrid spacing="2">
+                        <MudItem Class="d-flex align-center" xs="2">
+                            <MudText Style="font-weight: 400" Typo="Typo.body2">Name</MudText>
+                        </MudItem>
+                        <MudItem Class="d-flex align-center" xs="5">
+                            <MudText Style="font-weight: 600" Typo="Typo.body1" Class="pl-1">@Project?.Name</MudText>
+                        </MudItem>                        
+                        @if (Project?.ProjectStatusId >= 1 && Project.ProjectStatusId <= 5)
+                        {                            
+                            <MudItem xs="5">
+                                @foreach (var status in ProjectStatuses)
+                                {
+
+                                    if (status.Id == Project.ProjectStatusId)
+                                    {
+                                        <MudChip Size="Size.Small"
+                                                 Icon="@Icons.Material.Filled.Circle"
+                                                 IconColor="Color.Default"
+                                                 Color="Color.Default"
+                                                 T="string"
+                                                 Variant="Variant.Text"
+                                                 Style="@($"--mud-palette-default: {status.HexCode}; --text-color: {status.HexCode}; --bg-color: {GetBackgroundColor(status.HexCode)}; background-color: var(--bg-color); color: var(--text-color);")">
+                                            @status.Name
+                                        </MudChip>
+                                    }
+                                }
+                            </MudItem>
+                        }
+                        <MudItem xs="2">
+                            <MudText Style="font-weight: 400" Typo="Typo.body2">Due on</MudText>
+                        </MudItem>
+                        <MudItem xs="8">
+                            <MudText Style="font-weight: 400" Typo="Typo.body2" Class="pl-1">@Project?.DeadLine?.ToString("dd MMM yyyy")</MudText>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            </MudItem>
             <MudItem xs="12" md="8">
                 <MudPaper Elevation="0" Outlined="true" Class="rounded-xl pa-8">
                     <MudTextField @bind-Value="Project.Description"
@@ -21,49 +60,16 @@ else
                                   Lines="20"
                                   Label="Description"
                                   Class="rounded-xl"
-                                  @onclick="() => _isClicked = true"
-                                  OnBlur="() => UpdateDescription(Project.Description)"
+                                  Disabled="true"
                                   Underline="@_isClicked">
                     </MudTextField>
                 </MudPaper>
+            </MudItem>
 
-            </MudItem>
-            <MudItem xs="12" md="4">
-                <MudPaper Outlined="true" Class="mud-width-full rounded-xl" Style="min-height: 475px;">
-                    <MudItem Class="chart-title pl-8 pt-4 pr-8 pb-2 d-flex flex-row align-center">
-                        <MudText>Members</MudText>
-                        <MudSpacer />
-                        <MudTooltip Text="Add Members" Arrow="true" Delay="600">
-                            <MudIconButton OnClick="AddNewMember" Icon="@Icons.Material.Rounded.Add" Size="Size.Medium" />
-                        </MudTooltip>
-                    </MudItem>
-                    <MudDivider />
-                    <MudGrid Class="pa-8">
-                        <MudItem xs="12" Style="overflow-y: auto; max-height: 360px">
-                            <MudList T="string">
-                                @foreach (var member in members)
-                                {
-                                    <MudItem Class="d-flex align-center py-1">
-                                        <MudAvatar Size="Size.Small" Color="@GetRandomColor()"
-                                                   Variant="@GetRandomVariant()">
-                                            @member.FirstName[0]
-                                        </MudAvatar>
-                                        <MudText Style="font-weight: lighter;" Class="px-4" >@member.FirstName @member.LastName</MudText>
-                                    </MudItem>
-                                }
-                            </MudList>
-                        </MudItem>
-                    </MudGrid>
-                </MudPaper>
-            </MudItem>
             <MudItem xs="12" md="6">
                 <MudPaper Outlined="true" Class="mud-width-full rounded-xl" Style="min-height: 474px">
                     <MudItem Class="chart-title pl-8 pt-4 pr-8 pb-2 d-flex flex-row align-center">
                         <MudText>Tasks</MudText>
-                        <MudSpacer />
-                        <MudTooltip Text="Add Task" Arrow="true" Delay="600">
-                            <MudIconButton OnClick="AddTaskHandler" Icon="@Icons.Material.Rounded.Add" Size="Size.Medium" />
-                        </MudTooltip>
                     </MudItem>
                     <MudDivider />
                     <MudGrid Class="pa-8">
@@ -71,12 +77,13 @@ else
                             <MudList T="string">
                                 @foreach (var task in TaskResponses.Skip(TaskResponses.Count / 2))
                                 {
-                                    <MudListItem Style="padding-left: 0; padding-right:0;" OnClick="() => TaskClickHandler(task.Id)">
+                                    <MudListItem Style="padding-left: 0; padding-right:0;">
                                         <MudItem Class="d-flex align-center">
                                             <MudTooltip Text="@(task.IsCompleted ? "Mark task incomplete" : "Mark task complete")" Placement="Placement.End" Delay="600" Arrow="true">
                                                 <MudCheckBox @bind-Value="task.IsCompleted"
                                                              Color="@(task.IsCompleted ? Color.Primary : Color.Default)"
-                                                             Disabled="true"
+                                                             @onclick="()=>UpdateTaskCompletion(task.Id, task.IsCompleted)"
+                                                             Disabled="false"
                                                              CheckedIcon="@Icons.Material.Filled.CheckCircle"
                                                              UncheckedIcon="@Icons.Material.Filled.CheckCircleOutline">
                                                 </MudCheckBox>
@@ -92,12 +99,13 @@ else
                             <MudList T="string">
                                 @foreach (var task in TaskResponses.Take(TaskResponses.Count / 2))
                                 {
-                                    <MudListItem Style="padding-left: 0; padding-right:0;" OnClick="() => TaskClickHandler(task.Id)">
+                                    <MudListItem Style="padding-left: 0; padding-right:0;">
                                         <MudItem Class="d-flex align-center">
                                             <MudTooltip Text="@(task.IsCompleted ? "Mark task incomplete" : "Mark task complete")" Placement="Placement.End" Delay="600" Arrow="true">
                                                 <MudCheckBox @bind-Value="task.IsCompleted"
                                                              Color="@(task.IsCompleted ? Color.Primary : Color.Default)"
-                                                             Disabled="true"
+                                                             @onclick="()=>UpdateTaskCompletion(task.Id, task.IsCompleted)"
+                                                             Disabled="false"
                                                              CheckedIcon="@Icons.Material.Filled.CheckCircle"
                                                              UncheckedIcon="@Icons.Material.Filled.CheckCircleOutline">
                                                 </MudCheckBox>
@@ -137,20 +145,21 @@ else
     private Color[] colors = { Color.Info, Color.Success, Color.Warning };
     private Variant[] variants = { Variant.Outlined, Variant.Filled };
     private Random random = new Random();
-
+    public List<ProjectStatusResponse> ProjectStatuses { get; set; } = new();
     private Color GetRandomColor() => colors[random.Next(colors.Length)];
     private Variant GetRandomVariant() => variants[random.Next(variants.Length)];
 
     public bool IsDataLoaded { get; set; } = false;
     private bool firstRender = true;
     private bool _isClicked { get; set; } = false;
+
     [Parameter]
     public int ProjectId { get; set; }
 
     public string? Description { get; set; } = string.Empty;
     public List<TaskResponse>? TaskResponses { get; set; } = new();
     public ProjectResponse? Project { get; set; } = new();
-    public List<UserResponse> members = new();
+
 
     public PieData TaskStat { get; set; } = new();
 
@@ -184,43 +193,9 @@ else
     public async Task GetData()
     {
         await GetProject();
-        await GetTasks();
-        await UpdateProjectChart();
-        await GetMembers();
+        await GetTasks();        
+        await GetProjectStatuses();          
         StateHasChanged();
-    }
-
-
-    public async Task UpdateDescription(string _description)
-    {
-        _isClicked = false;
-        try
-        {
-            var response = await HttpClient.PatchAsync($"api/project/{ProjectId}/description", new StringContent(JsonSerializer.Serialize(_description), System.Text.Encoding.UTF8, "application/json"));
-
-            if (response.IsSuccessStatusCode)
-            {
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomStart;
-                Snackbar.Add("Project description updated successfully", MudBlazor.Severity.Success);
-                await ProjectService.TriggerProjectNameUpdated(); // Trigger the event
-            }
-            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomStart;
-                Snackbar.Add("Project not found", MudBlazor.Severity.Error);
-            }
-            else
-            {
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomStart;
-                Snackbar.Add("An error occurred while updating the project name", MudBlazor.Severity.Error);
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error updating project name: {ex.Message}");
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomStart;
-            Snackbar.Add("An error occurred while updating the project name", MudBlazor.Severity.Error);
-        }
     }
 
     public async Task GetProject()
@@ -250,14 +225,13 @@ else
     {
         try
         {
-
-            var response = await HttpClient.GetFromJsonAsync<List<TaskResponse>>($"api/task/projecttask/{ProjectId}");
+            var response = await HttpClient.GetFromJsonAsync<List<TaskResponse>>($"api/task/assignedtask/{ProjectId}");
             TaskResponses = (response ?? new List<TaskResponse>())
                 .OrderByDescending(t => t.DateOfCreation)
                 .ToList();
+            TaskStat = new PieData(); 
+            TaskData = Array.Empty<double>();
             await GetTaskStat(TaskResponses);
-            //ProjectService.OnFieldChanges += UpdateFields;
-
         }
         catch (HttpRequestException ex)
         {
@@ -275,8 +249,6 @@ else
 
     public async Task GetTaskStat(List<TaskResponse> TaskResponses)
     {
-
-
         TaskStat.Total += TaskResponses.Count;
         foreach (var task in TaskResponses)
         {
@@ -289,30 +261,17 @@ else
                 TaskStat.InComplete += 1;
             }
         }
+        await UpdateProjectChart(TaskStat);
 
     }
 
-    private async Task UpdateProjectChart()
+    private async Task UpdateProjectChart(PieData TaskStat)
     {
 
         var completedProjects = TaskStat.Complete;
         var notCompletedProjects = TaskStat.InComplete;
 
         TaskData = new double[] { completedProjects, notCompletedProjects };
-    }
-
-    private void TaskClickHandler(int taskId)
-    {
-        ProjectService.OpenTaskInfoDrawer(ProjectId, taskId);
-        //PassTaskToDrawer();
-        Console.WriteLine(ProjectId);
-        Console.WriteLine(taskId);
-
-    }
-
-    public void AddTaskHandler()
-    {
-        ProjectService.CreateNewTask(ProjectId);
     }
 
     public class PieData
@@ -322,13 +281,75 @@ else
         public int InComplete { get; set; } = 0;
     }
 
-    public void AddNewMember()
+
+    public async Task GetProjectStatuses()
     {
-        ProjectService.AddMember(ProjectId);
+        try
+        {
+            var response = await HttpClient.GetFromJsonAsync<List<ProjectStatusResponse>>("api/project/getprojectstatuses");
+            ProjectStatuses = (response ?? new List<ProjectStatusResponse>())
+                            .ToList();
+
+            StateHasChanged();
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+        }
+        catch (NotSupportedException ex)
+        {
+            Console.WriteLine($"Content type error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON error: {ex.Message}");
+        }
     }
 
-    public async Task GetMembers()
+    private string GetBackgroundColor(string hexColor)
     {
-        members = await ProjectService.GetProjectMembers(ProjectId);
+        if (string.IsNullOrEmpty(hexColor) || !hexColor.StartsWith("#") || hexColor.Length != 7)
+        {
+            return "rgba(0, 0, 0, 0.2)"; // Default color if invalid hex
+        }
+
+        int r = Convert.ToInt32(hexColor.Substring(1, 2), 16);
+        int g = Convert.ToInt32(hexColor.Substring(3, 2), 16);
+        int b = Convert.ToInt32(hexColor.Substring(5, 2), 16);
+
+        return $"rgba({r}, {g}, {b}, 0.2)";
+    }
+
+    public async Task UpdateTaskCompletion(int _taskId, bool _isCompleted)
+    {
+        bool _newCompletionStatus = !_isCompleted;
+
+        try
+        {
+            var response = await HttpClient.PatchAsync($"api/task/{_taskId}/status", new StringContent(JsonSerializer.Serialize(_newCompletionStatus), System.Text.Encoding.UTF8, "application/json"));
+
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomStart;
+                Snackbar.Add("Task status updated successfully", MudBlazor.Severity.Success);
+                await GetData(); // Trigger the event
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomStart;
+                Snackbar.Add("Task not found", MudBlazor.Severity.Error);
+            }
+            else
+            {
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomStart;
+                Snackbar.Add("An error occurred while updating the Task status", MudBlazor.Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating Task name: {ex.Message}");
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomStart;
+            Snackbar.Add("An error occurred while updating the project name", MudBlazor.Severity.Error);
+        }
     }
 }

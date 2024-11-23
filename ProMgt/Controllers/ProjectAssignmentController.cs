@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ProMgt.Client.Models.Assignments;
 using ProMgt.Client.Models.Project;
 using ProMgt.Client.Models.Task;
 using ProMgt.Client.Models.User;
@@ -9,7 +10,6 @@ using ProMgt.Components.Account;
 using ProMgt.Data;
 using ProMgt.Data.Model;
 using System.Linq;
-using static ProMgt.Client.Components.Dialogs.CreateProjectDialog;
 
 namespace ProMgt.Controllers
 {
@@ -155,5 +155,28 @@ namespace ProMgt.Controllers
            
         }
 
+        [Authorize]
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteAssignment(int Id)
+        {
+            try
+            {
+                var projectAssignment = await _db.ProjectAssignments.FindAsync(Id);
+                if (projectAssignment == null)
+                {
+                    return NotFound(new { message = "Project assignment not found" });
+                }
+
+                _db.ProjectAssignments.Remove(projectAssignment);
+                await _db.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while deleting the assignment" + ex.Message });
+            }
+
+        }
     }
 }
