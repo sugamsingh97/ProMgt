@@ -74,6 +74,12 @@ ProMgt is a powerful project management web application built with ASP.NET Core 
 - Immediate reflection of changes across views
 - Seamless user experience
 
+### 👥 Team Management
+- Search and add users to your team
+- Assign team members to projects
+- Task assignment to team members
+- Team members can mark task completion
+
 ## 🎨 UI/UX Features
 - Clean and modern interface
 - Dark/Light mode toggle
