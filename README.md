@@ -32,7 +32,7 @@ ProMgt is a powerful project management web application built with ASP.NET Core 
 - Flexible Task Status definitions
 - Easy field management through right-side drawer
 
-![ProMgt](Custom_fields.PNG)
+![ProMgt](Custom_fields.png)
 *Adding a New Field: Demonstrates the user interaction for adding a new field, triggered by a button click and a pop-up.*
 
 ### Multiple Views
@@ -86,7 +86,7 @@ ProMgt is a powerful project management web application built with ASP.NET Core 
 - Development teams
 - Organizations seeking efficient project management
 - Individual users managing personal projects
-![ProMgt](Contact.PNG)
+![ProMgt](Contact.jpg)
 *User Search and Contact Addition: The top image showcases a search bar with a dropdown suggestion for finding registered users. The bottom image displays the contact card of a user with an option to add them.*
 
 ## 🔄 Live Updates
