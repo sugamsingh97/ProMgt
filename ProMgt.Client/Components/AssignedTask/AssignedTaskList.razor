@@ -1,5 +1,187 @@
-﻿<h3>TaskList</h3>
+﻿@using System.Net.Http.Json
+@using System.Text.Json
+@inject HttpClient HttpClient
+@inject ISnackbar Snackbar
+@inject ProjectService ProjectService
+@inject IDialogService IDialogService
+@inject IJSRuntime JSRuntime
+
+<MudGrid Justify="Justify.Center">
+    <MudItem xs="8">
+        @if (!IsDataLoaded)
+        {
+            <TaskBoardSkeleton />
+        }
+        else
+        {
+            <MudGrid Class="d-flex flex-row ">
+                @foreach (var task in TaskResponses)
+                {
+                    <MudItem xs="6" lg="4">
+                        <MudPaper Elevation="@(task.IsCompleted ? 2 : 0)" style="@(task.IsCompleted ? $"border: 2px solid #37c95a; background: #77db8f36;" : "")" Outlined="true" Class="pa-4 rounded-xl d-flex flex-column my-3 task-item">
+                            <MudItem Class="d-flex flex-row justify-space-between align-center">
+                                @* <MudText Style="font-size: larger; font-weight: 300;" Typo="Typo.h5">@context.Name</MudText> *@
+                                <MudText>@task.Name</MudText>
+
+                                <MudTooltip Text="@(task.IsCompleted ? "Mark task incomplete" : "Mark task complete")" Placement="Placement.Top" Delay="600" Arrow="true">
+                                    <MudCheckBox @bind-Value="task.IsCompleted"
+                                                 @onclick="()=>UpdateTaskCompletion(task.Id, task.IsCompleted)"
+                                                 Color="@(task.IsCompleted ? Color.Primary : Color.Default)"
+                                                 CheckedIcon="@Icons.Material.Filled.CheckCircle"
+                                                 UncheckedIcon="@Icons.Material.Filled.CheckCircleOutline"></MudCheckBox>
+                                </MudTooltip>
+                            </MudItem>
+                            <MudItem Class="d-flex flex-row flex-wrap my-4">
+                                @if (task.PriorityId > 0)
+                                {
+                                    <MudChip Size="Size.Small"
+                                             Icon="@Icons.Material.Filled.Circle"
+                                             IconColor="Color.Default"
+                                             Color="Color.Default"
+                                             T="string"
+                                             Variant="Variant.Text"
+                                             Style="@($"--mud-palette-default: {task.PriorityHexcode}; --text-color: {task.PriorityHexcode}; --bg-color: {GetBackgroundColor(task.PriorityHexcode)}; background-color: var(--bg-color); color: var(--text-color);")">
+                                        @task.PriorityName.ToUpper()
+                                    </MudChip>
+                                }
+                                @if (task.TaskStatusId > 0)
+                                {
+                                    <MudChip Size="Size.Small"
+                                             Icon="@Icons.Material.Filled.Circle"
+                                             IconColor="Color.Default"
+                                             Color="Color.Default"
+                                             T="string"
+                                             Variant="Variant.Text"
+                                             Style="@($"--mud-palette-default: {task.TaskStatusHexcode}; --text-color: {task.TaskStatusHexcode}; --bg-color: {GetBackgroundColor(task.TaskStatusHexcode)}; background-color: var(--bg-color); color: var(--text-color);")">
+                                        @task.TaskStatusName.ToUpper()
+                                    </MudChip>
+                                }
+                            </MudItem>
+                            <MudText Style="font-weight: 100;" Typo="Typo.overline">@task.DeadLine?.ToString("dd MMM yyyy")</MudText>
+                        </MudPaper>
+                    </MudItem>
+                }
+            </MudGrid>
+
+
+        }
+    </MudItem>
+</MudGrid>
+
 
 @code {
 
+
+
+    public bool IsDataLoaded { get; set; } = false;
+    private bool firstRender = true;
+
+
+    public ProjectResponse? Project { get; set; } = new();
+    public string? Description { get; set; } = string.Empty;
+
+    [Parameter]
+    public int ProjectId { get; set; }
+    public List<TaskResponse>? TaskResponses { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        // Only initialize basic properties here
+        IsDataLoaded = false;
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        ProjectService.OnTaskDeleted += GetData;
+        ProjectService.OnNewTaskAddedChanged += GetData;
+        ProjectService.OnNewMemberAdded += GetData;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetData();
+            IsDataLoaded = true;
+            StateHasChanged();
+        }
+    }
+
+    public async Task GetData()
+    {
+        await GetTasks();
+        StateHasChanged();
+    }
+
+
+
+    public async Task GetTasks()
+    {
+        try
+        {
+            var response = await HttpClient.GetFromJsonAsync<List<TaskResponse>>($"api/task/assignedtask/{ProjectId}");
+            TaskResponses = (response ?? new List<TaskResponse>())
+                .OrderByDescending(t => t.DateOfCreation)
+                .ToList();
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+        }
+        catch (NotSupportedException ex)
+        {
+            Console.WriteLine($"Content type error: {ex.Message}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON error: {ex.Message}");
+        }
+    }
+
+    private string GetBackgroundColor(string hexColor)
+    {
+        if (string.IsNullOrEmpty(hexColor) || !hexColor.StartsWith("#") || hexColor.Length != 7)
+        {
+            return "rgba(0, 0, 0, 0.2)"; // Default color if invalid hex
+        }
+
+        int r = Convert.ToInt32(hexColor.Substring(1, 2), 16);
+        int g = Convert.ToInt32(hexColor.Substring(3, 2), 16);
+        int b = Convert.ToInt32(hexColor.Substring(5, 2), 16);
+
+        return $"rgba({r}, {g}, {b}, 0.2)";
+    }
+
+    public async Task UpdateTaskCompletion(int _taskId, bool _isCompleted)
+    {
+        bool _newCompletionStatus = !_isCompleted;
+
+        try
+        {
+            var response = await HttpClient.PatchAsync($"api/task/{_taskId}/status", new StringContent(JsonSerializer.Serialize(_newCompletionStatus), System.Text.Encoding.UTF8, "application/json"));
+
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomStart;
+                Snackbar.Add("Task status updated successfully", MudBlazor.Severity.Success);
+                await GetData(); // Trigger the event
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomStart;
+                Snackbar.Add("Task not found", MudBlazor.Severity.Error);
+            }
+            else
+            {
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomStart;
+                Snackbar.Add("An error occurred while updating the Task status", MudBlazor.Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating Task name: {ex.Message}");
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomStart;
+            Snackbar.Add("An error occurred while updating the project name", MudBlazor.Severity.Error);
+        }
+    }
 }

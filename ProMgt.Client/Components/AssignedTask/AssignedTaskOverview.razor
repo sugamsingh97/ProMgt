@@ -28,7 +28,6 @@ else
                             <MudItem xs="5">
                                 @foreach (var status in ProjectStatuses)
                                 {
-
                                     if (status.Id == Project.ProjectStatusId)
                                     {
                                         <MudChip Size="Size.Small"
@@ -155,10 +154,10 @@ else
 
     [Parameter]
     public int ProjectId { get; set; }
-
+    public ProjectResponse? Project { get; set; } = new();
     public string? Description { get; set; } = string.Empty;
     public List<TaskResponse>? TaskResponses { get; set; } = new();
-    public ProjectResponse? Project { get; set; } = new();
+    
 
 
     public PieData TaskStat { get; set; } = new();
